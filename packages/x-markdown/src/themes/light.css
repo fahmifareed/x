@@ -17,6 +17,7 @@
   color: var(--text-color);
   word-wrap: break-word;
   user-select: text;
+  line-height: 1.5714285714285714;
 }
 
 .x-markdown-light h1,
@@ -164,26 +165,24 @@
   background-color: var(--cite-hover-bg);
 }
 
-.x-markdown-light code,
-.x-markdown-light pre {
-  font-size: 14px;
-}
-
-.x-markdown-light pre code {
-  border-radius: var(--border-radius-middle);
+.x-markdown-light pre code:not([class$="-highlightCode-code"] pre code) {
   display: block;
   background: var(--light-bg) !important;
   padding: 16px;
-  color: var(--text-color);
+  font-size: 14px;
+  color: var(--text-color) !important;
   line-height: 24px;
+  border-radius: var(--border-radius-middle);
   margin-bottom: 16px;
 }
 
-.x-markdown-light code:not(pre code) {
+.x-markdown-light code:not([class$="-highlightCode-code"] code):not(pre code) {
   background-color: var(--light-bg) !important;
+  color: var(--text-color) !important;
   border-radius: var(--border-radius-small);
-  padding: 4px 8px;
+  padding: 2px 6px;
   font-size: 14px;
+  margin-inline: 3px;
   border: 1px solid var(--border-color);
 }
 

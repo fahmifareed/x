@@ -9,14 +9,13 @@ import {
   GlobalOutlined,
   HeartOutlined,
   PaperClipOutlined,
-  PlusOutlined,
   ProductOutlined,
   QuestionCircleOutlined,
   ScheduleOutlined,
   ShareAltOutlined,
   SmileOutlined,
 } from '@ant-design/icons';
-import type { BubbleListProps, ThoughtChainItemProp } from '@ant-design/x';
+import type { BubbleListProps, ThoughtChainItemProps } from '@ant-design/x';
 import {
   Actions,
   Attachments,
@@ -27,21 +26,29 @@ import {
   Think,
   ThoughtChain,
   Welcome,
+  XProvider,
 } from '@ant-design/x';
+import enUS_X from '@ant-design/x/locale/en_US';
+import zhCN_X from '@ant-design/x/locale/zh_CN';
 import XMarkdown from '@ant-design/x-markdown';
+import type { DefaultMessageInfo } from '@ant-design/x-sdk';
 import {
   DeepSeekChatProvider,
   SSEFields,
   useXChat,
   useXConversations,
+  XModelMessage,
   XModelParams,
   XModelResponse,
   XRequest,
 } from '@ant-design/x-sdk';
 import { Avatar, Button, Flex, type GetProp, message, Pagination, Space } from 'antd';
+import enUS_antd from 'antd/locale/en_US';
+import zhCN_antd from 'antd/locale/zh_CN';
 import { createStyles } from 'antd-style';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
+import { useMarkdownTheme } from '../x-markdown/demo/_utils';
 
 const zhCN = {
   whatIsAntDesignX: '什么是 Ant Design X？',
@@ -65,7 +72,6 @@ const zhCN = {
   requestIsAborted: '请求已中止',
   requestFailedPleaseTryAgain: '请求失败，请重试！',
   requestIsInProgress: '请求正在进行中，请等待请求完成。',
-  messageIsRequesting: '消息正在请求中，您可以在请求完成后创建新对话或立即中止...',
   rename: '重命名',
   delete: '删除',
   uploadFile: '上传文件',
@@ -73,18 +79,20 @@ const zhCN = {
   uploadFiles: '上传文件',
   clickOrDragFilesToUpload: '点击或将文件拖到此处上传',
   askOrInputUseSkills: '提问或输入 / 使用技能',
-  'AI understands user needs and provides solutions.': 'AI理解用户需求并提供解决方案',
-  "AI's public persona and image": 'AI的公众形象',
-  'How AI Can Express Itself in a Way Users Understand': 'AI如何以用户理解的方式表达自己',
-  'AI balances "chat" & "do" behaviors.': 'AI平衡"聊天"和"执行"行为',
-  'New Conversation': '新会话',
-  'Deep thinking': '深度思考中',
-  'Complete thinking': '深度思考完成',
+  aiUnderstandsUserNeedsAndProvidesSolutions: 'AI理解用户需求并提供解决方案',
+  AIPublicPersonAndImage: 'AI的公众形象',
+  HowAICanExpressItselfWayUsersUnderstand: 'AI如何以用户理解的方式表达自己',
+  AIBalances: 'AI平衡"聊天"和"执行"行为',
+  DeepThinking: '深度思考中',
+  CompleteThinking: '深度思考完成',
   modelIsRunning: '正在调用模型',
   modelExecutionCompleted: '大模型执行完成',
   executionFailed: '执行失败',
   aborted: '已经终止',
   noData: '暂无数据',
+  NewConversation: '新对话',
+  curConversation: '当前对话',
+  nowNenConversation: '当前已经是新会话',
 };
 
 const enUS = {
@@ -109,8 +117,6 @@ const enUS = {
   requestIsAborted: 'Request is aborted',
   requestFailedPleaseTryAgain: 'Request failed, please try again!',
   requestIsInProgress: 'Request is in progress, please wait for the request to complete.',
-  messageIsRequesting:
-    'Message is Requesting, you can create a new conversation after request done or abort it right now...',
   rename: 'Rename',
   delete: 'Delete',
   uploadFile: 'Upload File',
@@ -118,20 +124,20 @@ const enUS = {
   uploadFiles: 'Upload files',
   clickOrDragFilesToUpload: 'Click or drag files to this area to upload',
   askOrInputUseSkills: 'Ask or input / use skills',
-  'AI understands user needs and provides solutions.':
-    'AI understands user needs and provides solutions.',
-  "AI's public persona and image": "AI's public persona and image",
-  'How AI Can Express Itself in a Way Users Understand':
-    'How AI Can Express Itself in a Way Users Understand',
-  'AI balances "chat" & "do" behaviors.': 'AI balances "chat" & "do" behaviors.',
-  'New Conversation': 'New Conversation',
-  'Deep thinking': 'Deep Thinking',
-  'Complete thinking': 'Complete Thinking',
+  aiUnderstandsUserNeedsAndProvidesSolutions: 'AI understands user needs and provides solutions.',
+  AIPublicPersonAndImage: "AI's public persona and image",
+  HowAICanExpressItselfWayUsersUnderstand: 'How AI Can Express Itself in a Way Users Understand',
+  AIBalances: 'AI balances "chat" & "do" behaviors.',
+  DeepThinking: 'Deep Thinking',
+  CompleteThinking: 'Complete Thinking',
   modelIsRunning: 'Model is running',
   modelExecutionCompleted: 'Model execution completed',
   executionFailed: 'Execution failed',
   aborted: 'Aborted',
   noData: 'No Data',
+  NewConversation: 'New Conversation',
+  curConversation: 'Current Conversation',
+  nowNenConversation: 'It is now a new conversation.',
 };
 
 const isZhCN = window.parent?.location?.pathname?.includes('-cn');
@@ -195,25 +201,25 @@ const DESIGN_GUIDE = {
       key: '2-1',
       icon: <HeartOutlined />,
       label: t.intention,
-      description: t['AI understands user needs and provides solutions.'],
+      description: t.aiUnderstandsUserNeedsAndProvidesSolutions,
     },
     {
       key: '2-2',
       icon: <SmileOutlined />,
       label: t.role,
-      description: t["AI's public persona and image"],
+      description: t.AIPublicPersonAndImage,
     },
     {
       key: '2-3',
       icon: <CommentOutlined />,
       label: t.chat,
-      description: t['How AI Can Express Itself in a Way Users Understand'],
+      description: t.HowAICanExpressItselfWayUsersUnderstand,
     },
     {
       key: '2-4',
       icon: <PaperClipOutlined />,
       label: t.interface,
-      description: t['AI balances "chat" & "do" behaviors.'],
+      description: t.AIBalances,
     },
   ],
 };
@@ -241,6 +247,137 @@ const SENDER_PROMPTS: GetProp<typeof Prompts, 'items'> = [
   },
 ];
 
+const ThinkComponent = React.memo((props: { children: string; streamStatus: string }) => {
+  const [title, setTitle] = React.useState(t.DeepThinking + '...');
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (props.streamStatus === 'done') {
+      setTitle(t.CompleteThinking);
+      setLoading(false);
+    }
+  }, [props.streamStatus]);
+
+  return (
+    <Think title={title} loading={loading}>
+      {props.children}
+    </Think>
+  );
+});
+
+const ThoughtChainConfig = {
+  loading: {
+    title: t.modelIsRunning,
+    status: 'loading',
+  },
+  updating: {
+    title: t.modelIsRunning,
+    status: 'loading',
+  },
+  success: {
+    title: t.modelExecutionCompleted,
+    status: 'success',
+  },
+  error: {
+    title: t.executionFailed,
+    status: 'error',
+  },
+  abort: {
+    title: t.aborted,
+    status: 'abort',
+  },
+};
+const actionsItems = [
+  {
+    key: 'pagination',
+    actionRender: () => <Pagination simple total={1} pageSize={1} />,
+  },
+  {
+    key: 'feedback',
+    actionRender: () => <Actions.Feedback key="feedback" />,
+  },
+  {
+    key: 'copy',
+    label: 'copy',
+    actionRender: () => {
+      return <Actions.Copy text="copy value" />;
+    },
+  },
+  {
+    key: 'audio',
+    label: 'audio',
+    actionRender: () => {
+      return <Actions.Audio />;
+    },
+  },
+];
+
+const getRole = (className: string): BubbleListProps['role'] => ({
+  assistant: {
+    placement: 'start',
+    components: {
+      header: (_, { status }) => {
+        const config = ThoughtChainConfig[status as keyof typeof ThoughtChainConfig];
+        return config ? (
+          <ThoughtChain.Item
+            style={{
+              marginBottom: 8,
+            }}
+            status={config.status as ThoughtChainItemProps['status']}
+            variant="solid"
+            icon={<GlobalOutlined />}
+            title={config.title}
+          />
+        ) : null;
+      },
+      footer: (_, { status }) => {
+        return status !== 'updating' && status !== 'loading' ? (
+          <div style={{ display: 'flex' }}>
+            <Actions items={actionsItems} />
+          </div>
+        ) : null;
+      },
+    },
+    contentRender: (content: any, { status }) => {
+      const newContent = content.replaceAll('\n\n', '<br/>');
+      return (
+        <XMarkdown
+          paragraphTag="div"
+          components={{
+            think: ThinkComponent,
+          }}
+          className={className}
+          streaming={{
+            hasNextChunk: status === 'updating',
+          }}
+        >
+          {newContent}
+        </XMarkdown>
+      );
+    },
+    typing: (_, { status }) =>
+      status === 'updating'
+        ? {
+            effect: 'typing',
+            step: 5,
+            interval: 20,
+            suffix: (
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 20,
+                  bottom: 10,
+                }}
+              >
+                💗
+              </div>
+            ),
+          }
+        : false,
+  },
+  user: { placement: 'end' },
+});
+
 const useStyle = createStyles(({ token, css }) => {
   return {
     layout: css`
@@ -250,7 +387,6 @@ const useStyle = createStyles(({ token, css }) => {
       display: flex;
       background: ${token.colorBgContainer};
       font-family: AlibabaPuHuiTi, ${token.fontFamily}, sans-serif;
-
     `,
     // side 样式
     side: css`
@@ -276,11 +412,6 @@ const useStyle = createStyles(({ token, css }) => {
         color: ${token.colorText};
         font-size: 16px;
       }
-    `,
-    addBtn: css`
-      background: #1677ff0f;
-      border: 1px solid #1677ff34;
-      height: 40px;
     `,
     conversations: css`
       overflow-y: auto;
@@ -353,23 +484,33 @@ const useStyle = createStyles(({ token, css }) => {
   };
 });
 
-const ThinkComponent = React.memo((props: { children: string; streamStatus: string }) => {
-  const [title, setTitle] = React.useState(t['Deep thinking'] + '...');
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    if (props.streamStatus === 'done') {
-      setTitle(t['Complete thinking']);
-      setLoading(false);
-    }
-  }, [props.streamStatus]);
-
-  return (
-    <Think title={title} loading={loading}>
-      {props.children}
-    </Think>
-  );
-});
+const HISTORY_MESSAGES: {
+  [key: string]: DefaultMessageInfo<XModelMessage>[];
+} = {
+  'default-1': [
+    {
+      message: { role: 'user', content: t.howToQuicklyInstallAndImportComponents },
+      status: 'success',
+    },
+    {
+      message: {
+        role: 'assistant',
+        content: `# 快速安装和导入组件 \n \`npm install @ant-design/x --save \` \n [查看详情](/components/introduce${isZhCN ? '-cn' : ''}/)`,
+      },
+      status: 'success',
+    },
+  ],
+  'default-2': [
+    { message: { role: 'user', content: t.newAgiHybridInterface }, status: 'success' },
+    {
+      message: {
+        role: 'assistant',
+        content: `RICH 设计范式 \n [查看详情](/docs/spec/introduce${isZhCN ? '-cn' : ''}/)`,
+      },
+      status: 'success',
+    },
+  ],
+};
 
 /**
  * 🔔 Please replace the BASE_URL, MODEL with your own values.
@@ -396,130 +537,25 @@ const providerFactory = (conversationKey: string) => {
   return providerCaches.get(conversationKey);
 };
 
-const ThoughtChainConfig = {
-  loading: {
-    title: t.modelIsRunning,
-    status: 'loading',
-  },
-  updating: {
-    title: t.modelIsRunning,
-    status: 'loading',
-  },
-  success: {
-    title: t.modelExecutionCompleted,
-    status: 'success',
-  },
-  error: {
-    title: t.executionFailed,
-    status: 'error',
-  },
-  abort: {
-    title: t.aborted,
-    status: 'abort',
-  },
+const historyMessageFactory = (conversationKey: string): DefaultMessageInfo<XModelMessage>[] => {
+  return HISTORY_MESSAGES[conversationKey] || [];
 };
-const actionsItems = [
-  {
-    key: 'pagination',
-    actionRender: () => <Pagination simple total={5} pageSize={1} />,
-  },
-  {
-    key: 'feedback',
-    actionRender: () => <Actions.Feedback key="feedback" />,
-  },
-  {
-    key: 'copy',
-    label: 'copy',
-    actionRender: () => {
-      return <Actions.Copy text="copy value" />;
-    },
-  },
-  {
-    key: 'audio',
-    label: 'audio',
-    actionRender: () => {
-      return <Actions.Audio />;
-    },
-  },
-];
-
-const role: BubbleListProps['role'] = {
-  assistant: {
-    placement: 'start',
-    components: {
-      header: (_, { status }) => {
-        const config = ThoughtChainConfig[status as keyof typeof ThoughtChainConfig];
-        return config ? (
-          <ThoughtChain.Item
-            style={{
-              marginBottom: 8,
-            }}
-            status={config.status as ThoughtChainItemProp['status']}
-            variant="solid"
-            icon={<GlobalOutlined />}
-            title={config.title}
-          />
-        ) : null;
-      },
-      footer: (_, { status }) => {
-        return status !== 'updating' && status !== 'loading' ? (
-          <div style={{ display: 'flex' }}>
-            <Actions items={actionsItems} />
-          </div>
-        ) : null;
-      },
-    },
-    contentRender: (content: any, { status }) => {
-      const newContent = content.replaceAll('\n\n', '<br/>');
-      return (
-        <XMarkdown
-          paragraphTag="div"
-          components={{
-            think: ThinkComponent,
-          }}
-          streaming={{
-            hasNextChunk: status === 'updating',
-          }}
-        >
-          {newContent}
-        </XMarkdown>
-      );
-    },
-    typing: (_, { status }) =>
-      status === 'updating'
-        ? {
-            effect: 'typing',
-            step: 5,
-            interval: 20,
-            suffix: (
-              <div
-                style={{
-                  position: 'absolute',
-                  right: 20,
-                  bottom: 10,
-                }}
-              >
-                💗
-              </div>
-            ),
-          }
-        : false,
-  },
-  user: { placement: 'end' },
-};
-
 const Independent: React.FC = () => {
   const { styles } = useStyle();
+  const locale = isZhCN ? { ...zhCN_antd, ...zhCN_X } : { ...enUS_antd, ...enUS_X };
 
   // ==================== State ====================
 
   const { conversations, addConversation, setConversations } = useXConversations({
     defaultConversations: DEFAULT_CONVERSATIONS_ITEMS,
   });
+
   const [curConversation, setCurConversation] = useState<string>(
     DEFAULT_CONVERSATIONS_ITEMS[0].key,
   );
 
+  const [className] = useMarkdownTheme();
+  const [messageApi, contextHolder] = message.useMessage();
   const [attachmentsOpen, setAttachmentsOpen] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<GetProp<typeof Attachments, 'items'>>([]);
 
@@ -530,6 +566,7 @@ const Independent: React.FC = () => {
   const { onRequest, messages, isRequesting, abort } = useXChat({
     provider: providerFactory(curConversation), // every conversation has its own provider
     conversationKey: curConversation,
+    defaultMessages: historyMessageFactory(curConversation),
     requestPlaceholder: () => {
       return {
         content: t.noData,
@@ -561,33 +598,27 @@ const Independent: React.FC = () => {
         />
         <span>Ant Design X</span>
       </div>
-
-      {/* 🌟 添加会话 */}
-      <Button
-        onClick={() => {
-          if (isRequesting) {
-            message.error(t.messageIsRequesting);
-            return;
-          }
-
-          const now = dayjs().valueOf().toString();
-          addConversation({
-            key: now,
-            label: `${t['New Conversation']} ${conversations.length + 1}`,
-            group: t.today,
-          });
-          setCurConversation(now);
-        }}
-        type="link"
-        className={styles.addBtn}
-        icon={<PlusOutlined />}
-      >
-        {t['New Conversation']}
-      </Button>
-
       {/* 🌟 会话管理 */}
       <Conversations
-        items={conversations}
+        creation={{
+          onClick: () => {
+            if (messages.length === 0) {
+              messageApi.error(t.nowNenConversation);
+              return;
+            }
+            const now = dayjs().valueOf().toString();
+            addConversation({
+              key: now,
+              label: `${t.NewConversation} ${conversations.length + 1}`,
+              group: t.today,
+            });
+            setCurConversation(now);
+          },
+        }}
+        items={conversations.map(({ key, label }) => ({
+          key,
+          label: key === curConversation ? `[${t.curConversation}]${label}` : label,
+        }))}
         className={styles.conversations}
         activeKey={curConversation}
         onActiveChange={async (val) => {
@@ -643,7 +674,7 @@ const Independent: React.FC = () => {
               width: 700,
             },
           }}
-          role={role}
+          role={getRole(className)}
         />
       ) : (
         <Space orientation="vertical" size={16} align="center" className={styles.placeholder}>
@@ -768,15 +799,18 @@ const Independent: React.FC = () => {
   );
 
   // ==================== Render =================
-  return (
-    <div className={styles.layout}>
-      {chatSide}
 
-      <div className={styles.chat}>
-        {chatList}
-        {chatSender}
+  return (
+    <XProvider locale={locale}>
+      {contextHolder}
+      <div className={styles.layout}>
+        {chatSide}
+        <div className={styles.chat}>
+          {chatList}
+          {chatSender}
+        </div>
       </div>
-    </div>
+    </XProvider>
   );
 };
 
