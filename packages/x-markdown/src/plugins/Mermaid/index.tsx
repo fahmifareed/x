@@ -8,7 +8,7 @@ import mermaid from 'mermaid';
 import React, { useEffect, useRef, useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import useXProviderContext from '../hooks/use-x-provider-context';
-import type { PluginsType } from '../type';
+import type { MermaidProps } from '../type';
 import useStyle from './style';
 
 enum RenderType {
@@ -25,7 +25,7 @@ mermaid.initialize({
 
 let uuid = 0;
 
-const Mermaid: PluginsType['Mermaid'] = React.memo((props) => {
+const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
   const {
     prefixCls: customizePrefixCls,
     className,

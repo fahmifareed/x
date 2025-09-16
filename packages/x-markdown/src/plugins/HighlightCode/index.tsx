@@ -1,16 +1,16 @@
 import { CopyOutlined } from '@ant-design/icons';
+import useLocale from '@ant-design/x/es/locale/useLocale';
+import locale_EN from '@ant-design/x/locale/en_US';
 import { Button, message, Tooltip } from 'antd';
 import classnames from 'classnames';
 import React from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import useXProviderContext from '../hooks/use-x-provider-context';
-import type { PluginsType } from '../type';
+import type { HighlighCodeProps } from '../type';
 import useStyle from './style';
-import useLocale from '@ant-design/x/es/locale/useLocale';
-import locale_EN from '@ant-design/x/locale/en_US';
 
-const HighlightCode: PluginsType['HighlightCode'] = (props) => {
+const HighlightCode: React.FC<HighlighCodeProps> = (props) => {
   const {
     lang,
     children,
