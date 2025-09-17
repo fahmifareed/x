@@ -8,7 +8,7 @@ export type LatexOption = {
 };
 
 type HighlightCodeType = 'root' | 'header' | 'headerTitle' | 'code';
-export type HighlighCodeProps = {
+export type HighlightCodeProps = {
   lang?: string;
   children: string;
   header?: ReactNode | null;
@@ -33,3 +33,20 @@ export type MermaidProps = {
   classNames?: Partial<Record<MermaidType, string>>;
   styles?: Partial<Record<MermaidType, React.CSSProperties>>;
 };
+
+interface BaseComponentConfig {
+  style: React.CSSProperties;
+  styles: Record<string, React.CSSProperties>;
+  className: string;
+  classNames: Record<string, string>;
+}
+
+type ComponentConfig<
+  CompProps extends Record<PropertyKey, any>,
+  PickType extends keyof CompProps = keyof BaseComponentConfig,
+> = Pick<CompProps, PickType>;
+
+export interface MarkdownComponentsConfig {
+  highlightCode?: ComponentConfig<HighlightCodeProps>;
+  mermaid?: ComponentConfig<MermaidProps>;
+}
