@@ -49,3 +49,73 @@ Used for rendering streaming Markdown format returned by LLMs.
 | domNode | Component Element | [`DomNode`](https://github.com/remarkablemark/html-react-parser?tab=readme-ov-file#replace) | - |
 | children | Content wrapped in component | `string` | - |
 | **rest** | Component properties, supports standard HTML attributes (e.g. `a`(link) href, title) and custom attributes | `Record<string,unknown>` | - |
+
+## FAQ
+
+### Difference Between Components and Config Marked Extensions
+
+#### Config Marked Extensions (Plugin Extensions)
+
+The [`extensions`](https://marked.js.org/using_pro#extensions) in the `config` property are used to extend the functionality of the Markdown parser, acting during the **Markdown to HTML conversion process**:
+
+- **Stage**: Markdown parsing stage
+- **Function**: Recognize and convert special Markdown syntax
+- **Example**: Convert `[^1]` footnote syntax to `<footnote>1</footnote>` HTML tags
+- **Use Case**: Extend Markdown syntax to support more markup formats
+
+```typescript
+// Plugin example: Footnote extension
+const footnoteExtension = {
+  name: 'footnote',
+  level: 'inline',
+  start(src) { return src.match(/\[\^/)?.index; },
+  tokenizer(src) {
+    const rule = /^\[\^([^\]]+)\]/;
+    const match = rule.exec(src);
+    if (match) {
+      return {
+        type: 'footnote',
+        raw: match[0],
+        text: match[1]
+      };
+    }
+  },
+  renderer(token) {
+    return `<footnote>${token.text}</footnote>`;
+  }
+};
+
+// Using the plugin
+<XMarkdown
+  content="This is a footnote example[^1]"
+  config={{ extensions: [footnoteExtension] }}
+/>
+```
+
+### Components (Component Replacement)
+
+The `components` property is used to replace generated HTML tags with custom React components:
+
+- **Stage**: HTML rendering stage
+- **Function**: Replace HTML tags with React components
+- **Example**: Replace `<footnote>1</footnote>` with `<CustomFootnote>1</CustomFootnote>`
+- **Use Case**: Customize tag rendering styles and interactive behavior
+
+```typescript
+// Custom footnote component
+const CustomFootnote = ({ children, ...props }) => (
+  <sup
+    className="footnote-ref"
+    onClick={() => console.log('Clicked footnote:', children)}
+    style={{ color: 'blue', cursor: 'pointer' }}
+  >
+    {children}
+  </sup>
+);
+
+// Using component replacement
+<XMarkdown
+  content="<footnote>1</footnote>"
+  components={{ footnote: CustomFootnote }}
+/>
+```

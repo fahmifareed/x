@@ -49,3 +49,73 @@ order: 2
 | domNode | Component Element | [`DomNode`](https://github.com/remarkablemark/html-react-parser?tab=readme-ov-file#replace) | - |
 | children | 包裹在 component 的内容 | `string` | - |
 | **rest** | 组件上的属性，支持标准 HTML 属性（如 `a`(link) href、title）及自定义属性 | `Record<string,unknown>` | - |
+
+## FAQ
+
+### Components 与 Config Marked Extensions 的区别
+
+#### Config Marked Extensions（插件扩展）
+
+`config` 属性中的 [`extensions`](https://marked.js.org/using_pro#extensions) 用于扩展 Markdown 解析器的功能，它们在 **Markdown 转换为 HTML 的过程中** 起作用：
+
+- **作用阶段**：Markdown 解析阶段
+- **功能**：识别和转换特殊的 Markdown 语法
+- **示例**：将 `[^1]` 脚注语法转换为 `<footnote>1</footnote>` HTML 标签
+- **使用场景**：扩展 Markdown 语法，支持更多标记格式
+
+```typescript
+// 插件示例：脚注扩展
+const footnoteExtension = {
+  name: 'footnote',
+  level: 'inline',
+  start(src) { return src.match(/\[\^/)?.index; },
+  tokenizer(src) {
+    const rule = /^\[\^([^\]]+)\]/;
+    const match = rule.exec(src);
+    if (match) {
+      return {
+        type: 'footnote',
+        raw: match[0],
+        text: match[1]
+      };
+    }
+  },
+  renderer(token) {
+    return `<footnote>${token.text}</footnote>`;
+  }
+};
+
+// 使用插件
+<XMarkdown
+  content="这是一个脚注示例[^1]"
+  config={{ extensions: [footnoteExtension] }}
+/>
+```
+
+### Components（组件替换）
+
+`components` 属性用于将已生成的 HTML 标签替换为自定义的 React 组件：
+
+- **作用阶段**：HTML 渲染阶段
+- **功能**：将 HTML 标签替换为 React 组件
+- **示例**：将 `<footnote>1</footnote>` 替换为 `<CustomFootnote>1</CustomFootnote>`
+- **使用场景**：自定义标签的渲染样式和交互行为
+
+```typescript
+// 自定义脚注组件
+const CustomFootnote = ({ children, ...props }) => (
+  <sup
+    className="footnote-ref"
+    onClick={() => console.log('点击脚注:', children)}
+    style={{ color: 'blue', cursor: 'pointer' }}
+  >
+    {children}
+  </sup>
+);
+
+// 使用组件替换
+<XMarkdown
+  content="<footnote>1</footnote>"
+  components={{ footnote: CustomFootnote }}
+/>
+```

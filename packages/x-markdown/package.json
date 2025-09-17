@@ -63,7 +63,8 @@
     "lodash.throttle": "^4.1.1",
     "marked": "^15.0.12",
     "mermaid": "^11.11.0",
-    "react-syntax-highlighter": "^15.6.1"
+    "react-syntax-highlighter": "^15.6.1",
+    "antd": "6.0.0-alpha.1"
   },
   "devDependencies": {
     "@types/lodash.throttle": "^4.1.9",
