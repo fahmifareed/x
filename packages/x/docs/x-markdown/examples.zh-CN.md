@@ -30,6 +30,7 @@ order: 2
 | streaming | 流式渲染配置 | `SteamingOption`，查看[详情](/markdowns/streaming-cn) | - |
 | config | Marked.js extension | [`MarkedExtension`](https://marked.js.org/using_advanced#options) | `{ gfm: true }` |
 | openLinksInNewTab | 是否在新标签页打开链接 | `boolean` | `false` |
+| dompurifyConfig | Dompurify 配置选项，用于自定义 HTML 净化规则 | [`DOMPurify.Config`](https://github.com/cure53/DOMPurify#can-i-configure-dompurify) | - |
 | className | 自定义 className | `string` | - |
 | rootClassName | 根节点自定义 className, 与 className 作用一致 | `string` | - |
 | style | 自定义样式 | `CSSProperties` | - |

@@ -30,6 +30,7 @@ Used for rendering streaming Markdown format returned by LLMs.
 | streaming | Streaming rendering configuration | `SteamingOption`, see [details](/markdowns/streaming) | - |
 | config | Marked.js extension | [`MarkedExtension`](https://marked.js.org/using_advanced#options) | `{ gfm: true }` |
 | openLinksInNewTab | Whether to open links in new tab | `boolean` | `false` |
+| dompurifyConfig | DOMPurify configuration options for customizing HTML sanitization rules | [`DOMPurify.Config`](https://github.com/cure53/DOMPurify#can-i-configure-dompurify) | - |
 | className | Custom className | `string` | - |
 | rootClassName | Root node custom className, same as className | `string` | - |
 | style | Custom styles | `CSSProperties` | - |
