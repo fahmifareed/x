@@ -64,7 +64,7 @@
     "marked": "^15.0.12",
     "mermaid": "^11.11.0",
     "react-syntax-highlighter": "^15.6.1",
-    "antd": "6.0.0-alpha.2"
+    "antd": "6.0.0-alpha.1"
   },
   "devDependencies": {
     "@types/lodash.throttle": "^4.1.9",
@@ -72,7 +72,7 @@
     "@types/react-dom": "^19.0.2",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@umijs/mako": "^0.11.10",
-    "antd": "6.0.0-alpha.2",
+    "antd": "6.0.0-alpha.1",
     "antd-style": "^4.0.0-alpha.1",
     "antd-token-previewer": "^3.0.0-alpha.0",
     "glob": "^11.0.0",
