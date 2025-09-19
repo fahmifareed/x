@@ -1,6 +1,6 @@
 import type { BubbleListProps } from '@ant-design/x';
 import { Bubble, Sender } from '@ant-design/x';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import Mermaid from '@ant-design/x-markdown/plugins/Mermaid';
 import { DefaultChatProvider, useXChat, XRequest } from '@ant-design/x-sdk';
 import React, { useMemo } from 'react';

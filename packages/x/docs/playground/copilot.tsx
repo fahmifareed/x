@@ -25,7 +25,7 @@ import {
   Think,
   Welcome,
 } from '@ant-design/x';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import type { SSEFields } from '@ant-design/x-sdk';
 import {
   DeepSeekChatProvider,

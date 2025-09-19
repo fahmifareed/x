@@ -32,7 +32,7 @@ import {
 } from '@ant-design/x';
 import enUS_X from '@ant-design/x/locale/en_US';
 import zhCN_X from '@ant-design/x/locale/zh_CN';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import type { TransformMessage } from '@ant-design/x-sdk';
 import {
   AbstractChatProvider,

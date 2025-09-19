@@ -1,5 +1,5 @@
 import { Bubble } from '@ant-design/x';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import Mermaid from '@ant-design/x-markdown/plugins/Mermaid';
 import { Button, Flex } from 'antd';
 import React from 'react';

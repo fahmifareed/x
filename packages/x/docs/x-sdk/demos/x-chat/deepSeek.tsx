@@ -1,7 +1,7 @@
 import { SyncOutlined } from '@ant-design/icons';
 import type { BubbleListProps } from '@ant-design/x';
 import { Bubble, Sender, Think } from '@ant-design/x';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import {
   DeepSeekChatProvider,
   useXChat,

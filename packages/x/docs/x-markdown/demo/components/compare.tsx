@@ -1,7 +1,7 @@
 import { Button, Card, Col, Input, Row, Typography } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import '@ant-design/x-markdown/themes/light.css';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import HighlightCode from '@ant-design/x-markdown/plugins/HighlightCode';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';

@@ -1,4 +1,4 @@
-import { ComponentProps, Token, XMarkdown } from '@ant-design/x-markdown';
+import { type ComponentProps, type Token, XMarkdown } from '@ant-design/x-markdown';
 import React from 'react';
 import './plugin.css';
 import '@ant-design/x-markdown/themes/light.css';

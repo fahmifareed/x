@@ -1,5 +1,5 @@
 import { XProvider } from '@ant-design/x';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import HighlightCode from '@ant-design/x-markdown/plugins/HighlightCode';
 import { Card, ColorPicker, Flex, Typography } from 'antd';
 import React from 'react';

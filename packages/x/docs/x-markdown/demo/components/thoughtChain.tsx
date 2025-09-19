@@ -1,7 +1,7 @@
 import { CheckCircleOutlined, InfoCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import type { ThoughtChainItemType } from '@ant-design/x';
 import { Bubble, ThoughtChain } from '@ant-design/x';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import { Avatar, Button, Card, Flex, Spin } from 'antd';
 import React from 'react';
 

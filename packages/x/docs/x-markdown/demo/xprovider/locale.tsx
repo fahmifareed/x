@@ -2,7 +2,7 @@ import type { XProviderProps } from '@ant-design/x';
 import { XProvider } from '@ant-design/x';
 import enUS_X from '@ant-design/x/locale/en_US';
 import zhCN_X from '@ant-design/x/locale/zh_CN';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import Mermaid from '@ant-design/x-markdown/plugins/Mermaid';
 import { Card, Flex, Radio, RadioChangeEvent, Typography } from 'antd';
 import enUS from 'antd/locale/en_US';

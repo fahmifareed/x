@@ -1,4 +1,4 @@
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import HighlightCode from '@ant-design/x-markdown/plugins/HighlightCode';
 import Latex from '@ant-design/x-markdown/plugins/Latex';
 import Mermaid from '@ant-design/x-markdown/plugins/Mermaid';

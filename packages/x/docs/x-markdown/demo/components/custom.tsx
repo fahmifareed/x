@@ -1,5 +1,5 @@
 import { Bubble, Think } from '@ant-design/x';
-import XMarkdown, { ComponentProps } from '@ant-design/x-markdown';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
 import React, { useCallback, useEffect, useState } from 'react';
 import '@ant-design/x-markdown/themes/light.css';
 import {
