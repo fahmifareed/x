@@ -54,11 +54,6 @@ type ComponentProps<T extends Record<string, unknown> = Record<string, unknown>>
      * @description Streaming status, `loading` indicates streaming in progress, `done` indicates streaming complete
      */
     streamStatus: StreamStatus;
-    /**
-     * @description 包裹在组件中的内容，包含 DOM 节点的文本内容
-     * @description Content wrapped in component, contains the text content of the DOM node
-     */
-    children?: React.ReactNode;
   } & T;
 
 interface XMarkdownProps {
