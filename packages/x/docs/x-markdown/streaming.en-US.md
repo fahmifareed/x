@@ -44,8 +44,8 @@ const App = () => {
         hasNextChunk: true,
         enableAnimation: true,
         animationConfig: {
-          from: { opacity: 0 },
-          to: { opacity: 1 },
+          fadeDuration: 300,
+          opacity: 0.3,
         },
       }}
     />
