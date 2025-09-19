@@ -6,7 +6,6 @@ import { CSSProperties } from 'react';
 export interface AnimationConfig {
   fadeDuration?: number;
   opacity?: number;
-  [key: string]: unknown;
 }
 
 type Token = Tokens.Generic;
