@@ -1,5 +1,5 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 import AnimationNode, { AnimationText } from '../AnimationNode';
 
 describe('AnimationText Component', () => {
@@ -10,12 +10,30 @@ describe('AnimationText Component', () => {
 
   it('should apply custom animation config', () => {
     const customConfig = {
-      from: { opacity: 0.5 },
-      to: { opacity: 1 },
-      config: { tension: 200, friction: 30 }
+      fadeDuration: 300,
+      opacity: 0.3,
     };
     render(<AnimationText text="test" animationConfig={customConfig} />);
     expect(screen.getByText('test')).toBeInTheDocument();
+  });
+
+  it('should handle text animation with fade effect', () => {
+    const { container, rerender } = render(
+      <AnimationText text="Hello" animationConfig={{ fadeDuration: 100, opacity: 0.5 }} />,
+    );
+
+    expect(container.textContent).toBe('Hello');
+
+    // Test text update with animation
+    rerender(
+      <AnimationText text="Hello World" animationConfig={{ fadeDuration: 100, opacity: 0.5 }} />,
+    );
+    expect(container.textContent).toContain('Hello');
+  });
+
+  it('should use default animation values when config is not provided', () => {
+    const { container } = render(<AnimationText text="test" />);
+    expect(container.textContent).toBe('test');
   });
 });
 
@@ -30,7 +48,7 @@ describe('AnimationNode Component', () => {
     render(
       <AnimationNode nodeTag="p" data-testid="test-node">
         test string
-      </AnimationNode>
+      </AnimationNode>,
     );
     expect(screen.getByText('test string')).toBeInTheDocument();
   });
@@ -39,30 +57,28 @@ describe('AnimationNode Component', () => {
     render(
       <AnimationNode nodeTag="p" data-testid="test-node">
         <span data-testid="child">child</span>
-      </AnimationNode>
+      </AnimationNode>,
     );
     expect(screen.getByTestId('child')).toBeInTheDocument();
   });
 
   it('should handle array of children', () => {
-    render(
-      <AnimationNode nodeTag="p">
-        {['text1', 'text2', <span key="3">text3</span>]}
-      </AnimationNode>
+    const { container } = render(
+      <AnimationNode nodeTag="p">{['text1', 'text2', <span key="3">text3</span>]}</AnimationNode>,
     );
-    expect(screen.getByText('text1')).toBeInTheDocument();
-    expect(screen.getByText('text2')).toBeInTheDocument();
-    expect(screen.getByText('text3')).toBeInTheDocument();
+    expect(container.textContent).toContain('text1');
+    expect(container.textContent).toContain('text2');
+    expect(container.textContent).toContain('text3');
   });
 
   it('should pass through all props to created element', () => {
     render(
-      <AnimationNode 
-        nodeTag="p" 
-        data-testid="test-node" 
-        className="test-class" 
+      <AnimationNode
+        nodeTag="p"
+        data-testid="test-node"
+        className="test-class"
         style={{ color: 'red' }}
-      />
+      />,
     );
     const node = screen.getByTestId('test-node');
     expect(node).toHaveClass('test-class');

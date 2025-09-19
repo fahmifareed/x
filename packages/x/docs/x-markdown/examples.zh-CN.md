@@ -41,13 +41,21 @@ order: 2
 | --- | --- | --- | --- |
 | hasNextChunk | 是否还有下一个 chunk，如果为 false，清除所有缓存并渲染 | `boolean` | `false` |
 | enableAnimation | 是否开启文字动画，支持 `p, li, h1, h2, h3, h4` | `boolean` | `false` |
-| animationConfig | 文字动画配置 | [`ControllerUpdate`](https://react-spring.dev/docs/typescript#controllerupdate) | `{ from: { opacity: 0 }, to: { opacity: 1 }, config: { tension: 170, friction: 26 } }` |
+| animationConfig | 文字动画配置 | `AnimationConfig` | `{ fadeDuration: 200, opacity: 0.2 }` |
+
+#### AnimationConfig
+
+| 属性         | 说明                      | 类型     | 默认值 |
+| ------------ | ------------------------- | -------- | ------ |
+| fadeDuration | 淡入动画持续时间（毫秒）  | `number` | `200`  |
+| opacity      | 淡入字符的透明度值（0-1） | `number` | `0.2`  |
 
 ### ComponentProps
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| domNode | Component Element | [`DomNode`](https://github.com/remarkablemark/html-react-parser?tab=readme-ov-file#replace) | - |
+| domNode | 来自 html-react-parser 的组件DOM节点 | [`DOMNode`](https://github.com/remarkablemark/html-react-parser?tab=readme-ov-file#replace) | - |
+| streamStatus | 流式状态，loading 表示正在加载，done 表示加载完成 | `'loading' \| 'done'` | - |
 | children | 包裹在 component 的内容 | `string` | - |
 | **rest** | 组件上的属性，支持标准 HTML 属性（如 `a`(link) href、title）及自定义属性 | `Record<string,unknown>` | - |
 

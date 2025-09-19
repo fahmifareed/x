@@ -1,7 +1,13 @@
-import { ControllerUpdate } from '@react-spring/web';
 import type { Config as DOMPurifyConfig } from 'dompurify';
+import type { DOMNode } from 'html-react-parser';
 import type { MarkedExtension, Tokens } from 'marked';
 import { CSSProperties } from 'react';
+
+export interface AnimationConfig {
+  fadeDuration?: number;
+  opacity?: number;
+  [key: string]: unknown;
+}
 
 type Token = Tokens.Generic;
 
@@ -19,15 +25,37 @@ interface SteamingOption {
   /**
    * @description 文字动画配置
    */
-  animationConfig?: ControllerUpdate;
+  animationConfig?: AnimationConfig;
 }
 
-type streamStatus = 'loading' | 'done';
+type StreamStatus = 'loading' | 'done';
+
+type ComponentProps<T extends Record<string, unknown> = Record<string, unknown>> = {
+  /**
+   * @description 组件对应的DOM节点，来自 html-react-parser
+   */
+  domNode?: DOMNode;
+  /**
+   * @description 流式状态，loading 表示正在加载，done 表示加载完成
+   */
+  streamStatus?: StreamStatus;
+  /**
+   * @description 子节点内容
+   */
+  children?: React.ReactNode;
+  /**
+   * @description 其他HTML属性和自定义属性
+   */
+  [key: string]: unknown;
+} & T;
 
 interface XMarkdownProps {
   content?: string;
   children?: string;
-  components?: Record<string, any>;
+  /**
+   * @description 自定义组件映射，组件会接收 domNode、streamStatus 等属性
+   */
+  components?: Record<string, React.FC<ComponentProps>>;
   streaming?: SteamingOption;
   config?: MarkedExtension;
   rootClassName?: string;
@@ -45,4 +73,4 @@ interface XMarkdownProps {
   dompurifyConfig?: DOMPurifyConfig;
 }
 
-export type { XMarkdownProps, Token, Tokens, streamStatus };
+export type { XMarkdownProps, Token, Tokens, StreamStatus, ComponentProps };

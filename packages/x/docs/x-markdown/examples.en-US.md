@@ -41,13 +41,21 @@ Used for rendering streaming Markdown format returned by LLMs.
 | --- | --- | --- | --- |
 | hasNextChunk | Whether there is another chunk. If false, clears all cache and renders. | `boolean` | `false` |
 | enableAnimation | Whether to enable text animation, supports `p, li, h1, h2, h3, h4` | `boolean` | `false` |
-| animationConfig | Text animation configuration | [`ControllerUpdate`](https://react-spring.dev/docs/typescript#controllerupdate) | `{ from: { opacity: 0 }, to: { opacity: 1 }, config: { tension: 170, friction: 26 } }` |
+| animationConfig | Text animation configuration | `AnimationConfig` | `{ fadeDuration: 200, opacity: 0.2 }` |
+
+#### AnimationConfig
+
+| Property     | Description                               | Type     | Default |
+| ------------ | ----------------------------------------- | -------- | ------- |
+| fadeDuration | Fade animation duration in milliseconds   | `number` | `200`   |
+| opacity      | Opacity value for fading characters (0-1) | `number` | `0.2`   |
 
 ### ComponentProps
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| domNode | Component Element | [`DomNode`](https://github.com/remarkablemark/html-react-parser?tab=readme-ov-file#replace) | - |
+| domNode | Component Element from html-react-parser | [`DOMNode`](https://github.com/remarkablemark/html-react-parser?tab=readme-ov-file#replace) | - |
+| streamStatus | Streaming status, loading indicates streaming in progress, done indicates streaming complete | `'loading' \| 'done'` | - |
 | children | Content wrapped in component | `string` | - |
 | **rest** | Component properties, supports standard HTML attributes (e.g. `a`(link) href, title) and custom attributes | `Record<string,unknown>` | - |
 
