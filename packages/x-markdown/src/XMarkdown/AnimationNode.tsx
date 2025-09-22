@@ -23,7 +23,7 @@ const AnimationText = React.memo<AnimationTextProps>((props) => {
   useEffect(() => {
     if (text === prevTextRef.current) return;
 
-    if (!(prevTextRef.current && text.startsWith(prevTextRef.current))) {
+    if (!(prevTextRef.current && text.indexOf(prevTextRef.current) === 0)) {
       setChunks([text]);
       prevTextRef.current = text;
       return;
