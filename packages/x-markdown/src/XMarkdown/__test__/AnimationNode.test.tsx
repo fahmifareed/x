@@ -12,7 +12,7 @@ describe('AnimationText Component', () => {
   });
 
   it('should render text without animation when no change', () => {
-    const { container } = render(<AnimationText text="test" />);
+    render(<AnimationText text="test" />);
     expect(screen.getByText('test')).toBeInTheDocument();
   });
 
