@@ -120,4 +120,4 @@ const UserCard = ({ domNode, streamStatus }) => {
 | domNode | Component DOM node from html-react-parser, containing parsed DOM node information | [`DOMNode`](https://github.com/remarkablemark/html-react-parser?tab=readme-ov-file#replace) | - |
 | streamStatus | Streaming status, `loading` indicates loading in progress, `done` indicates loading completed | `'loading' \| 'done'` | - |
 | children | Content wrapped in the component, containing text content of DOM nodes | `React.ReactNode` | - |
-| **rest** | Component properties, supports all standard HTML attributes (such as `href`, `title`, `className`, etc.) and custom data attributes | `Record<string, any>` | - |
+| rest | Component properties, supports all standard HTML attributes (such as `href`, `title`, `className`, etc.) and custom data attributes | `Record<string, any>` | - |

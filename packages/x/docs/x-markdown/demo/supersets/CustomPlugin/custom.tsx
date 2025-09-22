@@ -1,11 +1,12 @@
 import { type ComponentProps, type Token, XMarkdown } from '@ant-design/x-markdown';
 import React from 'react';
 import './plugin.css';
-import '@ant-design/x-markdown/themes/light.css';
 import { Popover } from 'antd';
 import { useIntl } from 'react-intl';
 import { useMarkdownTheme } from '../../_utils';
 import { Adx_Markdown_En, Adx_Markdown_Zh } from '../../_utils/adx-markdown';
+import '@ant-design/x-markdown/themes/light.css';
+import '@ant-design/x-markdown/themes/dark.css';
 
 const referenceList = [
   { url: 'https://x.ant.design', title: 'link1' },
