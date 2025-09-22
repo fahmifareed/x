@@ -379,14 +379,6 @@ tag: vVERSION
 - 🛡 **Complete TypeScript Support**: Developed with TypeScript, ensuring robust type coverage to improve the development experience and reliability.
 - 🎨 **Advanced Theme Customization**: Supports fine-grained style adjustments to meet diverse use cases and personalization needs.
 
-![这是一张展示不同界面和功能的截图，主要内容包括：
-
-1. **左上角和右上角**：显示了Ant Design X的聊天界面，其中包含欢迎信息和常见问题。
-2. **左下角和右下角**：展示了代码编辑界面，其中包含了Java代码和一些注释。
-3. **中间部分**：有多个窗口展示了不同的功能和信息，包括Ant Design X的介绍、常见问题、组件资产、快速安装和引入组件等。
-
-整体来看，这张图展示了Ant Design X的多个方面，包括界面设计、功能介绍和代码示例。其中没有明显的流程图结构，因此无法转换为Mermaid代码。](https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*UAEeSbJfuM8AAAAAAAAAAAAADgCCAQ/fmt.webp)
-
 ## 1.0.0-alpha.12
 
 `2024-11-07`
