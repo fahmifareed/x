@@ -56,7 +56,7 @@ order: 2
 | --- | --- | --- | --- |
 | domNode | 来自 html-react-parser 的组件 DOM 节点，包含解析后的 DOM 节点信息 | [`DOMNode`](https://github.com/remarkablemark/html-react-parser?tab=readme-ov-file#replace) | - |
 | streamStatus | 流式状态，`loading` 表示正在加载，`done` 表示加载完成 | `'loading' \| 'done'` | - |
-| **rest** | 组件属性，支持所有标准 HTML 属性（如 `href`、`title`、`className` 等）和自定义数据属性 | `Record<string, any>` | - |
+| rest | 组件属性，支持所有标准 HTML 属性（如 `href`、`title`、`className` 等）和自定义数据属性 | `Record<string, any>` | - |
 
 ## FAQ
 
