@@ -42,7 +42,7 @@ const AnimationText = React.memo<AnimationTextProps>((props) => {
         return (
           <span
             style={{
-              animation: `fadeIn ${fadeDuration}ms ${easing} forwards`,
+              animation: `x-markdown-fadeIn ${fadeDuration}ms ${easing} forwards`,
             }}
             key={`${index}-${text}`}
           >
@@ -50,12 +50,6 @@ const AnimationText = React.memo<AnimationTextProps>((props) => {
           </span>
         );
       })}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-      `}</style>
     </>
   );
 });
