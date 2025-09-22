@@ -3,8 +3,9 @@ import HighlightCode from '@ant-design/x-markdown/plugins/HighlightCode';
 import Latex from '@ant-design/x-markdown/plugins/Latex';
 import Mermaid from '@ant-design/x-markdown/plugins/Mermaid';
 import React from 'react';
-import '@ant-design/x-markdown/themes/light.css';
 import { useMarkdownTheme } from '../_utils';
+import '@ant-design/x-markdown/themes/light.css';
+import '@ant-design/x-markdown/themes/dark.css';
 
 const content = `
 ### Latex
