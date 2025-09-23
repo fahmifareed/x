@@ -266,7 +266,7 @@ describe('AnimationNode Component', () => {
       <AnimationNode
         nodeTag="p"
         data-testid="test-node"
-        domNode="test"
+        domNode={{ type: 'tag', name: 'h1' } as any}
         streamStatus="loading"
         className="should-be-passed"
       />,
