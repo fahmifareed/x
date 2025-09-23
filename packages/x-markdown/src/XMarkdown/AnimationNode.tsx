@@ -1,3 +1,4 @@
+import type { DOMNode } from 'html-react-parser';
 import React, { useEffect, useRef, useState } from 'react';
 import { HTMLTag } from './hooks/useAnimation';
 import { AnimationConfig } from './interface';
@@ -7,7 +8,7 @@ export interface AnimationNodeProps extends React.HTMLAttributes<HTMLElement> {
   nodeTag: HTMLTag;
   animationConfig?: AnimationConfig;
   streamStatus?: 'loading' | 'done';
-  domNode?: any;
+  domNode?: DOMNode;
   [key: string]: unknown;
 }
 
