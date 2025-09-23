@@ -266,14 +266,14 @@ describe('AnimationNode Component', () => {
       <AnimationNode
         nodeTag="p"
         data-testid="test-node"
-        _domNode="test"
-        _streamStatus="loading"
+        domNode="test"
+        streamStatus="loading"
         className="should-be-passed"
       />,
     );
     const node = screen.getByTestId('test-node');
     expect(node).toHaveClass('should-be-passed');
-    expect(node).not.toHaveAttribute('_domNode');
-    expect(node).not.toHaveAttribute('_streamStatus');
+    expect(node).not.toHaveAttribute('domNode');
+    expect(node).not.toHaveAttribute('streamStatus');
   });
 });
