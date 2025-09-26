@@ -74,8 +74,8 @@ export default App;
 
 ## 插件
 
-`@ant-design/x-markdown` 提供了丰富的插件，你可以通过 `plugins` 属性来使用这些插件。插件详情查看[插件集](/markdowns/plugins-cn)。
+`@ant-design/x-markdown` 提供了丰富的插件，你可以通过 `plugins` 属性来使用这些插件。插件详情查看[插件集](/x-markdowns/plugins-cn)。
 
 ## 主题
 
-`@ant-design/x-markdown` 提供了主题可供选择。主题详情查看[主题](/markdowns/themes-cn)。
+`@ant-design/x-markdown` 提供了主题可供选择。主题详情查看[主题](/x-markdowns/themes-cn)。
