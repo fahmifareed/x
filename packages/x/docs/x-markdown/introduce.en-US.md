@@ -14,7 +14,7 @@ Built on [`marked`](https://github.com/markedjs/marked) as the base Markdown ren
 - ⬇️ Low-level compiler for parsing Markdown without long-term caching or blocking.
 - ⚖️ Lightweight while implementing all supported Markdown styles and specifications.
 - 🔐 Secure by default, no dangerouslySetInnerHTML XSS attacks.
-- 🎨 Customizable components - pass your own components to replace default ones like \<h2\> for ## hi.
+- 🎨 Customizable components - replace any Markdown element with your own, e.g. `<h2>` for `## hi`.
 - 🔧 Rich plugin ecosystem with many plugins to choose from.
 - 😊 Compatible - 100% CommonMark compliant, 100% GFM plugin compliant.
 
