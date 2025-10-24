@@ -171,7 +171,7 @@ const HISTORY_MESSAGES: {
   ],
 };
 
-const initialSlotConfig: SenderProps['initialSlotConfig'] = [
+const slotConfig: SenderProps['slotConfig'] = [
   { type: 'text', value: locale.slotTextStart },
   {
     type: 'select',
@@ -402,7 +402,7 @@ const App = () => {
                   suffix={false}
                   ref={senderRef}
                   key={curConversation}
-                  initialSlotConfig={initialSlotConfig}
+                  slotConfig={slotConfig}
                   loading={isRequesting}
                   onSubmit={(val) => {
                     if (!val) return;
