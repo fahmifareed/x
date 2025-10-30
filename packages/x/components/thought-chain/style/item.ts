@@ -1,4 +1,6 @@
 import { unit } from '@ant-design/cssinjs/lib/util';
+import { FastColor } from '@ant-design/fast-color';
+import { initFadeMotion } from 'antd/es/style/motion';
 import type { GenerateStyle } from '../../theme/cssinjs-utils';
 import type { ThoughtChainToken } from '.';
 
@@ -8,7 +10,7 @@ const genThoughtChainItemStyle: GenerateStyle<ThoughtChainToken> = (token) => {
   return {
     [componentCls]: {
       [`& ${componentCls}-status`]: {
-        color: token.colorText,
+        color: 'inherit',
       },
       [`& ${componentCls}-status-error`]: {
         color: token.colorError,
@@ -20,6 +22,7 @@ const genThoughtChainItemStyle: GenerateStyle<ThoughtChainToken> = (token) => {
         color: token.colorPrimary,
       },
     },
+    [`${itemCls}-root`]: initFadeMotion(token),
     [itemCls]: {
       display: 'inline-flex',
       gap: unit(calc(token.marginXXS).add(1).equal()),
@@ -101,6 +104,11 @@ const genThoughtChainItemStyle: GenerateStyle<ThoughtChainToken> = (token) => {
         color: token.colorTextDescription,
         display: 'inline-block',
         whiteSpace: 'break-spaces',
+      },
+      [`& ${componentCls}-motion-blink`]: {
+        [`& ${itemCls}-description`]: {
+          color: new FastColor(token.colorTextDescription).setA(0.25).toHexString(),
+        },
       },
     },
   };
