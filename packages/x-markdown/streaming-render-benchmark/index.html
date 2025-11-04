@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Markdown Render Benchmark</title>
+  <style>
+    .container{ margin:10px; padding:10px; border:1px solid #ccc; min-height:50px; font-family:sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="marked" class="container"></div>
+  <div id="markdown-it" class="container"></div>
+  <div id="react-markdown" class="container"></div>
+
+<script type="module">
+// ---------- ESM 依赖 ----------
+import { marked } from 'https://esm.sh/marked@16';
+import MarkdownIt from 'https://esm.sh/markdown-it@14';
+import React from 'https://esm.sh/react@19';
+import ReactDOM from 'https://esm.sh/react-dom@19/client';
+import ReactMarkdown from 'https://esm.sh/react-markdown@10';
+import XMarkdown from 'https://esm.sh/@ant-design/x-markdown@';
+
+// ---------- 渲染器 ----------
+const renderers = {
+  marked: md => document.getElementById('marked').innerHTML = marked.parse(md),
+  'markdown-it': md => {
+    const mdi = new MarkdownIt();
+    document.getElementById('markdown-it').innerHTML = mdi.render(md);
+  },
+  'react-markdown': (() => {
+    const el = document.getElementById('react-markdown');
+    let root;
+    return md => {
+      if (!root) root = ReactDOM.createRoot(el);
+      root.render(React.createElement(ReactMarkdown, { children: md }));
+    };
+  })()
+};
+
+window.renderers = renderers;
+</script>
+</body>
+</html>
