@@ -80,7 +80,9 @@
   },
   "peerDependencies": {
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "overrides": {
     "antd": "6.0.0-alpha.3"
   },
   "repository": {
