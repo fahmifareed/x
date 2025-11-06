@@ -1,11 +1,41 @@
 // XMarkdown default styles
 // Note: No theme colors included, only basic layout and typography styles
+@keyframes x-markdown-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
 
 .x-markdown {
+  --text-color: inherit;
+  --font-size: inherit;
+  --margin-block: 0 0 1em 0;
+  --td-th-padding: 0.85em 1;
+  --pre-th-td-padding: 2px 0;
+  --border-font-weight: 600;
+  --padding-ul-ol: 0 0 0 1em;
+  --margin-ul-ol: 0 0 1em 1.8em;
+  --margin-li: 0.25em 0;
+  --margin-pre: 1em 0;
+  --padding-code-inline: 0.2em 0.4em;
+  --margin-code-inline: 0 0.2em;
+  --code-inline-text: 0.85em;
+  --small-border-radius: 2px;
+  --image-margin: 0.5em 0;
+  --hr-margin: 1.5em 0;
+  --table-margin: 1em 0;
+
   // Base styles
+  font-size: var(--font-size);
   line-height: 1.5714285714285714;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  width: 100%;
+  color: var(--text-color);
 
   // Long content wrapping
   p,
@@ -34,9 +64,31 @@
     width: 100%;
   }
 
+  th,
+  td {
+    padding: var(--td-th-padding);
+  }
+
+  th {
+    font-weight: var(--border-font-weight);
+  }
+
+  pre,
+  code {
+
+    td,
+    th {
+      padding: var(--pre-th-td-padding);
+      border: none;
+      text-align: left;
+    }
+  }
+
+
+
   // Paragraph styles optimization
   p {
-    margin: 0 0 1em 0;
+    margin: var(--margin-block);
 
     // First paragraph has no top margin
     &:first-child {
@@ -52,8 +104,8 @@
   // List styles optimization
   ul,
   ol {
-    margin: 0 0 1em 0;
-    padding-left: 2em;
+    margin: var(--margin-ul-ol);
+    padding: var(--padding-ul-ol);
 
     &:first-child {
       margin-top: 0;
@@ -64,8 +116,16 @@
     }
   }
 
+  ol>li {
+    list-style: decimal;
+  }
+
+  ul>li {
+    list-style: disc;
+  }
+
   li {
-    margin: 0.25em 0;
+    margin: var(--margin-li);
 
     &:first-child {
       margin-top: 0;
@@ -78,7 +138,7 @@
 
   // Code block styles
   pre {
-    margin: 1em 0;
+    margin: var(--margin-pre);
     overflow-x: auto;
 
     &:first-child {
@@ -92,10 +152,10 @@
 
   // Inline code styles
   code {
-    padding: 0.2em 0.4em;
-    margin: 0;
-    font-size: 0.85em;
-    border-radius: 3px;
+    padding: var(--padding-code-inline);
+    margin: var(--margin-code-inline);
+    font-size: var(--code-inline-text);
+    border-radius: var(--small-border-radius);
   }
 
   pre code {
@@ -110,19 +170,17 @@
   img {
     max-width: 100%;
     height: auto;
-    margin: 0.5em 0;
+    margin: var(--image-margin);
   }
 
   // Horizontal rule
   hr {
-    margin: 1.5em 0;
-    border: none;
-    border-top: 1px solid #ddd;
+    margin: var(--hr-margin);
   }
 
   // Table styles
-  table:not(pre code) {
-    margin: 1em 0;
+  table:not(pre, code) {
+    margin: var(--table-margin);
     border-collapse: collapse;
 
     &:first-child {
@@ -133,45 +191,25 @@
       margin-bottom: 0;
     }
   }
-
-  th,
-  td:not(pre code) {
-    padding: 0.5em;
-    border: 1px solid #ddd;
-  }
-
-  th:not(pre code) {
-    font-weight: bold;
-  }
 }
 
-@keyframes x-markdown-fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-.inline-katex {
+.x-markdown .inline-katex {
   .katex-display {
     display: inline-block;
     margin: 0;
     text-align: initial;
     vertical-align: middle;
 
-    > .katex {
+    >.katex {
       display: inline-block;
       text-align: initial;
       white-space: normal;
 
-      > .katex-html {
+      >.katex-html {
         display: inline-block;
         position: static;
 
-        > .tag {
+        >.tag {
           position: static;
         }
       }
