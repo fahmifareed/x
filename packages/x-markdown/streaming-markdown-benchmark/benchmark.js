@@ -84,9 +84,9 @@ async function runRenderer(browser, name) {
   for (const renderer of renderers) {
     console.log(`⏰ Renderer: ${renderer} \n`);
     const result = await runRenderer(browser, renderer);
-    console.log(`📈 Result: ${result} \n`);
+    console.log(`📈 Result: ${JSON.stringify(result)} \n`);
     results.push(result);
   }
   console.table(results);
-  // await browser.close();
+  await browser.close();
 })();
