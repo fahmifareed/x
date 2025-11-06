@@ -244,9 +244,9 @@
     "webpack-bundle-analyzer": "^4.10.2"
   },
   "peerDependencies": {
+    "antd": "6.0.0-alpha.3",
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0",
-    "antd": "6.0.0-alpha.3"
+    "react-dom": ">=18.0.0"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
