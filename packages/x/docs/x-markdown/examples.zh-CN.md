@@ -39,14 +39,14 @@ order: 2
 | rootClassName | `className` 的别名，根元素的额外 CSS 类 | `string` | - |
 | style | 根容器的内联样式 | `CSSProperties` | - |
 
-### SteamingOption
+### StreamingOption
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | hasNextChunk | 指示是否还有后续内容块，为 false 时刷新所有缓存并完成渲染 | `boolean` | `false` |
 | enableAnimation | 为块级元素（`p`、`li`、`h1`、`h2`、`h3`、`h4`）启用文字淡入动画 | `boolean` | `false` |
 | animationConfig | 文字出现动画效果的配置 | `AnimationConfig` | `{ fadeDuration: 200, opacity: 0.2 }` |
-| incompletePlaceholderMap | 未闭合Markdown元素的占位符映射，支持自定义链接和图片的占位符组件 | `{ link?: string; image?: string }` | `{ link: 'incomplete-link', image: 'incomplete-image' }` |
+| incompleteMarkdownComponentMap | 未闭合Markdown元素的占位符映射，支持自定义链接和图片的占位符组件 | `{ link?: string; image?: string }` | `{ link: 'incomplete-link', image: 'incomplete-image' }` |
 
 #### AnimationConfig
 
