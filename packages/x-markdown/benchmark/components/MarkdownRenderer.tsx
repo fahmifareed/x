@@ -2,6 +2,8 @@ import MarkdownIt from 'markdown-it';
 import { marked } from 'marked';
 import React, { FC } from 'react';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
 import { Streamdown } from 'streamdown';
 import XMarkdown from '../../src';
 
@@ -10,8 +12,11 @@ type MarkdownRendererProps = {
 };
 
 const MarkedRenderer: FC<MarkdownRendererProps> = (props) => (
-  // biome-ignore lint/security/noDangerouslySetInnerHtml: benchmark only
-  <div dangerouslySetInnerHTML={{ __html: marked.parse(props.md) as string }} />
+  <div
+    className="markdown-container"
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: benchmark only
+    dangerouslySetInnerHTML={{ __html: marked.parse(props.md) as string }}
+  />
 );
 
 const MarkdownItRenderer: FC<MarkdownRendererProps> = (props) => {
@@ -19,18 +24,28 @@ const MarkdownItRenderer: FC<MarkdownRendererProps> = (props) => {
 
   return (
     // biome-ignore lint/security/noDangerouslySetInnerHtml: benchmark only
-    <div dangerouslySetInnerHTML={{ __html: md.render(props.md) }} />
+    <div className="markdown-container" dangerouslySetInnerHTML={{ __html: md.render(props.md) }} />
   );
 };
 
 const ReactMarkdownRenderer: FC<MarkdownRendererProps> = (props) => (
-  <ReactMarkdown>{props.md}</ReactMarkdown>
+  <div className="markdown-container">
+    <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
+      {props.md}
+    </ReactMarkdown>
+  </div>
 );
 
-const XMarkdownRenderer: FC<MarkdownRendererProps> = (props) => <XMarkdown>{props.md}</XMarkdown>;
+const XMarkdownRenderer: FC<MarkdownRendererProps> = (props) => (
+  <div className="markdown-container">
+    <XMarkdown>{props.md}</XMarkdown>
+  </div>
+);
 
 const StreamdownRenderer: FC<MarkdownRendererProps> = (props) => (
-  <Streamdown>{props.md}</Streamdown>
+  <div className="markdown-container">
+    <Streamdown>{props.md}</Streamdown>
+  </div>
 );
 
 const Empty = () => <div />;
