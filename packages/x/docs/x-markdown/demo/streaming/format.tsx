@@ -164,7 +164,7 @@ const StreamDemo: React.FC<{ content: string }> = ({ content }) => {
       </Card>
 
       <Card
-        title="XMarkdown"
+        title="Rendered Output"
         size="small"
         style={{ flex: 1, overflow: 'scroll' }}
         extra={
