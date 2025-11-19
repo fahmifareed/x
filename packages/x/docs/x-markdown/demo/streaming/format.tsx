@@ -79,7 +79,7 @@ const IncompleteLink = (props: ComponentProps) => {
 
 const TableSkeleton = () => <Skeleton.Node active style={{ width: 160 }} />;
 
-const HtmlSkeleton = () => <Skeleton.Node active style={{ width: 367, height: 120 }} />;
+const HtmlSkeleton = () => <Skeleton.Node active style={{ width: 383, height: 120 }} />;
 
 const IncompleteEmphasis = (props: ComponentProps) => {
   const text = decodeURIComponent(String(props['data-raw'] || ''));
