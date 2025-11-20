@@ -24,7 +24,8 @@
   },
   "license": "MIT",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/x-markdown/benchmark"
   ],
   "devDependencies": {
     "@ant-design/tools": "^19.0.2",
