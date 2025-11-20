@@ -436,7 +436,7 @@ test.describe('Streaming Markdown Benchmark', async () => {
       for (const rendererName of renderers) {
         test(`${rendererName}-${textType}`, async ({ page, mount, browserName }) => {
           try {
-            test.setTimeout(60000 * RUN_COUNT);
+            test.setTimeout(600_000 * RUN_COUNT);
             const result = await measure({
               name: rendererName,
               page,

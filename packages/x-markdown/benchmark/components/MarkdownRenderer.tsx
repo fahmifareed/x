@@ -11,6 +11,8 @@ type MarkdownRendererProps = {
   md: string;
 };
 
+const md = new MarkdownIt();
+
 const MarkedRenderer: FC<MarkdownRendererProps> = (props) => (
   <div
     className="markdown-container"
@@ -20,8 +22,6 @@ const MarkedRenderer: FC<MarkdownRendererProps> = (props) => (
 );
 
 const MarkdownItRenderer: FC<MarkdownRendererProps> = (props) => {
-  const md = new MarkdownIt();
-
   return (
     // biome-ignore lint/security/noDangerouslySetInnerHtml: benchmark only
     <div className="markdown-container" dangerouslySetInnerHTML={{ __html: md.render(props.md) }} />
