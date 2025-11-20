@@ -6,15 +6,9 @@ const path = require('path');
 async function runFullBenchmark() {
   console.log('🚀 Starting Streaming Markdown renderer performance benchmark...\n');
 
-  // Ensure test environment is ready
-  console.log('📦 Checking and installing dependencies...');
-  await runCommand('npm', ['install'], { cwd: path.join(__dirname, '..') });
-
   // Install Playwright browsers
   console.log('🌐 Installing Playwright browsers...');
-  await runCommand('npx', ['playwright', 'install', 'chromium'], {
-    cwd: path.join(__dirname, '..'),
-  });
+  await runCommand('npx', ['playwright', 'install', 'chromium']);
 
   // Clean up old test results
   console.log('🧹 Cleaning up old test results...');
@@ -25,11 +19,10 @@ async function runFullBenchmark() {
 
   // Run the full benchmark suite
   console.log('🏃 Running performance tests for all renderers...');
-  await runCommand(
-    'npx',
-    ['playwright', 'test', '-c', 'playwright-ct.config.ts', '--reporter=line'],
-    { cwd: path.join(__dirname, '..') },
-  );
+  const configPath = path.join(__dirname, '..', 'playwright-ct.config.ts');
+  await runCommand('npx', ['playwright', 'test', '-c', configPath, '--reporter=line'], {
+    cwd: path.join(__dirname, '..'),
+  });
 
   console.log('\n✅ Benchmark completed successfully!');
   console.log('📊 Report locations:');

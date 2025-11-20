@@ -57,7 +57,7 @@ const TEXT_CATEGORIES = {
 };
 
 const fullText = fs.readFileSync(path.resolve(__dirname, 'test.md'), 'utf-8');
-const CHUNK_SIZE = 30;
+const CHUNK_SIZE = 6;
 const UPDATE_INTERVAL = 50;
 const RUN_COUNT = 3;
 
