@@ -54,7 +54,7 @@ const zhCN = {
   slotTextStart: '请帮我介绍Ant Design X 中',
   slotTextEnd: '的用法。',
   aiMessage_1: `RICH 设计范式 \n [查看详情](/docs/spec/introduce-cn})`,
-  aiMessage_2: `# 快速安装和导入组件 \n \`npm install @ant-design/x --save \` \n [查看详情](/components/introduce-cn}/)`,
+  aiMessage_2: `# 快速安装和导入组件 \n \`npm install @ant-design/x --save \` \n [查看详情](/components/introduce-cn}/)\n \n\n ### 导入方式 \n\n \`\`\`tsx \n\n import { Bubble } from '@ant-design/x';\n\n \`\`\`\n\n ### 组件使用 \n\n \`\`\`tsx\n\n import React from 'react';\n\nimport { Bubble } from '@ant-design/x';\n\nconst App: React.FC = () => ( \n\n <div className="App"> \n\n  <Bubble content="Hello world!" />\n\n </div>\n\n  );\n\n export default App;`,
   welcome: `你好，我是 Ant Design X`,
   welcomeDescription: `基于蚂蚁设计，AGI产品界面解决方案，打造更好的智能视觉~~`,
   aiCopilot: 'AI 助手',
