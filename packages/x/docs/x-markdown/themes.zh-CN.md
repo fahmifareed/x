@@ -86,6 +86,7 @@ packages/x-markdown/src/themes/
   --hr-margin: 24px 0;
   --table-margin: 0 0 24px 0;
   --margin-pre: 0 0 16px 0;
+  --padding-code: 16px;
 }
 
 /* 代码块高亮 */
