@@ -75,10 +75,7 @@ export type Info = {
   extraInfo?: AnyObject;
 };
 export interface BubbleProps<ContentType extends BubbleContentType = string>
-  extends Omit<
-    React.HTMLAttributes<HTMLDivElement>,
-    'content' | 'onAnimationStart' | 'onAnimationEnd'
-  > {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'> {
   prefixCls?: string;
   styles?: Partial<Record<SemanticType, React.CSSProperties>>;
   rootClassName?: string;
