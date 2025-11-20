@@ -57,8 +57,6 @@ Based on the RICH interaction paradigm, we provide many atomic components for di
 - **Umi**: Enterprise-grade framework
 
 > Ant Design X is more than just a component library—it's a complete solution for building the next generation of AI-powered applications. Start building today and create experiences that delight your users.
-
-[Get Started →](https://x.ant.design/docs/react/introduce)
 `;
 
 const { Text } = Typography;

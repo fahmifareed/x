@@ -1,6 +1,6 @@
 {
   "name": "@ant-design/x-markdown",
-  "version": "2.0.0-alpha.15",
+  "version": "2.0.0-alpha.16",
   "scripts": {
     "compile": "father build",
     "tsc": "tsc --noEmit",
@@ -50,8 +50,8 @@
   "license": "MIT",
   "description": "placeholder for @ant-design/x-markdown",
   "dependencies": {
-    "@ant-design/cssinjs": "2.0.0-alpha.8",
-    "@ant-design/cssinjs-utils": "2.0.0-alpha.2",
+    "@ant-design/cssinjs": "^2.0.0",
+    "@ant-design/cssinjs-utils": "^2.0.0",
     "@ant-design/fast-color": "^3.0.0",
     "@ant-design/icons": "^6.0.0",
     "@ant-design/x": "*",
@@ -74,10 +74,9 @@
     "@types/react-dom": "^19.0.2",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@umijs/mako": "^0.11.10",
-    "@vitejs/plugin-react": "^4.2.1",
-    "antd": "6.0.0-alpha.4",
-    "antd-style": "^4.0.0-alpha.1",
-    "antd-token-previewer": "^3.0.0-alpha.3",
+    "antd": "6.0.0-alpha.5",
+    "antd-style": "4.0.0-alpha.1",
+    "antd-token-previewer": "^3.0.0",
     "glob": "^11.0.0",
     "markdown-it": "^14.0.0",
     "react": "^19.0.0",
@@ -89,7 +88,7 @@
     "vite": "^5.0.6"
   },
   "peerDependencies": {
-    "antd": "6.0.0-alpha.4",
+    "antd": "6.0.0-alpha.5",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
   },
