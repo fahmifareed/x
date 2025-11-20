@@ -18,7 +18,20 @@ const LOCALE_MARKDOWN = {
 
 const findFirstForbiddenCharIndex = (() => {
   // 预定义常量，避免重复创建
-  const FORBIDDEN_CHARS = new Set(['(', ')', '[', ']', '{', '}', '（', '）', '「', '」']);
+  const FORBIDDEN_CHARS = new Set([
+    '(',
+    ')',
+    '[',
+    ']',
+    '{',
+    '}',
+    '（',
+    '）',
+    '「',
+    '」',
+    '。',
+    '，',
+  ]);
   const CHINESE_REGEX = /[\u4e00-\u9fa5]/;
 
   let segmenter: any = null;
