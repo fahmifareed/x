@@ -22,5 +22,5 @@ jobs:
         uses: ant-design/size-limit-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          package_manager: bun
+          package_manager: npm
           build_script: compile
