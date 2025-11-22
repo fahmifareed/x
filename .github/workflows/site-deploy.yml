@@ -17,15 +17,15 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v6
-
       - uses: utooland/setup-utoo@v1
-
       - run: ut
+      - run: ut prestart --workspaces
 
-      - name: build site
-        run: ut predeploy --workspace packages/x
+      - name: ut site
+        id: site
+        run: ut site --workspace packages/x
         env:
-          NODE_OPTIONS: --max_old_space_size=4096
+          NODE_OPTIONS: '--max_old_space_size=4096'
 
       - name: build dist and bundle analyzer report
         run: ut compile --workspace packages/x
