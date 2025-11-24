@@ -1,16 +1,21 @@
 {
   "files": {
     "ignoreUnknown": true,
-    "ignore": [
-      ".dumi/tmp*",
-      "dist/*",
-      "es/**/*",
-      "lib/**/*",
-      "_site/**/*",
-      "server/*",
-      "node_modules",
-      "coverage",
-      "package.json"
+    "includes": [
+      "**",
+      "!**/.dumi/tmp*",
+      "!**/dist/**/*",
+      "!**/es/**/*",
+      "!**/lib/**/*",
+      "!**/_site/**/*",
+      "!**/server/**/*",
+      "!**/node_modules",
+      "!**/coverage",
+      "!**/package.json",
+      "!**/x-markdown/plugins/**/*",
+      "!**/x-markdown/themes/**/*",
+      "!**/tests/index.html",
+      "!**/scripts/visual-regression/report-template.html"
     ]
   },
   "formatter": {
@@ -20,6 +25,7 @@
     "indentWidth": 2
   },
   "javascript": {
+    "jsxRuntime": "reactClassic",
     "formatter": {
       "quoteStyle": "single"
     }
@@ -31,14 +37,25 @@
         "useNumberNamespace": "off",
         "useNodejsImportProtocol": "off",
         "noNonNullAssertion": "off",
-        "noUnusedTemplateLiteral": "off"
+        "noUnusedTemplateLiteral": "off",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error",
+        "noParameterAssign": "off"
       },
       "complexity": {
         "noUselessTypeConstraint": "off",
-        "noForEach": "off"
+        "noForEach": "off",
+        "noUselessFragments": "off"
       },
       "correctness": {
-        "useExhaustiveDependencies": "off"
+        "useExhaustiveDependencies": "off",
+        "useUniqueElementIds": "off",
+        "noVoidTypeReturn": "off"
       },
       "suspicious": {
         "noGlobalIsNan": "off",
@@ -46,7 +63,10 @@
         "noExplicitAny": "off",
         "noArrayIndexKey": "off",
         "noConfusingVoidType": "off",
-        "noThenProperty": "off"
+        "noThenProperty": "off",
+        "noTsIgnore": "off",
+        "noImplicitAnyLet": "off",
+        "noNonNullAssertedOptionalChain": "off"
       },
       "performance": {
         "noDelete": "off",
@@ -55,13 +75,22 @@
       "a11y": {
         "noAriaHiddenOnFocusable": "off",
         "useSemanticElements": "off",
-        "useKeyWithClickEvents": "off"
+        "useKeyWithClickEvents": "off",
+        "noStaticElementInteractions": "off",
+        "useValidAnchor": "off",
+        "useAnchorContent": "off"
       }
     }
   },
   "overrides": [
     {
-      "include": ["**/*.test.ts", "**/*.test.tsx", "tests/**/*", "scripts/**/*", ".dumi/**/*"],
+      "includes": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/tests/**/*",
+        "**/scripts/**/*",
+        "**/.dumi/**/*"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -83,16 +112,45 @@
       }
     },
     {
-      "include": ["components/*/demo/*"],
+      "includes": ["**/packages/x/components/**/*/demo/**/*", "**/packages/x-sdk/src/**/*"],
       "linter": {
         "rules": {
           "correctness": {
-            "noVoidTypeReturn": "off"
+            "noVoidTypeReturn": "off",
+            "noUnusedPrivateClassMembers": "off"
           },
           "a11y": {
             "useValidAnchor": "off",
             "useAnchorContent": "off",
             "useKeyWithClickEvents": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/packages/x-markdown/src/**/*"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noVoidTypeReturn": "off"
+          },
+          "complexity": {
+            "noImportantStyles": "off"
+          },
+          "a11y": {
+            "useValidAnchor": "off",
+            "useAnchorContent": "off",
+            "useKeyWithClickEvents": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/packages/x/components/notification/**/*"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedPrivateClassMembers": "off"
           }
         }
       }
