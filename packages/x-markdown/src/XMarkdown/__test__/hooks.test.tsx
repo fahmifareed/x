@@ -778,6 +778,124 @@ describe('XMarkdown hooks', () => {
     });
   });
 
+  describe('useStreaming URIError handling', () => {
+    it('should handle URIError with invalid Unicode characters', () => {
+      const { result } = renderHook(() =>
+        useStreaming('[test](https://example.com)\uD800\uDFFF', {
+          streaming: {
+            hasNextChunk: true,
+            incompleteMarkdownComponentMap: { link: 'incomplete-link' },
+          },
+          components: {
+            'incomplete-link': () => null,
+          },
+        }),
+      );
+
+      expect(result.current).toBeDefined();
+      expect(typeof result.current).toBe('string');
+    });
+
+    it('should handle lone surrogate pairs', () => {
+      const { result } = renderHook(() =>
+        useStreaming('[test](https://example.com)\uD800', {
+          streaming: {
+            hasNextChunk: true,
+            incompleteMarkdownComponentMap: { link: 'incomplete-link' },
+          },
+          components: {
+            'incomplete-link': () => null,
+          },
+        }),
+      );
+
+      expect(result.current).toBeDefined();
+    });
+
+    it('should handle invalid surrogate pairs', () => {
+      const { result } = renderHook(() =>
+        useStreaming('[test](https://example.com)\uDFFF\uD800', {
+          streaming: {
+            hasNextChunk: true,
+            incompleteMarkdownComponentMap: { link: 'incomplete-link' },
+          },
+          components: {
+            'incomplete-link': () => null,
+          },
+        }),
+      );
+
+      expect(result.current).toBeDefined();
+    });
+
+    it('should handle mixed valid and invalid Unicode', () => {
+      const { result } = renderHook(() =>
+        useStreaming('[test](https://example.com)正常文本\uD800\uDFFF更多文本', {
+          streaming: {
+            hasNextChunk: true,
+            incompleteMarkdownComponentMap: { link: 'incomplete-link' },
+          },
+          components: {
+            'incomplete-link': () => null,
+          },
+        }),
+      );
+
+      expect(result.current).toBeDefined();
+    });
+
+    it('should handle empty string with invalid Unicode', () => {
+      const { result } = renderHook(() =>
+        useStreaming('\uD800\uDFFF', {
+          streaming: {
+            hasNextChunk: true,
+            incompleteMarkdownComponentMap: { link: 'incomplete-link' },
+          },
+          components: {
+            'incomplete-link': () => null,
+          },
+        }),
+      );
+
+      expect(result.current).toBeDefined();
+      expect(typeof result.current).toBe('string');
+    });
+
+    it('should handle only invalid Unicode characters', () => {
+      const { result } = renderHook(() =>
+        useStreaming('\uD800\uDFFF\uD800\uDFFF', {
+          streaming: {
+            hasNextChunk: true,
+            incompleteMarkdownComponentMap: { link: 'incomplete-link' },
+          },
+          components: {
+            'incomplete-link': () => null,
+          },
+        }),
+      );
+
+      expect(result.current).toBeDefined();
+      expect(typeof result.current).toBe('string');
+    });
+
+    it('should handle incomplete markdown with invalid Unicode', () => {
+      const { result } = renderHook(() =>
+        useStreaming('[incomplete link](https://example\uD800\uDFFF', {
+          streaming: {
+            hasNextChunk: true,
+            incompleteMarkdownComponentMap: { link: 'incomplete-link' },
+          },
+          components: {
+            'incomplete-link': () => null,
+          },
+        }),
+      );
+
+      expect(result.current).toBeDefined();
+      expect(result.current).toContain('incomplete-link');
+    });
+  });
+
   describe('useStreaming components parameter tests', () => {
     // 使用简单的对象来避免类型检查问题
     const customComponents = {
