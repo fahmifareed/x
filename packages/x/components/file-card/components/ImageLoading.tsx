@@ -1,4 +1,3 @@
-import type { SpinProps } from 'antd';
 import { Flex, Skeleton, Spin } from 'antd';
 import classnames from 'classnames';
 import React from 'react';
@@ -6,7 +5,7 @@ import { FileCardProps } from '../FileCard';
 import ImageIcon from './ImageIcon';
 import usePercent from './usePercent';
 
-export type ImageLoadingProps = SpinProps & {
+export type ImageLoadingProps = {
   prefixCls?: string;
   style?: React.CSSProperties;
   className?: string;
@@ -35,7 +34,7 @@ const ImageLoading: React.FC<ImageLoadingProps> = (props) => {
           align="center"
           gap="small"
         >
-          <Spin percent={mergedPercent} {...(spinProps as SpinProps)} />
+          <Spin percent={mergedPercent} {...(spinProps as ImageLoadingProps['spinProps'])} />
           {mergeSinkProps.showText && (
             <div className={`${prefixCls}-image-spin-text`}>{percentText}</div>
           )}
