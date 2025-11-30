@@ -363,7 +363,7 @@ describe('Sender.SlotTextArea', () => {
   });
 
   it('should handle select slot dropdown interaction', () => {
-    const { container, getByText } = render(
+    const { container } = render(
       <Sender
         slotConfig={[
           {
