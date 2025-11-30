@@ -14,8 +14,11 @@ export type ImageLoadingProps = SpinProps & {
 };
 
 const ImageLoading: React.FC<ImageLoadingProps> = (props) => {
-  const { style, className, prefixCls, percent = 'auto', spinProps } = props;
-  const [mergedPercent, percentText] = usePercent(true, percent);
+  const { style, className, prefixCls, spinProps } = props;
+  const [mergedPercent, percentText] = usePercent(
+    true,
+    typeof spinProps?.percent === 'undefined' ? 'auto' : spinProps?.percent,
+  );
   const mergeSinkProps = {
     size: 'default',
     showText: true,
