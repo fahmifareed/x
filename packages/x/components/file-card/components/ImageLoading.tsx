@@ -34,7 +34,7 @@ const ImageLoading: React.FC<ImageLoadingProps> = (props) => {
           align="center"
           gap="small"
         >
-          <Spin percent={mergedPercent} {...(spinProps as ImageLoadingProps['spinProps'])} />
+          <Spin percent={mergedPercent} {...spinProps} />
           {mergeSinkProps.showText && (
             <div className={`${prefixCls}-image-spin-text`}>{percentText}</div>
           )}
