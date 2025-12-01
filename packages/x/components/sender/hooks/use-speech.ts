@@ -33,7 +33,6 @@ export default function useSpeech(
   React.useEffect(() => {
     if (!speechInControlled && typeof navigator !== 'undefined' && 'permissions' in navigator) {
       let lastPermission: PermissionStatus | null = null;
-
       (navigator as any).permissions
         .query({ name: 'microphone' })
         .then((permissionStatus: PermissionStatus) => {
@@ -58,14 +57,17 @@ export default function useSpeech(
 
   // Ensure that the SpeechRecognition API is available in the browser
   let SpeechRecognition: any;
-  // Convert permission state to a simple type
-  const mergedAllowSpeech =
-    speechInControlled || (SpeechRecognition && permissionState !== 'denied');
 
   if (!SpeechRecognition && typeof window !== 'undefined') {
     SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   }
+
+  // Convert permission state to a simple type
+  const mergedAllowSpeech = !!(
+    speechInControlled ||
+    (SpeechRecognition && permissionState !== 'denied')
+  );
 
   // ========================== Speech Events ==========================
   const recognitionRef = React.useRef<any | null>(null);
@@ -106,6 +108,7 @@ export default function useSpeech(
     }
 
     forceBreakRef.current = forceBreak;
+
     if (speechInControlled) {
       // If in controlled mode, do nothing
       onControlledRecordingChange?.(!recording);
