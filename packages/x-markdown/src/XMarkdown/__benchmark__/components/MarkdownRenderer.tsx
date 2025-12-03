@@ -1,17 +1,27 @@
 import MarkdownIt from 'markdown-it';
-import { marked } from 'marked';
+// @ts-ignore - benchmark only, ignore type checking
+import markdownItKatex from 'markdown-it-katex';
+import { Marked } from 'marked';
+import markedKatex from 'marked-katex-extension';
 import React, { FC } from 'react';
 import ReactMarkdown from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import { Streamdown } from 'streamdown';
-import XMarkdown from '../../src';
+import getLatexPlugin from '../../../plugins/Latex';
+import XMarkdown from '../../index';
 
 type MarkdownRendererProps = {
   md: string;
+  hasNextChunk?: boolean;
 };
 
 const md = new MarkdownIt();
+// benchmark only: bypass TS check
+md.use(markdownItKatex);
+const marked = new Marked(markedKatex({ throwOnError: false }));
 
 const MarkedRenderer: FC<MarkdownRendererProps> = (props) => (
   <div
@@ -30,7 +40,7 @@ const MarkdownItRenderer: FC<MarkdownRendererProps> = (props) => {
 
 const ReactMarkdownRenderer: FC<MarkdownRendererProps> = (props) => (
   <div className="markdown-container">
-    <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>
+    <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeKatex]} remarkPlugins={[remarkGfm, remarkMath]}>
       {props.md}
     </ReactMarkdown>
   </div>
@@ -38,13 +48,20 @@ const ReactMarkdownRenderer: FC<MarkdownRendererProps> = (props) => (
 
 const XMarkdownRenderer: FC<MarkdownRendererProps> = (props) => (
   <div className="markdown-container">
-    <XMarkdown>{props.md}</XMarkdown>
+    <XMarkdown
+      streaming={{ hasNextChunk: props?.hasNextChunk, enableAnimation: true }}
+      config={{ extensions: getLatexPlugin() }}
+    >
+      {props.md}
+    </XMarkdown>
   </div>
 );
 
 const StreamdownRenderer: FC<MarkdownRendererProps> = (props) => (
   <div className="markdown-container">
-    <Streamdown>{props.md}</Streamdown>
+    <Streamdown rehypePlugins={[rehypeRaw, rehypeKatex]} remarkPlugins={[remarkGfm, remarkMath]}>
+      {props.md}
+    </Streamdown>
   </div>
 );
 

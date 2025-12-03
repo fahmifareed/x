@@ -99,7 +99,7 @@ packages/x-sdk/src/version/version.ts
 
 # Playwright (from benchmark)
 packages/x-markdown/test-results/
-packages/x-markdown/benchmark/playwright-report/
-packages/x-markdown/benchmark/blob-report/
-packages/x-markdown/benchmark/playwright/.cache/
-packages/x-markdown/benchmark/playwright/.auth/
+packages/x-markdown/src/XMarkdown/__benchmark__/playwright-report/
+packages/x-markdown/src/XMarkdown/__benchmark__/blob-report/
+packages/x-markdown/src/XMarkdown/__benchmark__/playwright/.cache/
+packages/x-markdown/src/XMarkdown/__benchmark__/playwright/.auth/

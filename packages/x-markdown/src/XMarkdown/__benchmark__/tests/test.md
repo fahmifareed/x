@@ -228,9 +228,65 @@ function test() {
 }
 ```
 
-### 3.4 Table Complexity Test
+### 3.4 Math Formula Test (if supported)
 
-#### 3.4.1 Basic Complex Table
+#### 3.4.1 Inline Formulas
+
+This is an inline math formula: $E=mc^2$, it should render correctly.  
+Inline formula with Greek: $\alpha + \beta = \gamma$.  
+Inline fraction: $\frac{a}{b} + \frac{c}{d} = \frac{ad+bc}{bd}$.
+
+#### 3.4.2 Block Formulas
+
+$$
+\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+$$
+
+$$
+\begin{align}
+\frac{d}{dx}\left( \int_{0}^{x} f(u)\,du\right) &= f(x) \\
+\frac{d}{dx}\left( \int_{a(x)}^{b(x)} f(u)\,du\right) &= f(b(x))b'(x) - f(a(x))a'(x)
+\end{align}
+$$
+
+$$
+\sum_{i=1}^{n} i = \frac{n(n+1)}{2}
+$$
+
+$$
+\mathbf{A} = \begin{pmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+7 & 8 & 9
+\end{pmatrix}
+$$
+
+$$
+\lim_{x \to 0} \frac{\sin x}{x} = 1
+$$
+
+### 3.5 Task List Test
+
+#### 3.5.1 Basic Task Lists
+
+- [x] Completed task
+- [ ] Incomplete task
+- [x] Another completed task
+- [ ] Todo item 1
+- [ ] Todo item 2
+
+#### 3.5.2 Nested Task Lists
+
+- [x] Main task
+  - [x] Subtask 1
+  - [ ] Subtask 2
+    - [x] Sub-subtask 1
+    - [ ] Sub-subtask 2
+- [ ] Independent task
+
+### 3.6 Table Complexity Test
+
+#### 3.6.1 Basic Complex Table
 
 | Header1         | Header2  | Header3  | Header4            | Header5                     |
 | --------------- | -------- | -------- | ------------------ | --------------------------- |
@@ -238,7 +294,7 @@ function test() {
 | Merge cell test |          |          | Span three columns |                             |
 | New row1        | **Bold** | _Italic_ | `Code`             | [Link](https://example.com) |
 
-#### 3.4.2 Nested Content Table
+#### 3.6.2 Nested Content Table
 
 | Feature    | Description             | Example                                        | Status |
 | ---------- | ----------------------- | ---------------------------------------------- | ------ |
@@ -247,7 +303,7 @@ function test() {
 | Flowcharts | Support Mermaid         | `mermaid<br>graph LR<br>A-->B`                 | ❌     |
 | Tables     | Support complex tables  | As shown above                                 | ✅     |
 
-#### 3.4.3 Large Data Table
+#### 3.6.3 Large Data Table
 
 | ID | Name | Type | Size | Created | Modified | Permissions | Owner | Group | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -257,7 +313,7 @@ function test() {
 | 4 | script.js | file | 512KB | 2024-01-02 15:00:00 | 2024-01-02 15:30:00 | 700 | user3 | group3 | Config file |
 | 5 | data.json | file | 256KB | 2024-01-03 09:15:00 | 2024-01-03 09:15:00 | 644 | user1 | group1 | Data file |
 
-### 3.5 Quote and Annotation Test
+### 3.7 Quote and Annotation Test
 
 > This is a quote block used to test quote format parsing.
 >
@@ -273,9 +329,9 @@ function test() {
 > > >
 > > > This is the deepest quote content, containing [links](https://example.com) and **formatted text**.
 
-### 3.6 Link and Image Test
+### 3.8 Link and Image Test
 
-#### 3.6.1 Various Link Formats
+#### 3.8.1 Various Link Formats
 
 - [Inline link](https://example.com)
 - [Link with title](https://example.com 'Link title')
@@ -286,47 +342,9 @@ function test() {
 
 [reference]: https://example.com 'Reference link'
 
-#### 3.6.2 Image Test
+#### 3.8.2 Image Test
 
 ![Regular image](https://via.placeholder.com/200x100) ![Image with alt](https://via.placeholder.com/200x100 'Image title') ![Small icon](https://via.placeholder.com/16x16)
-
-### 3.7 Math Formula Test (if supported)
-
-#### 3.7.1 Inline Formulas
-
-This is an inline math formula: $E=mc^2$, it should render correctly.
-
-#### 3.7.2 Block Formulas
-
-$$
-\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
-$$
-
-$$
-\begin{align}
-\frac{d}{dx}\left( \int_{0}^{x} f(u)\,du\right) &= f(x) \\
-\frac{d}{dx}\left( \int_{a(x)}^{b(x)} f(u)\,du\right) &= f(b(x))b'(x) - f(a(x))a'(x)
-\end{align}
-$$
-
-### 3.8 Task List Test
-
-#### 3.8.1 Basic Task Lists
-
-- [x] Completed task
-- [ ] Incomplete task
-- [x] Another completed task
-- [ ] Todo item 1
-- [ ] Todo item 2
-
-#### 3.8.2 Nested Task Lists
-
-- [x] Main task
-  - [x] Subtask 1
-  - [ ] Subtask 2
-    - [x] Sub-subtask 1
-    - [ ] Sub-subtask 2
-- [ ] Independent task
 
 ## 4. Repetitive Content Test (increasing file size)
 

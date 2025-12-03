@@ -10,6 +10,7 @@ import {
   StreamdownRenderer,
   XMarkdownRenderer,
 } from '../components/MarkdownRenderer';
+import { BENCHMARK_CONFIG, RENDERERS, TEST_FILE_PATH, TEXT_CATEGORIES } from './benchmark.config';
 
 // --- 类型定义和配置 ---
 interface BenchmarkResult {
@@ -49,17 +50,8 @@ interface RunResult {
   timestamps: number[];
 }
 
-// 文本长度分类配置
-const TEXT_CATEGORIES = {
-  short: { min: 0, max: 280, name: '短文本' },
-  medium: { min: 280, max: 2000, name: '中文本' },
-  long: { min: 2000, max: 20000, name: '长文本' },
-};
-
-const fullText = fs.readFileSync(path.resolve(__dirname, 'test.md'), 'utf-8');
-const CHUNK_SIZE = 6;
-const UPDATE_INTERVAL = 50;
-const RUN_COUNT = 3;
+const fullText = fs.readFileSync(path.resolve(__dirname, TEST_FILE_PATH), 'utf-8');
+const { CHUNK_SIZE, UPDATE_INTERVAL, RUN_COUNT, TEST_TEXT_LENGTHS } = BENCHMARK_CONFIG;
 
 // 根据文本长度生成测试文本
 function generateTextByLength(length: number): string {
@@ -77,12 +69,10 @@ function generateTextByLength(length: number): string {
 
 // 获取不同长度的测试文本
 const testTexts = {
-  short: generateTextByLength(250), // 短文本：250字符
-  medium: generateTextByLength(1500), // 中文本：1500字符
-  long: generateTextByLength(8000), // 长文本：8000字符
+  short: generateTextByLength(TEST_TEXT_LENGTHS.short),
+  medium: generateTextByLength(TEST_TEXT_LENGTHS.medium),
+  long: generateTextByLength(TEST_TEXT_LENGTHS.long),
 };
-
-const renderers = ['marked', 'markdown-it', 'react-markdown', 'x-markdown', 'streamdown'];
 
 const getRenderer = (name: string, md = '') => {
   switch (name) {
@@ -433,10 +423,10 @@ test.describe('Streaming Markdown Benchmark', async () => {
   // 为每个文本长度类别创建测试组
   for (const textType of ['short', 'medium', 'long'] as const) {
     test.describe(`${TEXT_CATEGORIES[textType].name}测试`, () => {
-      for (const rendererName of renderers) {
+      for (const rendererName of RENDERERS) {
         test(`${rendererName}-${textType}`, async ({ page, mount, browserName }) => {
           try {
-            test.setTimeout(600_000 * RUN_COUNT);
+            test.setTimeout(BENCHMARK_CONFIG.TIMEOUT * RUN_COUNT);
             const result = await measure({
               name: rendererName,
               page,
@@ -507,7 +497,7 @@ test.describe('Streaming Markdown Benchmark', async () => {
     console.log('='.repeat(50));
 
     const comparisonData = [];
-    for (const renderer of renderers) {
+    for (const renderer of RENDERERS) {
       const rendererResults = results.filter((r) => r.name === renderer);
       if (rendererResults.length === 0) continue;
 
