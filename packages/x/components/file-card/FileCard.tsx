@@ -40,7 +40,11 @@ export type PresetIcons =
   | 'java'
   | 'javascript'
   | 'python';
-export interface FileCardProps {
+export interface FileCardProps
+  extends Omit<
+    React.HTMLAttributes<HTMLDivElement>,
+    'content' | 'onAnimationStart' | 'onAnimationEnd'
+  > {
   prefixCls?: string;
   style?: React.CSSProperties;
   styles?: Partial<Record<SemanticType, React.CSSProperties>>;
@@ -249,7 +253,6 @@ const FileCard: React.FC<FileCardProps> = (props) => {
   let ContentNode: React.ReactNode = null;
 
   if (fileType === 'image') {
-    const preview = mask ? { mask } : undefined;
     ContentNode = (
       <div
         className={classnames(`${prefixCls}-image`, classNames.file, {
@@ -264,7 +267,6 @@ const FileCard: React.FC<FileCardProps> = (props) => {
             height={styles?.file?.height}
             alt={name}
             src={src}
-            preview={preview}
             {...(imageProps as ImageProps)}
           />
         )}
