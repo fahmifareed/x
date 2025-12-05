@@ -74,7 +74,6 @@ const ActionsCopy: React.FC<ActionsCopyProps> = (props) => {
 
   const mergedCls = classnames(
     `${prefixCls}-item`,
-    copyCls,
     hashId,
     cssVarCls,
     rootClassName,
