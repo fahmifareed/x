@@ -21,23 +21,6 @@ cd packages/x-markdown/benchmark
 # 一键运行完整基准测试（推荐）
 npm run benchmark
 
-### 运行步骤
-
-1. **安装依赖**
-   ```bash
-   npm install
-````
-
-2. **安装Playwright浏览器**
-
-   ```bash
-   npx playwright install chromium
-   ```
-
-3. **运行测试**
-   ```bash
-   npm run test:all
-   ```
 
 ## 生成的报告
 
@@ -136,3 +119,4 @@ npm run benchmark
 - 修改 `renderers` 数组添加或移除渲染器
 - 调整 `updateInterval` 改变流式更新频率
 - 更换测试文档 `test.md`
+````
