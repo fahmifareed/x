@@ -5,7 +5,6 @@ const genActionsCopyStyle: GenerateStyle<ActionsToken> = (token) => {
   const { componentCls } = token;
 
   const copyCls = `${componentCls}-copy`;
-
   return {
     [copyCls]: {
       [`&${copyCls}-rtl`]: {
