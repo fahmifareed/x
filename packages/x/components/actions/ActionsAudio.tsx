@@ -63,6 +63,7 @@ const ActionsAudio: React.FC<ActionsAudioProps> = (props) => {
   // ============================ Classname ============================
 
   const mergedCls = classnames(
+    prefixCls,
     audioCls,
     hashId,
     cssVarCls,

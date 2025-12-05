@@ -108,6 +108,7 @@ const ActionsItem: React.FC<ActionsItemProps> = (props) => {
     rootClassName,
     className,
     classNames.root,
+    prefixCls,
     `${prefixCls}-item`,
     {
       [`${itemCls}-rtl`]: direction === 'rtl',
