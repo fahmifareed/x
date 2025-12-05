@@ -98,6 +98,7 @@ const SenderSwitch = React.forwardRef<SenderSwitchRef, SenderSwitchProps>((props
   const contextConfig = useXComponentConfig('sender');
 
   const mergedCls = classnames(
+    prefixCls,
     switchCls,
     className,
     rootClassName,
@@ -108,7 +109,7 @@ const SenderSwitch = React.forwardRef<SenderSwitchRef, SenderSwitchProps>((props
     cssVarCls,
     {
       [`${switchCls}-checked`]: mergedChecked,
-      [`${prefixCls}-rtl`]: direction === 'rtl',
+      [`${switchCls}-rtl`]: direction === 'rtl',
     },
   );
 
@@ -128,13 +129,13 @@ const SenderSwitch = React.forwardRef<SenderSwitchRef, SenderSwitchProps>((props
       <Button
         disabled={disabled}
         loading={loading}
+        className={classnames(`${switchCls}-content`, classNames.content)}
+        style={styles.content}
         styles={{
           icon: styles.icon,
-          root: styles.content,
           content: styles.title,
         }}
         classNames={{
-          root: classnames(`${switchCls}-content`, classNames.content),
           icon: classNames.icon,
           content: classNames.title,
         }}
