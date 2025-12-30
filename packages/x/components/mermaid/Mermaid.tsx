@@ -54,7 +54,6 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
-  const mermaidRef = useRef<any>(null);
   const id = `mermaid-${uuid++}-${children?.length || 0}`;
 
   useEffect(() => {
@@ -97,7 +96,6 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
 
     try {
       const isValid = await mermaid.parse(children, { suppressErrors: true });
-
       if (!isValid) throw new Error('Invalid Mermaid syntax');
 
       const newText = children.replace(/[`\s]+$/g, '');
