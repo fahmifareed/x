@@ -193,6 +193,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [deepThink, setDeepThink] = useState<boolean>(true);
   const [activeAgentKey, setActiveAgentKey] = useState('ai_writing');
+  const [slotConfig, setSlotConfig] = useState(AgentInfo[activeAgentKey]);
 
   // ======================== sender en ========================
   const senderRef = useRef<GetRef<typeof Sender>>(null);
@@ -234,6 +235,12 @@ const App: React.FC = () => {
 
   const agentItemClick: MenuProps['onClick'] = (item) => {
     setActiveAgentKey(item.key);
+    try {
+      // deep clone
+      setSlotConfig(JSON.parse(JSON.stringify(AgentInfo[item.key])));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // ======================== sender zh ========================
@@ -278,7 +285,7 @@ const App: React.FC = () => {
       <Sender
         loading={loading}
         ref={senderRef}
-        skill={AgentInfo[activeAgentKey].skill}
+        skill={slotConfig.skill}
         placeholder="Press Enter to send message"
         footer={(actionNode) => {
           return (
@@ -340,7 +347,76 @@ const App: React.FC = () => {
           setLoading(false);
           message.error('Cancel sending!');
         }}
-        slotConfig={AgentInfo[activeAgentKey].slotConfig}
+        slotConfig={slotConfig.slotConfig}
+        autoSize={{ minRows: 3, maxRows: 6 }}
+      />
+      <Sender
+        loading={loading}
+        ref={senderZhRef}
+        skill={slotConfig.zh_skill}
+        placeholder=""
+        footer={(actionNode) => {
+          return (
+            <Flex justify="space-between" align="center">
+              <Flex gap="small" align="center">
+                <Button style={IconStyle} type="text" icon={<PaperClipOutlined />} />
+                <Switch
+                  value={deepThink}
+                  checkedChildren={
+                    <>
+                      深度搜索：<span style={SwitchTextStyle}>开启</span>
+                    </>
+                  }
+                  unCheckedChildren={
+                    <>
+                      深度搜索：<span style={SwitchTextStyle}>关闭</span>
+                    </>
+                  }
+                  onChange={(checked: boolean) => {
+                    setDeepThink(checked);
+                  }}
+                  icon={<OpenAIOutlined />}
+                />
+                <Dropdown
+                  menu={{
+                    selectedKeys: [activeAgentKey],
+                    onClick: agentItemClick,
+                    items: zhAgentItems,
+                  }}
+                >
+                  <Switch value={false} icon={<AntDesignOutlined />}>
+                    功能应用
+                  </Switch>
+                </Dropdown>
+                {fileItems?.length ? (
+                  <Dropdown
+                    menu={{ onClick: (item) => fileItemClick(item, 'zh'), items: zhFileItems }}
+                  >
+                    <Switch value={false} icon={<ProfileOutlined />}>
+                      文件引用
+                    </Switch>
+                  </Dropdown>
+                ) : null}
+              </Flex>
+              <Flex align="center">
+                <Button type="text" style={IconStyle} icon={<ApiOutlined />} />
+                <Divider orientation="vertical" />
+                {actionNode}
+              </Flex>
+            </Flex>
+          );
+        }}
+        suffix={false}
+        onSubmit={(v, _, skill) => {
+          setLoading(true);
+          message.info(`Send message: ${skill?.value} | ${v}`);
+          senderZhRef.current?.clear?.();
+        }}
+        onCancel={() => {
+          setLoading(false);
+          message.error('Cancel sending!');
+        }}
+        slotConfig={slotConfig.zh_slotConfig}
         autoSize={{ minRows: 3, maxRows: 6 }}
       />
       <Sender
