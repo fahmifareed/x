@@ -96,18 +96,8 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     if (!children || !containerRef.current || renderType === RenderType.Code) return;
 
     try {
-      if (!mermaidRef.current) {
-        const mermaidModule = await import('mermaid');
-        mermaidRef.current = mermaidModule.default;
-        mermaidRef.current.initialize({
-          startOnLoad: false,
-          securityLevel: 'strict',
-          theme: 'default',
-          fontFamily: 'monospace',
-        });
-      }
+      const isValid = await mermaid.parse(children, { suppressErrors: true });
 
-      const isValid = await mermaidRef.current.parse(children, { suppressErrors: true });
       if (!isValid) throw new Error('Invalid Mermaid syntax');
 
       const newText = children.replace(/[`\s]+$/g, '');
