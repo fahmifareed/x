@@ -108,15 +108,16 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     if (!children || !containerRef.current || renderType === RenderType.Code) return;
 
     try {
-      if (isConfigChanged(lastConfigRef.current, config)) {
-        mermaid.initialize({
+      if (isConfigChanged(lastConfigRef.current, config) || lastConfigRef.current === undefined) {
+        const mermaidConfig: MermaidConfig = {
           startOnLoad: false,
           securityLevel: 'strict',
           theme: 'default',
           fontFamily: 'monospace',
           ...(config || {}),
-        });
-        lastConfigRef.current = config;
+        };
+        mermaid.initialize(mermaidConfig);
+        lastConfigRef.current = mermaidConfig;
       }
 
       const isValid = await mermaid.parse(children, { suppressErrors: true });
@@ -137,7 +138,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     } else {
       renderDiagram();
     }
-  }, [children, renderType]);
+  }, [children, renderType, config]);
 
   useEffect(() => {
     const container = containerRef.current;
