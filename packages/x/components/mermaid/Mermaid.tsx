@@ -106,8 +106,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
       const isValid = await mermaid.parse(children, { suppressErrors: true });
       if (!isValid) throw new Error('Invalid Mermaid syntax');
 
-      const cleanContent = children.replace(/[`\s]*$/, '');
-      const { svg } = await mermaid.render(id, cleanContent);
+      const { svg } = await mermaid.render(id, children);
       containerRef.current.innerHTML = svg;
     } catch (error) {
       warning(false, 'Mermaid', `Render failed: ${error}`);
