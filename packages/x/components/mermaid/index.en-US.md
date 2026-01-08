@@ -20,6 +20,7 @@ tag: 2.1.0
 <!-- prettier-ignore -->
 <code src="./demo/basic.tsx">Basic</code>
 <code src="./demo/custom-header.tsx">Custom Header</code>
+<code src="./demo/header-actions.tsx">Header Actions</code>
 <code src="./demo/with-xmarkdown.tsx">With XMarkdown</code>
 
 ## API
@@ -29,9 +30,15 @@ tag: 2.1.0
 | --- | --- | --- | --- |
 | children | Code content | `string` | - |
 | header | Header | `React.ReactNode \| null` | React.ReactNode |
-| className | Style class name | `string` | |
-| classNames | Style class name | `string` | - |
+| className | Style class name | `string` | - |
+| classNames | Style class name | `Partial<Record<'root' \| 'header' \| 'graph' \| 'code', string>>` | - |
+| styles | Style object | `Partial<Record<'root' \| 'header' \| 'graph' \| 'code', React.CSSProperties>>` | - |
 | highlightProps | Code highlighting configuration | [`highlightProps`](https://github.com/react-syntax-highlighter/react-syntax-highlighter?tab=readme-ov-file#props) | - |
+| config | Mermaid configuration | `MermaidConfig` | - |
+| headerActions | Header actions configuration | `{ showZoom?: boolean; showDownload?: boolean; showCopy?: boolean; customActions?: ItemType[] }` | `{ showZoom: true, showDownload: true, showCopy: true }` |
+| onRenderTypeChange | Callback when render type changes | `(value: 'image' \| 'code') => void` | - |
+| prefixCls | Style prefix | `string` | - |
+| style | Custom style | `React.CSSProperties` | - |
 
 ## Semantic DOM
 

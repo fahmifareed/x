@@ -41,6 +41,18 @@ enum RenderType {
   Image = 'image',
 }
 
+const isConfigChanged = (prev?: MermaidConfig, next?: MermaidConfig): boolean => {
+  if (prev === next) return false;
+  if (!prev && !next) return false;
+
+  const prevKeys = Object.keys(prev || {}) as Array<keyof MermaidConfig>;
+  const nextKeys = Object.keys(next || {}) as Array<keyof MermaidConfig>;
+
+  if (prevKeys.length !== nextKeys.length) return true;
+
+  return [...new Set([...prevKeys, ...nextKeys])].some((key) => prev?.[key] !== next?.[key]);
+};
+
 let uuid = 0;
 
 const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
@@ -63,6 +75,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastConfigRef = useRef<MermaidConfig | undefined>(undefined);
   const id = `mermaid-${uuid++}-${children?.length || 0}`;
 
   // ============================ locale ============================
@@ -95,15 +108,21 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     if (!children || !containerRef.current || renderType === RenderType.Code) return;
 
     try {
-      mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: 'strict',
-        theme: 'default',
-        fontFamily: 'monospace',
-        ...(config || {}),
-      });
+      if (isConfigChanged(lastConfigRef.current, config)) {
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'strict',
+          theme: 'default',
+          fontFamily: 'monospace',
+          ...(config || {}),
+        });
+        lastConfigRef.current = config;
+      }
 
-      const cleanContent = children.replace(/[`\s]+$/g, '');
+      const isValid = await mermaid.parse(children, { suppressErrors: true });
+      if (!isValid) throw new Error('Invalid Mermaid syntax');
+
+      const cleanContent = children.replace(/[`\s]+$/, '');
       const { svg } = await mermaid.render(id, cleanContent);
       containerRef.current.innerHTML = svg;
     } catch (error) {
@@ -124,6 +143,9 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     const container = containerRef.current;
     if (!container || renderType !== RenderType.Image) return;
 
+    const { showZoom = true } = headerActions;
+    if (!showZoom) return;
+
     let lastTime = 0;
     const wheelHandler = (e: WheelEvent) => {
       e.preventDefault();
@@ -142,7 +164,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     return () => {
       container.removeEventListener('wheel', wheelHandler);
     };
-  }, [renderType]);
+  }, [renderType, headerActions]);
 
   useEffect(() => {
     if (containerRef.current && renderType === RenderType.Image) {

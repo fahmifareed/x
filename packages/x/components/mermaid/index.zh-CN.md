@@ -21,6 +21,7 @@ tag: 2.1.0
 <!-- prettier-ignore -->
 <code src="./demo/basic.tsx">基本</code>
 <code src="./demo/custom-header.tsx">自定义 Header</code>
+<code src="./demo/header-actions.tsx">Header Actions</code>
 <code src="./demo/with-xmarkdown.tsx">配合 XMarkdown</code>
 
 ## API
@@ -30,9 +31,15 @@ tag: 2.1.0
 | --- | --- | --- | --- |
 | children | 代码内容 | `string` | - |
 | header | 顶部 | `React.ReactNode \| null` | React.ReactNode |
-| className | 样式类名 | `string` | |
-| classNames | 样式类名 | `string` | - |
+| className | 样式类名 | `string` | - |
+| classNames | 样式类名 | `Partial<Record<'root' \| 'header' \| 'graph' \| 'code', string>>` | - |
+| styles | 样式对象 | `Partial<Record<'root' \| 'header' \| 'graph' \| 'code', React.CSSProperties>>` | - |
 | highlightProps | 代码高亮配置 | [`highlightProps`](https://github.com/react-syntax-highlighter/react-syntax-highlighter?tab=readme-ov-file#props) | - |
+| config | Mermaid 配置项 | `MermaidConfig` | - |
+| headerActions | 头部操作栏配置 | `{ showZoom?: boolean; showDownload?: boolean; showCopy?: boolean; customActions?: ItemType[] }` | `{ showZoom: true, showDownload: true, showCopy: true }` |
+| onRenderTypeChange | 渲染类型切换回调 | `(value: 'image' \| 'code') => void` | - |
+| prefixCls | 样式前缀 | `string` | - |
+| style | 自定义样式 | `React.CSSProperties` | - |
 
 ## Semantic DOM
 

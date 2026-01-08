@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { MermaidConfig } from 'mermaid';
 import React from 'react';
+import Actions from '../../actions';
 import Mermaid from '../Mermaid';
 
 // Mock mermaid
@@ -1004,16 +1005,27 @@ describe('Mermaid Component', () => {
     it('should render custom actions', () => {
       const customActions = [
         {
-          key: 'custom',
-          label: 'Custom Action',
-          onItemClick: jest.fn(),
+          key: 'feedback',
+          actionRender: () => (
+            <Actions.Feedback
+              value={'default'}
+              styles={{
+                liked: {
+                  color: '#f759ab',
+                },
+              }}
+              key="feedback"
+            />
+          ),
         },
       ];
 
       render(<Mermaid headerActions={{ customActions }}>{mermaidContent}</Mermaid>);
 
-      // 由于Actions组件的渲染方式，我们验证组件渲染不报错即可
-      expect(screen.getByText('Image')).toBeInTheDocument();
+      // 验证自定义的 Actions.Feedback 组件被渲染
+      expect(document.querySelector('.ant-actions-feedback')).toBeInTheDocument();
+      expect(document.querySelector('.ant-actions-feedback-item-like')).toBeInTheDocument();
+      expect(document.querySelector('.ant-actions-feedback-item-dislike')).toBeInTheDocument();
     });
   });
 
