@@ -41,18 +41,6 @@ enum RenderType {
   Image = 'image',
 }
 
-const isConfigChanged = (prev?: MermaidConfig, next?: MermaidConfig): boolean => {
-  if (prev === next) return false;
-  if (!prev && !next) return false;
-
-  const prevKeys = Object.keys(prev || {}) as Array<keyof MermaidConfig>;
-  const nextKeys = Object.keys(next || {}) as Array<keyof MermaidConfig>;
-
-  if (prevKeys.length !== nextKeys.length) return true;
-
-  return [...new Set([...prevKeys, ...nextKeys])].some((key) => prev?.[key] !== next?.[key]);
-};
-
 let uuid = 0;
 
 const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
@@ -75,7 +63,6 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastConfigRef = useRef<MermaidConfig | undefined>(undefined);
   const id = `mermaid-${uuid++}-${children?.length || 0}`;
 
   // ============================ locale ============================
@@ -108,22 +95,18 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     if (!children || !containerRef.current || renderType === RenderType.Code) return;
 
     try {
-      if (isConfigChanged(lastConfigRef.current, config) || lastConfigRef.current === undefined) {
-        const mermaidConfig: MermaidConfig = {
-          startOnLoad: false,
-          securityLevel: 'strict',
-          theme: 'default',
-          fontFamily: 'monospace',
-          ...(config || {}),
-        };
-        mermaid.initialize(mermaidConfig);
-        lastConfigRef.current = mermaidConfig;
-      }
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'strict',
+        theme: 'default',
+        fontFamily: 'monospace',
+        ...(config || {}),
+      });
 
       const isValid = await mermaid.parse(children, { suppressErrors: true });
       if (!isValid) throw new Error('Invalid Mermaid syntax');
 
-      const cleanContent = children.replace(/[`\s]+$/, '');
+      const cleanContent = children.replace(/[`\s]*$/, '');
       const { svg } = await mermaid.render(id, cleanContent);
       containerRef.current.innerHTML = svg;
     } catch (error) {
