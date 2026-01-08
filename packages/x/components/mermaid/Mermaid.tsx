@@ -2,7 +2,7 @@ import { DownloadOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/i
 import { Button, Segmented, Tooltip } from 'antd';
 import { clsx } from 'clsx';
 import throttle from 'lodash.throttle';
-import mermaid from 'mermaid';
+import mermaid, { type MermaidConfig } from 'mermaid';
 import React, { useEffect, useRef, useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import useXComponentConfig from '../_util/hooks/use-x-component-config';
@@ -23,6 +23,13 @@ export interface MermaidProps {
   style?: React.CSSProperties;
   className?: string;
   highlightProps?: Partial<React.ComponentProps<typeof SyntaxHighlighter>>;
+  config?: MermaidConfig;
+  headerActions?: {
+    showZoom?: boolean;
+    showDownload?: boolean;
+    showCopy?: boolean;
+    customActions?: ItemType[];
+  };
   // Semantic
   classNames?: Partial<Record<MermaidType, string>>;
   styles?: Partial<Record<MermaidType, React.CSSProperties>>;
@@ -46,6 +53,8 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     header,
     children,
     highlightProps,
+    config,
+    headerActions = {},
     onRenderTypeChange,
   } = props;
   const [renderType, setRenderType] = useState(RenderType.Image);
@@ -55,15 +64,6 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const id = `mermaid-${uuid++}-${children?.length || 0}`;
-
-  useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: false,
-      securityLevel: 'strict',
-      theme: 'default',
-      fontFamily: 'monospace',
-    });
-  }, []);
 
   // ============================ locale ============================
   const [contextLocale] = useLocale('Mermaid', locale_EN.Mermaid);
@@ -95,11 +95,16 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     if (!children || !containerRef.current || renderType === RenderType.Code) return;
 
     try {
-      const isValid = await mermaid.parse(children, { suppressErrors: true });
-      if (!isValid) throw new Error('Invalid Mermaid syntax');
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'strict',
+        theme: 'default',
+        fontFamily: 'monospace',
+        ...(config || {}),
+      });
 
-      const newText = children.replace(/[`\s]+$/g, '');
-      const { svg } = await mermaid.render(id, newText, containerRef.current);
+      const cleanContent = children.replace(/[`\s]+$/g, '');
+      const { svg } = await mermaid.render(id, cleanContent);
       containerRef.current.innerHTML = svg;
     } catch (error) {
       warning(false, 'Mermaid', `Render failed: ${error}`);
@@ -229,44 +234,60 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     if (header === null) return null;
     if (header) return header;
 
-    const items: ItemType[] =
-      renderType === RenderType.Image
-        ? [
-            {
-              key: 'zoomIn',
-              icon: <ZoomInOutlined />,
-              label: contextLocale.zoomIn,
-              onItemClick: handleZoomIn,
-            },
-            {
-              key: 'zoomOut',
-              icon: <ZoomOutOutlined />,
-              label: contextLocale.zoomOut,
-              onItemClick: handleZoomOut,
-            },
-            {
-              key: 'zoomReset',
-              actionRender: () => (
-                <Tooltip title={contextLocale.zoomReset}>
-                  <Button type="text" size="small" onClick={handleReset}>
-                    {contextLocale.zoomReset}
-                  </Button>
-                </Tooltip>
-              ),
-            },
-            {
-              key: 'download',
-              icon: <DownloadOutlined />,
-              label: contextLocale.download,
-              onItemClick: handleDownload,
-            },
-          ]
-        : [
-            {
-              key: 'copy',
-              actionRender: () => <Actions.Copy text={children} />,
-            },
-          ];
+    const {
+      showZoom = true,
+      showDownload = true,
+      showCopy = true,
+      customActions = [],
+    } = headerActions;
+
+    const items: ItemType[] = [];
+
+    if (renderType === RenderType.Image) {
+      if (showZoom) {
+        items.push(
+          {
+            key: 'zoomIn',
+            icon: <ZoomInOutlined />,
+            label: contextLocale.zoomIn,
+            onItemClick: handleZoomIn,
+          },
+          {
+            key: 'zoomOut',
+            icon: <ZoomOutOutlined />,
+            label: contextLocale.zoomOut,
+            onItemClick: handleZoomOut,
+          },
+          {
+            key: 'zoomReset',
+            actionRender: () => (
+              <Tooltip title={contextLocale.zoomReset}>
+                <Button type="text" size="small" onClick={handleReset}>
+                  {contextLocale.zoomReset}
+                </Button>
+              </Tooltip>
+            ),
+          },
+        );
+      }
+      if (showDownload) {
+        items.push({
+          key: 'download',
+          icon: <DownloadOutlined />,
+          label: contextLocale.download,
+          onItemClick: handleDownload,
+        });
+      }
+    } else {
+      if (showCopy) {
+        items.push({
+          key: 'copy',
+          actionRender: () => <Actions.Copy text={children} />,
+        });
+      }
+    }
+
+    const allItems = [...items, ...customActions];
 
     return (
       <div
@@ -288,7 +309,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
             onRenderTypeChange?.(value as RenderType);
           }}
         />
-        <Actions items={items} />
+        <Actions items={allItems} />
       </div>
     );
   };
