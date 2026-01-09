@@ -48,3 +48,27 @@ tag: 2.1.0
 ## 主题变量（Design Token）
 
 <ComponentTokenTable component="Mermaid"></ComponentTokenTable>
+
+## FAQ
+
+### 使用 `config` 时，如何避免重复渲染或重复初始化？
+
+当传递 `config` prop 时，请确保其为引用稳定的对象。避免在 `JSX` 中直接传入对象字面量（如 `config={{ theme: 'base' }}`），否则每次父组件重渲染都会触发 `Mermaid` 重新初始化。
+
+✅ 推荐做法：
+
+```tsx
+// 动态配置：使用 useMemo 缓存
+const config = React.useMemo(
+  () => ({
+    theme: isDark ? 'dark' : 'base',
+    fontFamily: 'monospace',
+  }),
+  [isDark],
+);
+
+// 静态配置：提取为常量
+const CONFIG = { theme: 'base', fontFamily: 'monospace' } as const;
+
+<Mermaid config={config}>{code}</Mermaid>;
+```
