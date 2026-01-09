@@ -123,7 +123,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     } else {
       renderDiagram();
     }
-  }, [children, renderType]);
+  }, [children, renderType, config]);
 
   useEffect(() => {
     const container = containerRef.current;
