@@ -35,7 +35,7 @@ tag: 2.1.0
 | styles | Style object | `Partial<Record<'root' \| 'header' \| 'graph' \| 'code', React.CSSProperties>>` | - |
 | highlightProps | Code highlighting configuration | [`highlightProps`](https://github.com/react-syntax-highlighter/react-syntax-highlighter?tab=readme-ov-file#props) | - |
 | config | Mermaid configuration | `MermaidConfig` | - |
-| headerActions | Header actions configuration | `{ showZoom?: boolean; showDownload?: boolean; showCopy?: boolean; customActions?: ItemType[] }` | `{ showZoom: true, showDownload: true, showCopy: true }` |
+| actions | Actions configuration | `{ enableZoom?: boolean; enableDownload?: boolean; enableCopy?: boolean; customActions?: ItemType[] }` | `{ enableZoom: true, enableDownload: true, enableCopy: true }` |
 | onRenderTypeChange | Callback when render type changes | `(value: 'image' \| 'code') => void` | - |
 | prefixCls | Style prefix | `string` | - |
 | style | Custom style | `React.CSSProperties` | - |

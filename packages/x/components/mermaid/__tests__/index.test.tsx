@@ -979,22 +979,22 @@ describe('Mermaid Component', () => {
     });
   });
 
-  describe('Header Actions Configuration', () => {
-    it('should hide zoom controls when showZoom is false', () => {
-      render(<Mermaid headerActions={{ showZoom: false }}>{mermaidContent}</Mermaid>);
+  describe('Actions Configuration', () => {
+    it('should hide zoom controls when enableZoom is false', () => {
+      render(<Mermaid actions={{ enableZoom: false }}>{mermaidContent}</Mermaid>);
 
       expect(screen.queryByLabelText('zoom-in')).not.toBeInTheDocument();
       expect(screen.queryByLabelText('zoom-out')).not.toBeInTheDocument();
     });
 
-    it('should hide download button when showDownload is false', () => {
-      render(<Mermaid headerActions={{ showDownload: false }}>{mermaidContent}</Mermaid>);
+    it('should hide download button when enableDownload is false', () => {
+      render(<Mermaid actions={{ enableDownload: false }}>{mermaidContent}</Mermaid>);
 
       expect(screen.queryByLabelText('download')).not.toBeInTheDocument();
     });
 
-    it('should hide copy button when showCopy is false', () => {
-      render(<Mermaid headerActions={{ showCopy: false }}>{mermaidContent}</Mermaid>);
+    it('should hide copy button when enableCopy is false', () => {
+      render(<Mermaid actions={{ enableCopy: false }}>{mermaidContent}</Mermaid>);
 
       const codeButton = screen.getByText('Code');
       fireEvent.click(codeButton);
@@ -1020,7 +1020,7 @@ describe('Mermaid Component', () => {
         },
       ];
 
-      render(<Mermaid headerActions={{ customActions }}>{mermaidContent}</Mermaid>);
+      render(<Mermaid actions={{ customActions }}>{mermaidContent}</Mermaid>);
 
       // 验证自定义的 Actions.Feedback 组件被渲染
       expect(document.querySelector('.ant-actions-feedback')).toBeInTheDocument();

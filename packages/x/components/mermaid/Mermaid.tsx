@@ -24,10 +24,10 @@ export interface MermaidProps {
   className?: string;
   highlightProps?: Partial<React.ComponentProps<typeof SyntaxHighlighter>>;
   config?: MermaidConfig;
-  headerActions?: {
-    showZoom?: boolean;
-    showDownload?: boolean;
-    showCopy?: boolean;
+  actions?: {
+    enableZoom?: boolean;
+    enableDownload?: boolean;
+    enableCopy?: boolean;
     customActions?: ItemType[];
   };
   // Semantic
@@ -54,7 +54,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     children,
     highlightProps,
     config,
-    headerActions = {},
+    actions = {},
     onRenderTypeChange,
   } = props;
   const [renderType, setRenderType] = useState(RenderType.Image);
@@ -129,8 +129,8 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     const container = containerRef.current;
     if (!container || renderType !== RenderType.Image) return;
 
-    const { showZoom = true } = headerActions;
-    if (!showZoom) return;
+    const { enableZoom = true } = actions;
+    if (!enableZoom) return;
 
     let lastTime = 0;
     const wheelHandler = (e: WheelEvent) => {
@@ -150,7 +150,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     return () => {
       container.removeEventListener('wheel', wheelHandler);
     };
-  }, [renderType, headerActions]);
+  }, [renderType, actions]);
 
   useEffect(() => {
     if (containerRef.current && renderType === RenderType.Image) {
@@ -243,16 +243,16 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     if (header) return header;
 
     const {
-      showZoom = true,
-      showDownload = true,
-      showCopy = true,
+      enableZoom = true,
+      enableDownload = true,
+      enableCopy = true,
       customActions = [],
-    } = headerActions;
+    } = actions;
 
     const items: ItemType[] = [];
 
     if (renderType === RenderType.Image) {
-      if (showZoom) {
+      if (enableZoom) {
         items.push(
           {
             key: 'zoomIn',
@@ -278,7 +278,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
           },
         );
       }
-      if (showDownload) {
+      if (enableDownload) {
         items.push({
           key: 'download',
           icon: <DownloadOutlined />,
@@ -287,7 +287,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
         });
       }
     } else {
-      if (showCopy) {
+      if (enableCopy) {
         items.push({
           key: 'copy',
           actionRender: () => <Actions.Copy text={children} />,

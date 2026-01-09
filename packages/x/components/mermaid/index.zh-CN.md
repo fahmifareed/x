@@ -36,7 +36,7 @@ tag: 2.1.0
 | styles | 样式对象 | `Partial<Record<'root' \| 'header' \| 'graph' \| 'code', React.CSSProperties>>` | - |
 | highlightProps | 代码高亮配置 | [`highlightProps`](https://github.com/react-syntax-highlighter/react-syntax-highlighter?tab=readme-ov-file#props) | - |
 | config | Mermaid 配置项 | `MermaidConfig` | - |
-| headerActions | 头部操作栏配置 | `{ showZoom?: boolean; showDownload?: boolean; showCopy?: boolean; customActions?: ItemType[] }` | `{ showZoom: true, showDownload: true, showCopy: true }` |
+| actions | 操作栏配置 | `{ enableZoom?: boolean; enableDownload?: boolean; enableCopy?: boolean; customActions?: ItemType[] }` | `{ enableZoom: true, enableDownload: true, enableCopy: true }` |
 | onRenderTypeChange | 渲染类型切换回调 | `(value: 'image' \| 'code') => void` | - |
 | prefixCls | 样式前缀 | `string` | - |
 | style | 自定义样式 | `React.CSSProperties` | - |

@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import Mermaid from '../Mermaid';
 
 const App: React.FC = () => {
-  const [showZoom, setShowZoom] = useState(true);
-  const [showDownload, setShowDownload] = useState(true);
-  const [showCopy, setShowCopy] = useState(true);
+  const [enableZoom, setEnableZoom] = useState(true);
+  const [enableDownload, setEnableDownload] = useState(true);
+  const [enableCopy, setEnableCopy] = useState(true);
   const [showCustom, setShowCustom] = useState(false);
 
   const customActions = [
@@ -28,10 +28,10 @@ const App: React.FC = () => {
     },
   ];
 
-  const headerActions = {
-    showZoom,
-    showDownload,
-    showCopy,
+  const actions = {
+    enableZoom,
+    enableDownload,
+    enableCopy,
     ...(showCustom && { customActions }),
   };
 
@@ -40,14 +40,14 @@ const App: React.FC = () => {
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ marginBottom: 16, color: '#1a1a1a' }}>Header Actions Configuration</h2>
         <Space size="large" wrap>
-          <Checkbox checked={showZoom} onChange={(e) => setShowZoom(e.target.checked)}>
-            Show Zoom
+          <Checkbox checked={enableZoom} onChange={(e) => setEnableZoom(e.target.checked)}>
+            Enable Zoom
           </Checkbox>
-          <Checkbox checked={showDownload} onChange={(e) => setShowDownload(e.target.checked)}>
-            Show Download
+          <Checkbox checked={enableDownload} onChange={(e) => setEnableDownload(e.target.checked)}>
+            Enable Download
           </Checkbox>
-          <Checkbox checked={showCopy} onChange={(e) => setShowCopy(e.target.checked)}>
-            Show Copy
+          <Checkbox checked={enableCopy} onChange={(e) => setEnableCopy(e.target.checked)}>
+            Enable Copy
           </Checkbox>
           <Checkbox checked={showCustom} onChange={(e) => setShowCustom(e.target.checked)}>
             Show Custom Actions
@@ -56,7 +56,7 @@ const App: React.FC = () => {
       </div>
 
       <div style={{ border: '1px solid #f0f0f0', borderRadius: 8, overflow: 'hidden' }}>
-        <Mermaid headerActions={headerActions}>
+        <Mermaid actions={actions}>
           {`flowchart TD
     A[Start] --> B{Decision Point}
     B -->|Yes| C[Process Data]
