@@ -90,19 +90,22 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     },
   );
 
+  // ============================ initialize mermaid ============================
+  useEffect(() => {
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: 'default',
+      fontFamily: 'monospace',
+      ...(config || {}),
+    });
+  }, [config]);
+
   // ============================ render mermaid ============================
   const renderDiagram = throttle(async () => {
     if (!children || !containerRef.current || renderType === RenderType.Code) return;
 
     try {
-      mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: 'strict',
-        theme: 'default',
-        fontFamily: 'monospace',
-        ...(config || {}),
-      });
-
       const isValid = await mermaid.parse(children, { suppressErrors: true });
       if (!isValid) throw new Error('Invalid Mermaid syntax');
 
@@ -120,7 +123,7 @@ const Mermaid: React.FC<MermaidProps> = React.memo((props) => {
     } else {
       renderDiagram();
     }
-  }, [children, renderType, config]);
+  }, [children, renderType]);
 
   useEffect(() => {
     const container = containerRef.current;
