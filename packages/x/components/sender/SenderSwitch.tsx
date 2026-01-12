@@ -1,7 +1,7 @@
+import useMergedState from '@rc-component/util/lib/hooks/useMergedState';
+import pickAttrs from '@rc-component/util/lib/pickAttrs';
 import { Button } from 'antd';
-import classnames from 'classnames';
-import useMergedState from 'rc-util/lib/hooks/useMergedState';
-import pickAttrs from 'rc-util/lib/pickAttrs';
+import { clsx } from 'clsx';
 import * as React from 'react';
 import useProxyImperativeHandle from '../_util/hooks/use-proxy-imperative-handle';
 import useXComponentConfig from '../_util/hooks/use-x-component-config';
@@ -97,7 +97,8 @@ const SenderSwitch = React.forwardRef<SenderSwitchRef, SenderSwitchProps>((props
   // ============================ style ============================
   const contextConfig = useXComponentConfig('sender');
 
-  const mergedCls = classnames(
+  const mergedCls = clsx(
+    prefixCls,
     switchCls,
     className,
     rootClassName,
@@ -108,7 +109,7 @@ const SenderSwitch = React.forwardRef<SenderSwitchRef, SenderSwitchProps>((props
     cssVarCls,
     {
       [`${switchCls}-checked`]: mergedChecked,
-      [`${prefixCls}-rtl`]: direction === 'rtl',
+      [`${switchCls}-rtl`]: direction === 'rtl',
     },
   );
 
@@ -128,13 +129,13 @@ const SenderSwitch = React.forwardRef<SenderSwitchRef, SenderSwitchProps>((props
       <Button
         disabled={disabled}
         loading={loading}
+        className={clsx(`${switchCls}-content`, classNames.content)}
+        style={styles.content}
         styles={{
           icon: styles.icon,
-          root: styles.content,
           content: styles.title,
         }}
         classNames={{
-          root: classnames(`${switchCls}-content`, classNames.content),
           icon: classNames.icon,
           content: classNames.title,
         }}

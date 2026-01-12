@@ -27,7 +27,7 @@ export default class DeepSeekChatProvider<
   }
 
   transformMessage(info: TransformMessage<ChatMessage, Output>): ChatMessage {
-    const { originMessage, chunk, chunks, responseHeaders } = info;
+    const { originMessage, chunk, responseHeaders } = info;
     let currentContent = '';
     let currentThink = '';
     let role = 'assistant';
@@ -38,7 +38,7 @@ export default class DeepSeekChatProvider<
           message = JSON.parse(chunk.data);
         }
       } else {
-        message = chunk || chunks[0];
+        message = chunk;
       }
       if (message) {
         message?.choices?.forEach((choice: any) => {
@@ -62,14 +62,16 @@ export default class DeepSeekChatProvider<
         ? originMessage?.content
         : originMessage?.content.text || '';
     if (!originMessageContent && currentThink) {
-      content = `<think>${currentThink}`;
+      // 仅匹配最多前两个换行符，避免性能问题
+      content = `\n\n<think>\n\n${currentThink?.replace?.(/^\n{0,2}/, '')}`;
     } else if (
       originMessageContent.includes('<think>') &&
       !originMessageContent.includes('</think>') &&
       currentContent
     ) {
       originMessageContent = originMessageContent.replace('<think>', '<think status="done">');
-      content = `${originMessageContent}</think>${currentContent}`;
+      // 仅匹配最多结尾的两个空白字符和换行符
+      content = `${originMessageContent?.replace?.(/[\s\n]{0,2}$/, '')}\n\n</think>\n\n${currentContent}`;
     } else {
       content = `${originMessageContent || ''}${currentThink}${currentContent}`;
     }

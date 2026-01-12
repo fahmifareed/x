@@ -40,9 +40,9 @@ export const initFadeLeftMotion = (
   const sameLevelPrefix = sameLevel ? '&' : '';
 
   return [
-    initMotion(motionCls, fadeInLeft, fadeOut, '1s', sameLevel),
     {
       [token.componentCls]: {
+        ...initMotion(motionCls, fadeInLeft, fadeOut, '1s', sameLevel),
         [`${sameLevelPrefix}${motionCls}-enter,${sameLevelPrefix}${motionCls}-appear`]: {
           transitionProperty: 'mask-position',
           animationTimingFunction: 'linear',
@@ -65,11 +65,10 @@ export const initFadeMotion = (
   const { antCls } = token;
   const motionCls = `${antCls}-x-fade`;
   const sameLevelPrefix = sameLevel ? '&' : '';
-
   return [
-    initMotion(motionCls, fadeIn, fadeOut, '1.2s', sameLevel),
     {
       [token.componentCls]: {
+        ...initMotion(motionCls, fadeIn, fadeOut, '1.2s', sameLevel),
         [`${sameLevelPrefix}${motionCls}-enter,${sameLevelPrefix}${motionCls}-appear`]: {
           opacity: 0,
         },
