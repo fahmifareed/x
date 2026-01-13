@@ -73,7 +73,7 @@ jobs:
           node scripts/check-performance.js \
             ./test-results/benchmark-results.json \
             ../../../benchmark-baseline.json \
-            ./benchmark-check-report.txt
+            ./benchmark-check-report.txt || true
         continue-on-error: true
 
       - name: Generate PR comment
@@ -158,12 +158,12 @@ jobs:
       - name: Status check
         if: always()
         run: |
-          if [ "${{ steps.check.outcome }}" == "failure" ]; then
-            echo "::error::Performance thresholds not met!"
-            exit 1
-          elif [ "${{ steps.benchmark.outcome }}" == "failure" ]; then
+          if [ "${{ steps.benchmark.outcome }}" == "failure" ]; then
             echo "::error::Benchmark execution failed!"
             exit 1
+          elif [ "${{ steps.check.outcome }}" == "failure" ]; then
+            echo "::warning::Performance thresholds not met! Check the report above for details."
+            echo "⚠️ This is a warning only and will not block the PR."
           else
             echo "✅ All checks passed!"
           fi

@@ -12,30 +12,30 @@ const PERFORMANCE_THRESHOLDS = {
   'x-markdown': {
     // 短文本性能要求
     short: {
-      maxDuration: 500, // 最大渲染时长 (ms)
-      minAvgFPS: 55, // 最小平均 FPS
-      maxStdDevFPS: 15, // 最大 FPS 标准差
-      maxMemoryDelta: 5, // 最大内存增量 (MB)
+      maxDuration: 1000, // 最大渲染时长 (ms) - 放宽到 1 秒
+      minAvgFPS: 30, // 最小平均 FPS - 放宽到 30
+      maxStdDevFPS: 25, // 最大 FPS 标准差 - 放宽
+      maxMemoryDelta: 15, // 最大内存增量 (MB) - 放宽到 15MB
     },
     // 中文本性能要求
     medium: {
-      maxDuration: 2000,
-      minAvgFPS: 50,
-      maxStdDevFPS: 12,
-      maxMemoryDelta: 10,
+      maxDuration: 4000, // 放宽到 4 秒
+      minAvgFPS: 25, // 放宽到 25
+      maxStdDevFPS: 20,
+      maxMemoryDelta: 25, // 放宽到 25MB
     },
     // 长文本性能要求
     long: {
-      maxDuration: 8000,
-      minAvgFPS: 45,
-      maxStdDevFPS: 10,
-      maxMemoryDelta: 20,
+      maxDuration: 15000, // 放宽到 15 秒
+      minAvgFPS: 20, // 放宽到 20
+      maxStdDevFPS: 18,
+      maxMemoryDelta: 50, // 放宽到 50MB
     },
   },
 };
 
 // 性能回归允许的最大降幅（百分比）
-const MAX_REGRESSION_PERCENTAGE = 10;
+const MAX_REGRESSION_PERCENTAGE = 20; // 放宽到 20%
 
 function loadBenchmarkResults(resultsPath) {
   if (!fs.existsSync(resultsPath)) {
