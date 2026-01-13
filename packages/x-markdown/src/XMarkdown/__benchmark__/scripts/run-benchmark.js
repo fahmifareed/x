@@ -6,9 +6,19 @@ const path = require('path');
 async function runFullBenchmark() {
   console.log('🚀 Starting Streaming Markdown renderer performance benchmark...\n');
 
-  // Install Playwright browsers
+  // Find the root package-lock.json (for npm workspaces)
+  // From scripts/ -> __benchmark__/ -> XMarkdown/ -> src/ -> x-markdown/ -> packages/ -> x/ (root)
+  const rootDir = path.join(__dirname, '../../../../../../');
+  const lockFilePath = path.join(rootDir, 'package-lock.json');
+
+  if (!fs.existsSync(lockFilePath)) {
+    console.log('📦 Generating package-lock.json...');
+    await runCommand('npm', ['install'], { cwd: rootDir });
+  }
+
+  // Install Playwright browsers from the project root where package-lock.json exists
   console.log('🌐 Installing Playwright browsers...');
-  await runCommand('npx', ['playwright', 'install', 'chromium']);
+  await runCommand('npx', ['playwright', 'install', 'chromium'], { cwd: rootDir });
 
   // Clean up old test results
   console.log('🧹 Cleaning up old test results...');
