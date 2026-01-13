@@ -24,8 +24,17 @@ const CONSTANTS = {
   FPS_THRESHOLD: { GOOD: 55, WARNING: 40 },
   COLORS: { GOOD: '#52c41a', WARNING: '#faad14', DANGER: '#ff4d4f' },
   CHART: { WIDTH: 750, HEIGHT: 400, PADDING: 80 },
-  POSITION: { INITIAL_X: window.innerWidth - 220, INITIAL_Y: window.innerHeight / 2 - 100 },
 } as const;
+
+const getInitialPosition = (): Position => {
+  if (typeof window === 'undefined') {
+    return { x: 12, y: 12 };
+  }
+  return {
+    x: window.innerWidth - 220,
+    y: window.innerHeight / 2 - 100,
+  };
+};
 
 const DebugPanel: React.FC = () => {
   const [fps, setFps] = useState(0);
@@ -33,14 +42,12 @@ const DebugPanel: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [records, setRecords] = useState<PerformanceSnapshot[]>([]);
-  const [position, setPosition] = useState<Position>({
-    x: CONSTANTS.POSITION.INITIAL_X,
-    y: typeof window !== 'undefined' ? window.innerHeight / 2 - 100 : 12,
-  });
+  const [position, setPosition] = useState<Position>(getInitialPosition());
+  const [isMounted, setIsMounted] = useState(false);
 
   const recordingRef = useRef<PerformanceSnapshot[]>([]);
   const frameTimesRef = useRef<number[]>([]);
-  const lastTimeRef = useRef<number>(window.performance.now());
+  const lastTimeRef = useRef<number>(0);
   const frameCountRef = useRef(0);
   const animationRef = useRef<number | undefined>(undefined);
   const dragRef = useRef<DragState>({
@@ -52,6 +59,15 @@ const DebugPanel: React.FC = () => {
   });
 
   useEffect(() => {
+    // 仅在客户端运行
+    if (typeof window === 'undefined') return;
+
+    // 仅在客户端初始化
+    if (!isMounted) {
+      setIsMounted(true);
+      lastTimeRef.current = performance.now();
+    }
+
     const update = () => {
       const now = performance.now();
       const delta = now - lastTimeRef.current;
@@ -88,7 +104,7 @@ const DebugPanel: React.FC = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isRecording]);
+  }, [isRecording, isMounted]);
 
   const getMemoryUsage = (): number => {
     const perf = performance as Performance & { memory?: { usedJSHeapSize: number } };
@@ -145,6 +161,9 @@ const DebugPanel: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // 仅在客户端运行
+    if (typeof window === 'undefined') return;
+
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
     return () => {
