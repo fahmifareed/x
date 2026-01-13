@@ -62,12 +62,13 @@ Based on the RICH interaction paradigm, we provide many atomic components for di
 const App = () => {
   const [className] = useMarkdownTheme();
   const [index, setIndex] = React.useState(0);
-  const [renderKey, setRenderKey] = React.useState(0);
+  const [hasNextChunk, setHasNextChunk] = React.useState(false);
   const timer = React.useRef<NodeJS.Timeout | null>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (index >= text.length) {
+      setHasNextChunk(false);
       return;
     }
 
@@ -97,7 +98,7 @@ const App = () => {
 
   const handleReRender = () => {
     setIndex(0);
-    setRenderKey((prev) => prev + 1);
+    setHasNextChunk(true);
   };
 
   return (
@@ -107,7 +108,6 @@ const App = () => {
       </Space>
 
       <Bubble
-        key={renderKey}
         style={{ width: '100%' }}
         styles={{
           body: { width: '100%' },
@@ -115,7 +115,11 @@ const App = () => {
         variant="borderless"
         content={text.slice(0, index)}
         className={className}
-        contentRender={(content) => <XMarkdown debug>{content}</XMarkdown>}
+        contentRender={(content) => (
+          <XMarkdown debug streaming={{ enableAnimation: true, hasNextChunk }}>
+            {content}
+          </XMarkdown>
+        )}
       />
     </Flex>
   );
