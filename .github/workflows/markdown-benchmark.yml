@@ -16,7 +16,6 @@ permissions:
 
 jobs:
   benchmark:
-    name: x-markdown Performance
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -52,7 +51,6 @@ jobs:
             src/XMarkdown/__benchmark__/test-results/benchmark-results.json \
             benchmark-baseline.json \
             src/XMarkdown/__benchmark__/benchmark-check-report.txt || true
-        continue-on-error: true
 
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
