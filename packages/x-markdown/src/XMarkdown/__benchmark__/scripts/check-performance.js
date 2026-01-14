@@ -30,9 +30,6 @@ const PERFORMANCE_THRESHOLDS = {
   },
 };
 
-// 性能回归允许的最大降幅（百分比）
-const MAX_REGRESSION_PERCENTAGE = 20; // 放宽到 20%
-
 function loadBenchmarkResults(resultsPath) {
   if (!fs.existsSync(resultsPath)) {
     console.error(`❌ Benchmark results not found: ${resultsPath}`);
@@ -99,87 +96,7 @@ function checkThresholds(results) {
   return { failures, warnings };
 }
 
-function compareWithBaseline(currentResults, baselinePath) {
-  if (!fs.existsSync(baselinePath)) {
-    console.log('ℹ️  No baseline found, skipping regression check');
-    return { regressions: [], improvements: [] };
-  }
-
-  const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf-8'));
-  const regressions = [];
-  const improvements = [];
-
-  // 创建当前结果映射
-  const currentMap = new Map();
-  currentResults.forEach((result) => {
-    if (result.name === 'x-markdown') {
-      const key = `${result.textType}`;
-      currentMap.set(key, result);
-    }
-  });
-
-  // 创建基线结果映射
-  const baselineMap = new Map();
-  baseline.forEach((result) => {
-    if (result.name === 'x-markdown') {
-      const key = `${result.textType}`;
-      baselineMap.set(key, result);
-    }
-  });
-
-  // 比较各项指标
-  currentMap.forEach((current, key) => {
-    const baseline = baselineMap.get(key);
-    if (!baseline) return;
-
-    // 检查性能回归（时长增加）
-    const durationIncrease = ((current.duration - baseline.duration) / baseline.duration) * 100;
-    if (durationIncrease > MAX_REGRESSION_PERCENTAGE) {
-      regressions.push(
-        `⚠️  ${key}: Duration increased by ${durationIncrease.toFixed(1)}% ` +
-          `(${baseline.duration}ms → ${current.duration}ms)`,
-      );
-    } else if (durationIncrease < -MAX_REGRESSION_PERCENTAGE) {
-      improvements.push(
-        `✅ ${key}: Duration improved by ${Math.abs(durationIncrease).toFixed(1)}% ` +
-          `(${baseline.duration}ms → ${current.duration}ms)`,
-      );
-    }
-
-    // 检查内存回归
-    const memoryIncrease =
-      ((current.memoryDelta - baseline.memoryDelta) / baseline.memoryDelta) * 100;
-    if (memoryIncrease > MAX_REGRESSION_PERCENTAGE && baseline.memoryDelta > 0) {
-      regressions.push(
-        `⚠️  ${key}: Memory delta increased by ${memoryIncrease.toFixed(1)}% ` +
-          `(${baseline.memoryDelta}MB → ${current.memoryDelta}MB)`,
-      );
-    } else if (memoryIncrease < -MAX_REGRESSION_PERCENTAGE) {
-      improvements.push(
-        `✅ ${key}: Memory delta improved by ${Math.abs(memoryIncrease).toFixed(1)}% ` +
-          `(${baseline.memoryDelta}MB → ${current.memoryDelta}MB)`,
-      );
-    }
-
-    // 检查 FPS 回归
-    const fpsDecrease = ((baseline.avgFPS - current.avgFPS) / baseline.avgFPS) * 100;
-    if (fpsDecrease > MAX_REGRESSION_PERCENTAGE) {
-      regressions.push(
-        `⚠️  ${key}: Avg FPS decreased by ${fpsDecrease.toFixed(1)}% ` +
-          `(${baseline.avgFPS} → ${current.avgFPS})`,
-      );
-    } else if (fpsDecrease < -MAX_REGRESSION_PERCENTAGE) {
-      improvements.push(
-        `✅ ${key}: Avg FPS improved by ${Math.abs(fpsDecrease).toFixed(1)}% ` +
-          `(${baseline.avgFPS} → ${current.avgFPS})`,
-      );
-    }
-  });
-
-  return { regressions, improvements };
-}
-
-function generateReport(currentResults, baselinePath) {
+function generateReport(currentResults) {
   const { failures, warnings } = checkThresholds(currentResults);
 
   let report = '\n📊 Performance Benchmark Report\n';
@@ -220,18 +137,17 @@ function generateReport(currentResults, baselinePath) {
 
   report += '='.repeat(80) + '\n';
 
-  return { report, hasFailures: failures.length > 0, hasRegressions: false };
+  return { report, hasFailures: failures.length > 0 };
 }
 
 function main() {
   const resultsPath = process.argv[2] || './test-results/benchmark-results.json';
-  const baselinePath = process.argv[3] || './benchmark-baseline.json';
-  const outputPath = process.argv[4] || './benchmark-check-report.txt';
+  const outputPath = process.argv[3] || './benchmark-check-report.txt';
 
   console.log('🔍 Checking performance thresholds...\n');
 
   const results = loadBenchmarkResults(resultsPath);
-  const { report, hasFailures, hasRegressions } = generateReport(results, baselinePath);
+  const { report, hasFailures } = generateReport(results);
 
   // 保存报告
   fs.writeFileSync(outputPath, report);
@@ -243,8 +159,8 @@ function main() {
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `report<<EOF\n${report}\nEOF`);
   }
 
-  // 如果有失败或回归，返回非零退出码
-  if (hasFailures || hasRegressions) {
+  // 如果有失败，返回非零退出码
+  if (hasFailures) {
     console.log('\n❌ Performance check failed!');
     process.exit(1);
   }
