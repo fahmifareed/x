@@ -2,7 +2,6 @@ import MarkdownIt from 'markdown-it';
 // @ts-ignore - benchmark only, ignore type checking
 import markdownItKatex from 'markdown-it-katex';
 import { Marked } from 'marked';
-import markedKatex from 'marked-katex-extension';
 import React, { FC } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
@@ -10,6 +9,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import { Streamdown } from 'streamdown';
+import getLatex from '../../../plugins/Latex';
 import getLatexPlugin from '../../../plugins/Latex';
 import XMarkdown from '../../index';
 
@@ -21,7 +21,7 @@ type MarkdownRendererProps = {
 const md = new MarkdownIt();
 // benchmark only: bypass TS check
 md.use(markdownItKatex);
-const marked = new Marked(markedKatex({ throwOnError: false }));
+const marked = new Marked({ extensions: getLatex() });
 
 const MarkedRenderer: FC<MarkdownRendererProps> = (props) => (
   <div
