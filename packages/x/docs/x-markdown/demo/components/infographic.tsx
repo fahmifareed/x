@@ -1,5 +1,6 @@
 import { Bubble } from '@ant-design/x';
 import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
+import { Infographic } from '@antv/infographic';
 import { Button, Flex } from 'antd';
 import React from 'react';
 
@@ -40,43 +41,24 @@ type ReactInfographicProps = {
 
 function ReactInfographic(props: ReactInfographicProps) {
   const { children } = props;
-  const [Infographic, setInfographic] = React.useState<any>(null);
-
   const $container = React.useRef<HTMLDivElement>(null);
-  const infographicInstance = React.useRef<any>(null);
+  const infographicInstance = React.useRef<Infographic>(null);
 
   React.useEffect(() => {
-    // 动态导入 @antv/infographic 避免构建时问题
-    import('@antv/infographic')
-      .then(({ Infographic }) => {
-        setInfographic(() => Infographic);
-      })
-      .catch((err) => {
-        console.error('Failed to load @antv/infographic:', err);
-      });
-  }, []);
-
-  React.useEffect(() => {
-    if (Infographic && $container.current) {
+    if ($container.current) {
       infographicInstance.current = new Infographic({
         container: $container.current,
       });
-
-      return () => {
-        infographicInstance.current?.destroy();
-      };
     }
-  }, [Infographic]);
+
+    return () => {
+      infographicInstance.current?.destroy();
+    };
+  }, []);
 
   React.useEffect(() => {
-    if (infographicInstance.current) {
-      infographicInstance.current?.render(children as string);
-    }
-  }, [children, Infographic]);
-
-  if (!Infographic) {
-    return <div style={{ padding: 20, textAlign: 'center' }}>Loading infographic...</div>;
-  }
+    infographicInstance.current?.render(children as string);
+  }, [children]);
 
   return <div ref={$container} />;
 }
