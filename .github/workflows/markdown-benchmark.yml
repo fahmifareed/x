@@ -48,8 +48,8 @@ jobs:
         run: |
           cd packages/x-markdown
           node src/XMarkdown/__benchmark__/scripts/check-performance.js \
-            src/XMarkdown/__benchmark__/test-results/benchmark-results.json \
-            src/XMarkdown/__benchmark__/benchmark-check-report.txt
+            test-results/benchmark-results.json \
+            benchmark-check-report.txt
 
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
