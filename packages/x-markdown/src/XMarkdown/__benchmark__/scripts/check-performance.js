@@ -11,22 +11,22 @@ const path = require('path');
 const PERFORMANCE_THRESHOLDS = {
   'x-markdown': {
     short: {
-      maxDuration: 8000, // 短文本 < 8 s (从3277ms放宽)
-      minAvgFPS: 30, // 放宽到30 FPS，实际测试约60 FPS
-      maxStdDevFPS: 9999, // 不再限制
-      maxMemoryDelta: 30, // 内存 < 30 MB (从4.5MB放宽)
+      maxDuration: 5000,
+      minAvgFPS: 60,
+      maxStdDevFPS: 9999,
+      maxMemoryDelta: 30,
     },
     medium: {
-      maxDuration: 25000, // 中文本 < 25 s
-      minAvgFPS: 25, // 放宽到25 FPS
+      maxDuration: 15000,
+      minAvgFPS: 60,
       maxStdDevFPS: 9999,
-      maxMemoryDelta: 50, // 内存 < 50 MB
+      maxMemoryDelta: 50,
     },
     long: {
-      maxDuration: 120000, // 长文本 < 120 s
-      minAvgFPS: 20, // 放宽到20 FPS
+      maxDuration: 80000,
+      minAvgFPS: 60,
       maxStdDevFPS: 9999,
-      maxMemoryDelta: 100, // 内存 < 100 MB
+      maxMemoryDelta: 100,
     },
   },
 };
