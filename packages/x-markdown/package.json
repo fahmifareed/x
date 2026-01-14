@@ -72,6 +72,7 @@
     "antd": "^6.1.1",
     "glob": "^11.0.0",
     "markdown-it": "^14.0.0",
+    "markdown-it-katex": "^2.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
