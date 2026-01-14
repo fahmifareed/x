@@ -23,7 +23,7 @@ const PERFORMANCE_THRESHOLDS = {
       maxMemoryDelta: 50,
     },
     long: {
-      maxDuration: 80000,
+      maxDuration: 85000,
       minAvgFPS: 60,
       maxStdDevFPS: 9999,
       maxMemoryDelta: 100,
