@@ -42,17 +42,16 @@ jobs:
         run: |
           cd packages/x-markdown
           npm run benchmark
-          ls -la src/XMarkdown/__benchmark__/test-results/
 
       - name: Check performance
         id: check
         run: |
-          cd packages/x-markdown/src/XMarkdown/__benchmark__
-          ls -la test-results/
-          node ./scripts/check-performance.js \
-            ./test-results/benchmark-results.json \
-            ../../../benchmark-baseline.json \
-            ./benchmark-check-report.txt || true
+          cd packages/x-markdown
+          ls -la src/XMarkdown/__benchmark__/test-results/
+          node src/XMarkdown/__benchmark__/scripts/check-performance.js \
+            src/XMarkdown/__benchmark__/test-results/benchmark-results.json \
+            benchmark-baseline.json \
+            src/XMarkdown/__benchmark__/benchmark-check-report.txt || true
         continue-on-error: true
 
       - name: Comment PR with results
@@ -96,15 +95,6 @@ jobs:
                 body: commentBody
               });
             }
-
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: x-markdown-benchmark
-          path: |
-            packages/x-markdown/src/XMarkdown/__benchmark__/test-results/
-            packages/x-markdown/src/XMarkdown/__benchmark__/benchmark-check-report.txt
-          retention-days: 7
 
       - name: Update baseline
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
