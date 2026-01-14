@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   benchmark:
+    name: Performance BenchMark
     runs-on: ubuntu-latest
     timeout-minutes: 30
 

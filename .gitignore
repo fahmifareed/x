@@ -103,3 +103,4 @@ packages/x-markdown/src/XMarkdown/__benchmark__/playwright-report/
 packages/x-markdown/src/XMarkdown/__benchmark__/blob-report/
 packages/x-markdown/src/XMarkdown/__benchmark__/playwright/.cache/
 packages/x-markdown/src/XMarkdown/__benchmark__/playwright/.auth/
+packages/x-markdown/src/XMarkdown/__benchmark__/test-results

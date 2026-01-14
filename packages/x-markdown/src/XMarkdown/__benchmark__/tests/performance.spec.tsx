@@ -524,5 +524,18 @@ test.describe('Streaming Markdown Benchmark', async () => {
     console.log(`   - 模拟流速: ${UPDATE_INTERVAL} ms/块`);
     console.log(`   - 测试配置: ${RUN_COUNT} 次运行取平均值`);
     console.log('   - 性能分析: 关注 **FCP** (用户等待时间) 和 **StdDev FPS** (卡顿程度)。');
+
+    // Write benchmark results to JSON file
+    const resultsDir = path.join(process.cwd(), 'test-results');
+    const resultsPath = path.join(resultsDir, 'benchmark-results.json');
+
+    // Ensure results directory exists
+    if (!fs.existsSync(resultsDir)) {
+      fs.mkdirSync(resultsDir, { recursive: true });
+    }
+
+    // Write results to JSON file
+    fs.writeFileSync(resultsPath, JSON.stringify(results, null, 2), 'utf-8');
+    console.log(`\n📊 Benchmark results saved to: ${resultsPath}`);
   });
 });
