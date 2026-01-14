@@ -43,15 +43,13 @@ jobs:
           cd packages/x-markdown
           npm run benchmark
 
-      - name: Check performance
+      - name: Check performance against thresholds
         id: check
         run: |
           cd packages/x-markdown
-          ls -la src/XMarkdown/__benchmark__/test-results/
           node src/XMarkdown/__benchmark__/scripts/check-performance.js \
             src/XMarkdown/__benchmark__/test-results/benchmark-results.json \
-            benchmark-baseline.json \
-            src/XMarkdown/__benchmark__/benchmark-check-report.txt || true
+            src/XMarkdown/__benchmark__/benchmark-check-report.txt
 
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
@@ -94,9 +92,3 @@ jobs:
                 body: commentBody
               });
             }
-
-      - name: Update baseline
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          cd packages/x-markdown
-          cp src/XMarkdown/__benchmark__/test-results/benchmark-results.json benchmark-baseline.json
