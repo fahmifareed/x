@@ -23,8 +23,8 @@ export default defineConfig({
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    /* Show browser window */
-    headless: false,
+    /* Show browser window - use headless mode in CI */
+    headless: !!process.env.CI,
 
     /* Port to use for Playwright component endpoint. */
     ctPort: 3100,

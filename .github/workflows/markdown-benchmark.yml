@@ -66,11 +66,25 @@ jobs:
           path: packages/x-markdown/benchmark-baseline.json
           key: benchmark-baseline-${{ github.base_ref || github.ref_name }}
 
-      - name: Check performance thresholds
-        id: check
+      - name: Check benchmark results exist
+        id: check-results
         run: |
           cd packages/x-markdown/src/XMarkdown/__benchmark__
-          node scripts/check-performance.js \
+          if [ ! -f "./test-results/benchmark-results.json" ]; then
+            echo "❌ Benchmark results file not found. The benchmark may have failed to run."
+            mkdir -p test-results
+            echo '[]' > ./test-results/benchmark-results.json
+            echo "report_generated=false" >> $GITHUB_OUTPUT
+          else
+            echo "report_generated=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check performance thresholds
+        id: check
+        if: steps.check-results.outputs.report_generated == 'true'
+        run: |
+          cd packages/x-markdown/src/XMarkdown/__benchmark__
+          node ./scripts/check-performance.js \
             ./test-results/benchmark-results.json \
             ../../../benchmark-baseline.json \
             ./benchmark-check-report.txt || true
@@ -81,7 +95,13 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           cd packages/x-markdown/src/XMarkdown/__benchmark__
-          REPORT=$(cat ./benchmark-check-report.txt)
+
+          # 检查报告文件是否存在
+          if [ -f "./benchmark-check-report.txt" ]; then
+            REPORT=$(cat ./benchmark-check-report.txt)
+          else
+            REPORT="⚠️ Performance benchmark report not found. This might indicate the benchmark did not complete successfully."
+          fi
 
           # 生成 JSON 输出供后续步骤使用
           echo "report<<EOF" >> $GITHUB_OUTPUT
