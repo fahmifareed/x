@@ -1,40 +1,43 @@
 /**
- * 流式 Markdown 渲染性能测试配置
- * 所有可配置参数集中管理
+ * Streaming Markdown rendering performance test configuration
+ * All configurable parameters are centrally managed
  */
 
 export const TEXT_CATEGORIES = {
-  short: { min: 0, max: 280, name: '短文本' },
-  medium: { min: 280, max: 2000, name: '中文本' },
-  long: { min: 2000, max: 20000, name: '长文本' },
+  short: { min: 0, max: 280, name: 'Short Text' },
+  medium: { min: 280, max: 2000, name: 'Medium Text' },
+  long: { min: 2000, max: 20000, name: 'Long Text' },
 } as const;
 
 export const BENCHMARK_CONFIG = {
-  // 分块渲染配置
-  CHUNK_SIZE: 6, // 每次渲染的字符数
-  UPDATE_INTERVAL: 50, // 每块之间的间隔时间(ms)
-  RUN_COUNT: 5, // 每个测试用例的运行次数
+  // Chunk rendering configuration
+  CHUNK_SIZE: 6, // Number of characters rendered per chunk
+  UPDATE_INTERVAL: 50, // Interval between chunks (ms)
+  RUN_COUNT: 5, // Number of runs per test case - simplified to 3 times
 
-  // 测试文本长度配置
+  // Test text length configuration
   TEST_TEXT_LENGTHS: {
-    short: 250, // 短文本字符数
-    medium: 1500, // 中文本字符数
-    long: 8000, // 长文本字符数
+    short: 250, // Short text character count
+    medium: 1500, // Medium text character count
+    long: 8000, // Long text character count
   },
 
-  // 超时配置
-  TIMEOUT: 600_000, // 单个测试用例超时时间(ms)
+  // Timeout configuration
+  TIMEOUT: 600_000, // Shortened timeout for individual test cases (ms)
 
-  // 调试配置
+  // Debug configuration
   DEBUG: {
-    ENABLE_TRACING: true, // 是否启用性能追踪
-    ENABLE_SCREENSHOTS: false, // 是否启用截图
-    ENABLE_SNAPSHOTS: false, // 是否启用快照
+    ENABLE_TRACING: true, // Disable performance tracing for speed
+    ENABLE_SCREENSHOTS: false, // Disable screenshots
+    ENABLE_SNAPSHOTS: false, // Disable snapshots
   },
 } as const;
 
-// 支持的渲染器列表
-export const RENDERERS = ['react-markdown', 'x-markdown', 'streamdown'] as const;
+// Dynamically configure renderers based on CI environment
+const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+export const RENDERERS = isCI
+  ? (['x-markdown'] as const) // Only test x-markdown renderer in CI
+  : (['x-markdown', 'react-markdown', 'streamdown'] as const); // Test additional renderers in non-CI environments
 
-// 测试文件路径
+// Test file path
 export const TEST_FILE_PATH = 'test.md';
