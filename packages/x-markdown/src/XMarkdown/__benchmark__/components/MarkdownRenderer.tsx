@@ -1,6 +1,5 @@
 import MarkdownIt from 'markdown-it';
 // @ts-ignore - benchmark only, ignore type checking
-import markdownItKatex from 'markdown-it-katex';
 import { Marked } from 'marked';
 import React, { FC } from 'react';
 import ReactMarkdown from 'react-markdown';
