@@ -13,7 +13,7 @@ export const BENCHMARK_CONFIG = {
   // Chunk rendering configuration
   CHUNK_SIZE: 6, // Number of characters rendered per chunk
   UPDATE_INTERVAL: 50, // Interval between chunks (ms)
-  RUN_COUNT: 5, // Number of runs per test case - simplified to 3 times
+  RUN_COUNT: 3, // Number of runs per test case - simplified to 3 times
 
   // Test text length configuration
   TEST_TEXT_LENGTHS: {

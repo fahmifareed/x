@@ -4,11 +4,7 @@ on:
   pull_request:
     paths:
       - 'packages/x-markdown/**'
-      - '.github/workflows/markdown-benchmark.yml'
   push:
-    branches:
-      - main
-      - feature_markdown_benchmark
     paths:
       - 'packages/x-markdown/**'
   workflow_dispatch:
@@ -46,11 +42,13 @@ jobs:
         run: |
           cd packages/x-markdown
           npm run benchmark
+          ls -la src/XMarkdown/__benchmark__/test-results/
 
       - name: Check performance
         id: check
         run: |
           cd packages/x-markdown/src/XMarkdown/__benchmark__
+          ls -la test-results/
           node ./scripts/check-performance.js \
             ./test-results/benchmark-results.json \
             ../../../benchmark-baseline.json \
