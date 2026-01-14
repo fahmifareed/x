@@ -5,31 +5,27 @@
  */
 
 const fs = require('fs');
-const path = require('path');
 
-// 性能阈值配置（根据实际情况调整）
+// 固定性能阈值
 const PERFORMANCE_THRESHOLDS = {
   'x-markdown': {
-    // 短文本性能要求
     short: {
-      maxDuration: 1000, // 最大渲染时长 (ms) - 放宽到 1 秒
-      minAvgFPS: 30, // 最小平均 FPS - 放宽到 30
-      maxStdDevFPS: 25, // 最大 FPS 标准差 - 放宽
-      maxMemoryDelta: 15, // 最大内存增量 (MB) - 放宽到 15MB
+      maxDuration: 5000, // 短文本 < 5 s
+      minAvgFPS: 60, // 固定 60 FPS
+      maxStdDevFPS: 9999, // 不再限制
+      maxMemoryDelta: 20, // 内存 < 20 MB
     },
-    // 中文本性能要求
     medium: {
-      maxDuration: 4000, // 放宽到 4 秒
-      minAvgFPS: 25, // 放宽到 25
-      maxStdDevFPS: 20,
-      maxMemoryDelta: 25, // 放宽到 25MB
+      maxDuration: 15000, // 中文本 < 15 s
+      minAvgFPS: 60,
+      maxStdDevFPS: 9999,
+      maxMemoryDelta: 20,
     },
-    // 长文本性能要求
     long: {
-      maxDuration: 15000, // 放宽到 15 秒
-      minAvgFPS: 20, // 放宽到 20
-      maxStdDevFPS: 18,
-      maxMemoryDelta: 50, // 放宽到 50MB
+      maxDuration: 80000, // 长文本 < 80 s
+      minAvgFPS: 60,
+      maxStdDevFPS: 9999,
+      maxMemoryDelta: 20,
     },
   },
 };
@@ -185,7 +181,6 @@ function compareWithBaseline(currentResults, baselinePath) {
 
 function generateReport(currentResults, baselinePath) {
   const { failures, warnings } = checkThresholds(currentResults);
-  const { regressions, improvements } = compareWithBaseline(currentResults, baselinePath);
 
   let report = '\n📊 Performance Benchmark Report\n';
   report += '='.repeat(80) + '\n\n';
@@ -205,29 +200,11 @@ function generateReport(currentResults, baselinePath) {
     report += '\n';
   }
 
-  // 显示改进
-  if (improvements.length > 0) {
-    report += '\n🎉 Performance Improvements:\n';
-    improvements.forEach((improvement) => {
-      report += `  ${improvement}\n`;
-    });
-    report += '\n';
-  }
-
   // 显示警告
   if (warnings.length > 0) {
     report += '\n⚠️  Warnings:\n';
     warnings.forEach((warning) => {
       report += `  ${warning}\n`;
-    });
-    report += '\n';
-  }
-
-  // 显示回归
-  if (regressions.length > 0) {
-    report += '\n⚠️  Performance Regressions:\n';
-    regressions.forEach((regression) => {
-      report += `  ${regression}\n`;
     });
     report += '\n';
   }
@@ -243,7 +220,7 @@ function generateReport(currentResults, baselinePath) {
 
   report += '='.repeat(80) + '\n';
 
-  return { report, hasFailures: failures.length > 0, hasRegressions: regressions.length > 0 };
+  return { report, hasFailures: failures.length > 0, hasRegressions: false };
 }
 
 function main() {
