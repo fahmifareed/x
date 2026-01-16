@@ -112,34 +112,97 @@ class Parser {
       return { protected: content, placeholders };
     }
 
-    let protectedContent = content;
     let placeholderIndex = 0;
 
-    customTagNames.forEach((tagName) => {
-      const tagNameLower = tagName.toLowerCase();
-      const regex = new RegExp(
-        `(<${tagNameLower}(?:\\s[^>]*)?>)([\\s\\S]*?)(</${tagNameLower}>)`,
-        'gi',
-      );
+    const tagNamePattern = customTagNames
+      .map((name) => name.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
 
-      protectedContent = protectedContent.replace(
-        regex,
-        (match, openTag, innerContent, closeTag) => {
+    const openTagRegex = new RegExp(`<(${tagNamePattern})(?:\\s[^>]*)?>`, 'gi');
+    const closeTagRegex = new RegExp(`</(${tagNamePattern})>`, 'gi');
+
+    const positions: Array<{
+      index: number;
+      type: 'open' | 'close';
+      tagName: string;
+      match: string;
+    }> = [];
+
+    let match;
+    openTagRegex.lastIndex = 0;
+    match = openTagRegex.exec(content);
+    while (match !== null) {
+      positions.push({
+        index: match.index,
+        type: 'open',
+        tagName: match[1].toLowerCase(),
+        match: match[0],
+      });
+      match = openTagRegex.exec(content);
+    }
+
+    closeTagRegex.lastIndex = 0;
+    match = closeTagRegex.exec(content);
+    while (match !== null) {
+      positions.push({
+        index: match.index,
+        type: 'close',
+        tagName: match[1].toLowerCase(),
+        match: match[0],
+      });
+      match = closeTagRegex.exec(content);
+    }
+
+    positions.sort((a, b) => a.index - b.index);
+
+    const stacks = new Map<string, Array<{ start: number; openTag: string }>>();
+    customTagNames.forEach((tagName) => {
+      stacks.set(tagName.toLowerCase(), []);
+    });
+
+    const result: string[] = [];
+    let lastIndex = 0;
+
+    positions.forEach((pos) => {
+      const stack = stacks.get(pos.tagName);
+      if (!stack) return;
+
+      if (pos.type === 'open') {
+        stack.push({ start: pos.index, openTag: pos.match });
+      } else if (stack.length > 0) {
+        const open = stack.pop()!;
+        if (stack.length === 0) {
+          const startPos = open.start;
+          const endPos = pos.index + pos.match.length;
+          const openTag = open.openTag;
+          const closeTag = pos.match;
+          const innerContent = content.slice(startPos + openTag.length, pos.index);
+
+          if (lastIndex < startPos) {
+            result.push(content.slice(lastIndex, startPos));
+          }
+
           if (innerContent.includes('\n\n')) {
             const protectedInner = innerContent.replace(/\n\n/g, () => {
               const ph = `__X_MD_PLACEHOLDER_${placeholderIndex++}__`;
               placeholders.set(ph, '\n\n');
               return ph;
             });
-
-            return openTag + protectedInner + closeTag;
+            result.push(openTag + protectedInner + closeTag);
+          } else {
+            result.push(openTag + innerContent + closeTag);
           }
-          return match;
-        },
-      );
+
+          lastIndex = endPos;
+        }
+      }
     });
 
-    return { protected: protectedContent, placeholders };
+    if (lastIndex < content.length) {
+      result.push(content.slice(lastIndex));
+    }
+
+    return { protected: result.join(''), placeholders };
   }
 
   private restorePlaceholders(content: string, placeholders: Map<string, string>): string {
@@ -150,7 +213,7 @@ class Parser {
       Array.from(placeholders.keys())
         .map((p) => p.replace(/[.*+?^${}()|[\\\]]/g, '\\$&'))
         .join('|'),
-      'g'
+      'g',
     );
     return content.replace(regex, (match) => placeholders.get(match) ?? match);
   }
