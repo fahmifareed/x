@@ -155,21 +155,14 @@ class Parser {
 
     positions.sort((a, b) => a.index - b.index);
 
-    const stacks = new Map<string, Array<{ start: number; openTag: string }>>();
-    customTagNames.forEach((tagName) => {
-      stacks.set(tagName.toLowerCase(), []);
-    });
-
+    const stack: Array<{ tagName: string; start: number; openTag: string }> = [];
     const result: string[] = [];
     let lastIndex = 0;
 
     positions.forEach((pos) => {
-      const stack = stacks.get(pos.tagName);
-      if (!stack) return;
-
       if (pos.type === 'open') {
-        stack.push({ start: pos.index, openTag: pos.match });
-      } else if (stack.length > 0) {
+        stack.push({ tagName: pos.tagName, start: pos.index, openTag: pos.match });
+      } else if (stack.length > 0 && stack[stack.length - 1].tagName === pos.tagName) {
         const open = stack.pop()!;
         if (stack.length === 0) {
           const startPos = open.start;
