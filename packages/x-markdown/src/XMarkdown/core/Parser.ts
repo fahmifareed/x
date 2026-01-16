@@ -202,13 +202,10 @@ class Parser {
     if (placeholders.size === 0) {
       return content;
     }
-    const regex = new RegExp(
-      Array.from(placeholders.keys())
-        .map((p) => p.replace(/[.*+?^${}()|[\\\]]/g, '\\$&'))
-        .join('|'),
-      'g',
+    return content.replace(
+      /__X_MD_PLACEHOLDER_\d+__/g,
+      (match) => placeholders.get(match) ?? match,
     );
-    return content.replace(regex, (match) => placeholders.get(match) ?? match);
   }
 
   public parse(content: string) {
