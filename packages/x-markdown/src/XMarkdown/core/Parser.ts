@@ -5,6 +5,7 @@ type ParserOptions = {
   markedConfig?: XMarkdownProps['config'];
   paragraphTag?: string;
   openLinksInNewTab?: boolean;
+  components?: XMarkdownProps['components'];
 };
 
 export const other = {
@@ -100,8 +101,60 @@ class Parser {
     this.markdownInstance.use({ renderer });
   }
 
+  private protectCustomTags(content: string): {
+    protected: string;
+    placeholders: Map<string, string>;
+  } {
+    const placeholders = new Map<string, string>();
+    const customTagNames = Object.keys(this.options.components || {});
+
+    if (customTagNames.length === 0) {
+      return { protected: content, placeholders };
+    }
+
+    let protectedContent = content;
+    let placeholderIndex = 0;
+
+    customTagNames.forEach((tagName) => {
+      const tagNameLower = tagName.toLowerCase();
+      const regex = new RegExp(
+        `(<${tagNameLower}(?:\\s[^>]*)?>)([\\s\\S]*?)(</${tagNameLower}>)`,
+        'gi',
+      );
+
+      protectedContent = protectedContent.replace(
+        regex,
+        (match, openTag, innerContent, closeTag) => {
+          if (innerContent.includes('\n\n')) {
+            const protectedInner = innerContent.replace(/\n\n/g, () => {
+              const ph = `__X_MD_PLACEHOLDER_${placeholderIndex++}__`;
+              placeholders.set(ph, '\n\n');
+              return ph;
+            });
+
+            return openTag + protectedInner + closeTag;
+          }
+          return match;
+        },
+      );
+    });
+
+    return { protected: protectedContent, placeholders };
+  }
+
+  private restorePlaceholders(content: string, placeholders: Map<string, string>): string {
+    let restored = content;
+    placeholders.forEach((original, placeholder) => {
+      const escaped = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      restored = restored.replace(new RegExp(escaped, 'g'), original);
+    });
+    return restored;
+  }
+
   public parse(content: string) {
-    return this.markdownInstance.parse(content) as string;
+    const { protected: protectedContent, placeholders } = this.protectCustomTags(content);
+    const parsed = this.markdownInstance.parse(protectedContent) as string;
+    return this.restorePlaceholders(parsed, placeholders);
   }
 }
 
