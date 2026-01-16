@@ -143,12 +143,16 @@ class Parser {
   }
 
   private restorePlaceholders(content: string, placeholders: Map<string, string>): string {
-    let restored = content;
-    placeholders.forEach((original, placeholder) => {
-      const escaped = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      restored = restored.replace(new RegExp(escaped, 'g'), original);
-    });
-    return restored;
+    if (placeholders.size === 0) {
+      return content;
+    }
+    const regex = new RegExp(
+      Array.from(placeholders.keys())
+        .map((p) => p.replace(/[.*+?^${}()|[\\\]]/g, '\\$&'))
+        .join('|'),
+      'g'
+    );
+    return content.replace(regex, (match) => placeholders.get(match) ?? match);
   }
 
   public parse(content: string) {
