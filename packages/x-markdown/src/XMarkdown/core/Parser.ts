@@ -6,6 +6,7 @@ type ParserOptions = {
   paragraphTag?: string;
   openLinksInNewTab?: boolean;
   components?: XMarkdownProps['components'];
+  protectCustomTagNewlines?: boolean;
 };
 
 export const other = {
@@ -209,9 +210,12 @@ class Parser {
   }
 
   public parse(content: string) {
-    const { protected: protectedContent, placeholders } = this.protectCustomTags(content);
-    const parsed = this.markdownInstance.parse(protectedContent) as string;
-    return this.restorePlaceholders(parsed, placeholders);
+    if (this.options.protectCustomTagNewlines) {
+      const { protected: protectedContent, placeholders } = this.protectCustomTags(content);
+      const parsed = this.markdownInstance.parse(protectedContent) as string;
+      return this.restorePlaceholders(parsed, placeholders);
+    }
+    return this.markdownInstance.parse(content) as string;
   }
 }
 
