@@ -162,8 +162,15 @@ class Parser {
 
     positions.forEach((pos) => {
       if (pos.type === 'open') {
-        stack.push({ tagName: pos.tagName, start: pos.index, openTag: pos.match });
-      } else if (stack.length > 0 && stack[stack.length - 1].tagName === pos.tagName) {
+        // Self-closing tags don't have inner content, so they shouldn't be pushed to the stack.
+        if (!pos.match.endsWith('/>')) {
+          stack.push({ tagName: pos.tagName, start: pos.index, openTag: pos.match });
+        }
+      } else if (
+        pos.type === 'close' &&
+        stack.length > 0 &&
+        stack[stack.length - 1].tagName === pos.tagName
+      ) {
         const open = stack.pop()!;
         if (stack.length === 0) {
           const startPos = open.start;
