@@ -1,6 +1,7 @@
 import { clsx } from 'clsx';
 import React, { useMemo } from 'react';
 import { Parser, Renderer } from './core';
+import DebugPanel from './DebugPanel';
 import { useStreaming } from './hooks';
 import { XMarkdownProps } from './interface';
 import './index.css';
@@ -19,6 +20,7 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
     openLinksInNewTab,
     dompurifyConfig,
     protectCustomTagNewlines,
+    debug,
   } = props;
 
   // ============================ style ============================
@@ -57,9 +59,12 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
   if (!displayContent) return null;
 
   return (
-    <div className={mergedCls} style={style}>
-      {renderer.render(htmlString)}
-    </div>
+    <>
+      <div className={mergedCls} style={style}>
+        {renderer.render(htmlString)}
+      </div>
+      {debug ? <DebugPanel /> : null}
+    </>
   );
 });
 
