@@ -19,6 +19,7 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
     style,
     openLinksInNewTab,
     dompurifyConfig,
+    protectCustomTagNewlines,
     debug,
   } = props;
 
@@ -27,7 +28,6 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
 
   // ============================ Streaming ============================
   const displayContent = useStreaming(content || children || '', { streaming, components });
-
   // ============================ Render ============================
   const parser = useMemo(
     () =>
@@ -35,8 +35,10 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
         markedConfig: config,
         paragraphTag,
         openLinksInNewTab,
+        components,
+        protectCustomTagNewlines,
       }),
-    [config, paragraphTag, openLinksInNewTab],
+    [config, paragraphTag, openLinksInNewTab, components, protectCustomTagNewlines],
   );
 
   const renderer = useMemo(
