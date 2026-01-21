@@ -1,4 +1,4 @@
-import Parser from '../core/Parser';
+import Parser, { escapeHtml } from '../core/Parser';
 
 describe('Parser', () => {
   it('should render paragraphs with custom tag when paragraphTag is provided', () => {
@@ -167,6 +167,25 @@ describe('Parser', () => {
       expect(result).toContain('<p>Regular paragraph.</p>');
       expect(result).toContain('<CustomComponent>Custom\n\ncontent</CustomComponent>');
       expect(result).toContain('<p>Another paragraph.</p>');
+    });
+
+    it('should handle custom tags without double newlines', () => {
+      const parser = new Parser({
+        protectCustomTagNewlines: true,
+        components: { CustomComponent: 'div' },
+      });
+      const content = '<CustomComponent>Single line content</CustomComponent>';
+      const result = parser.parse(content);
+      expect(result).toContain('<CustomComponent>Single line content</CustomComponent>');
+    });
+  });
+
+  describe('escapeHtml', () => {
+    it('should escape HTML when encode is false or undefined and contains special characters', () => {
+      expect(escapeHtml('test<script>alert("xss")</script>', false)).toBe(
+        'test&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;',
+      );
+      expect(escapeHtml('test<script>', undefined)).toBe('test&lt;script&gt;');
     });
   });
 });
