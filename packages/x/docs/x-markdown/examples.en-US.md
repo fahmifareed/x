@@ -43,6 +43,7 @@ Used for rendering streaming Markdown format returned by LLM.
 | className | Additional CSS class for root container | `string` | - |
 | rootClassName | Alias for `className`, additional CSS class for root element | `string` | - |
 | style | Inline styles for root container | `CSSProperties` | - |
+| protectCustomTagNewlines | Whether to protect newlines in custom tags | `boolean` | `false` |
 
 ### StreamingOption
 

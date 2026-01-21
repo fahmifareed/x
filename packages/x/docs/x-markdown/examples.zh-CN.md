@@ -43,6 +43,7 @@ packageName: x-markdown
 | className | 根容器的额外 CSS 类名 | `string` | - |
 | rootClassName | `className` 的别名，根元素的额外 CSS 类 | `string` | - |
 | style | 根容器的内联样式 | `CSSProperties` | - |
+| protectCustomTagNewlines | 是否保护自定义标记中的换行符 | `boolean` | `false` |
 
 ### StreamingOption
 
