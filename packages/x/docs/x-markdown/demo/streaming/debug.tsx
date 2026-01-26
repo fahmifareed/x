@@ -1,6 +1,6 @@
 import { Bubble } from '@ant-design/x';
 import XMarkdown from '@ant-design/x-markdown';
-import { Button, Flex, Space, Switch, Typography } from 'antd';
+import { Button, Flex, Space } from 'antd';
 import React from 'react';
 import { useMarkdownTheme } from '../_utils';
 import '@ant-design/x-markdown/themes/light.css';
@@ -59,13 +59,10 @@ Based on the RICH interaction paradigm, we provide many atomic components for di
 > Ant Design X is more than just a component library—it's a complete solution for building the next generation of AI-powered applications. Start building today and create experiences that delight your users.
 `;
 
-const { Text } = Typography;
-
 const App = () => {
-  const [enableAnimation, setEnableAnimation] = React.useState(true);
-  const [hasNextChunk, setHasNextChunk] = React.useState(true);
   const [className] = useMarkdownTheme();
   const [index, setIndex] = React.useState(0);
+  const [hasNextChunk, setHasNextChunk] = React.useState(false);
   const timer = React.useRef<NodeJS.Timeout | null>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
 
@@ -99,22 +96,15 @@ const App = () => {
     }
   }, [index]);
 
+  const handleReRender = () => {
+    setIndex(0);
+    setHasNextChunk(true);
+  };
+
   return (
     <Flex vertical gap="small" style={{ height: 600, overflow: 'auto' }} ref={contentRef}>
       <Space align="center" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Space>
-          <Text>Animation</Text>
-          <Switch checked={enableAnimation} onChange={setEnableAnimation} />
-        </Space>
-
-        <Button
-          onClick={() => {
-            setIndex(0);
-            setHasNextChunk(true);
-          }}
-        >
-          Re-Render
-        </Button>
+        <Button onClick={handleReRender}>Re-Render</Button>
       </Space>
 
       <Bubble
@@ -126,9 +116,7 @@ const App = () => {
         content={text.slice(0, index)}
         className={className}
         contentRender={(content) => (
-          <XMarkdown
-            streaming={{ enableAnimation, hasNextChunk, animationConfig: { fadeDuration: 400 } }}
-          >
+          <XMarkdown debug streaming={{ enableAnimation: true, hasNextChunk }}>
             {content}
           </XMarkdown>
         )}
