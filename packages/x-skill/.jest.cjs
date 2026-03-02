@@ -9,4 +9,9 @@ module.exports = {
   coverageProvider: 'v8',
   testTimeout: 10000,
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  preset: undefined,
+  transform: {},
+  testEnvironmentOptions: {
+    nodeOptions: ['--experimental-vm-modules']
+  }
 };

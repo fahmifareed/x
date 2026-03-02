@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 
+import { execSync } from 'child_process';
 import fs from 'fs';
-import path from 'path';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
 import config from './config';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const packageJsonPath = config.paths.packageJsonPath;
 const skillsZhDir = config.paths.skillsZhDir;
@@ -120,7 +125,6 @@ try {
 // Format marketplace.json with biome
 console.log(`\n🎨 Formatting marketplace.json...`);
 try {
-  const { execSync } = require('child_process');
   execSync('npx biome format --write .claude-plugin/marketplace.json', {
     stdio: 'inherit',
     cwd: path.join(__dirname, '..'),

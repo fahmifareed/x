@@ -1,4 +1,7 @@
-const { SkillInstaller } = require('../bin/index.js');
+import fs from 'fs';
+import path from 'path';
+import { SkillInstaller } from '../bin/index.js';
+
 /**
  * 模拟 installer.rl.question 的工具函数
  * 用于测试 askQuestion 和 askMultipleChoice 方法
@@ -70,10 +73,7 @@ describe('Direct JavaScript Coverage Test', () => {
       // 执行10-21行的逻辑
       const args = process.argv.slice(2);
       if (args.includes('-v') || args.includes('--version')) {
-        const fs = require('fs');
-        const path = require('path');
-
-        const packagePath = path.join(__dirname, '..', 'package.json');
+        const packagePath = path.join(process.cwd(), 'package.json');
         const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
         console.log(packageJson.version);
         process.exit(0);
@@ -232,9 +232,9 @@ describe('Direct JavaScript Coverage Test', () => {
           const originalExit = process.exit;
           process.exit = mockProcess.exit;
 
-          jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
-          jest.spyOn(require('fs'), 'existsSync').mockImplementation(mockFs.existsSync);
-          jest.spyOn(require('fs'), 'readFileSync').mockImplementation(mockFs.readFileSync);
+          jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
+          jest.spyOn(fs, 'existsSync').mockImplementation(mockFs.existsSync);
+          jest.spyOn(fs, 'readFileSync').mockImplementation(mockFs.readFileSync);
 
           // 模拟目录读取错误
           mockFs.readdirSync.mockImplementation(() => {
@@ -264,9 +264,9 @@ describe('Direct JavaScript Coverage Test', () => {
             readFileSync: jest.fn(),
           };
 
-          jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
-          jest.spyOn(require('fs'), 'existsSync').mockImplementation(mockFs.existsSync);
-          jest.spyOn(require('fs'), 'readFileSync').mockImplementation(mockFs.readFileSync);
+          jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
+          jest.spyOn(fs, 'existsSync').mockImplementation(mockFs.existsSync);
+          jest.spyOn(fs, 'readFileSync').mockImplementation(mockFs.readFileSync);
 
           // 模拟正常文件系统
           mockFs.readdirSync.mockReturnValue([{ name: 'test-skill', isDirectory: () => true }]);
@@ -310,9 +310,9 @@ describe('Direct JavaScript Coverage Test', () => {
               readFileSync: jest.fn(),
             };
 
-            jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
-            jest.spyOn(require('fs'), 'existsSync').mockImplementation(mockFs.existsSync);
-            jest.spyOn(require('fs'), 'readFileSync').mockImplementation(mockFs.readFileSync);
+            jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
+            jest.spyOn(fs, 'existsSync').mockImplementation(mockFs.existsSync);
+            jest.spyOn(fs, 'readFileSync').mockImplementation(mockFs.readFileSync);
 
             mockFs.readdirSync.mockReturnValue([{ name: 'test-skill', isDirectory: () => true }]);
             mockFs.existsSync.mockReturnValue(true);
@@ -330,8 +330,8 @@ describe('Direct JavaScript Coverage Test', () => {
               existsSync: jest.fn(),
             };
 
-            jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
-            jest.spyOn(require('fs'), 'existsSync').mockImplementation(mockFs.existsSync);
+            jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
+            jest.spyOn(fs, 'existsSync').mockImplementation(mockFs.existsSync);
 
             mockFs.readdirSync.mockReturnValue([{ name: 'test-skill', isDirectory: () => true }]);
             mockFs.existsSync.mockReturnValue(false); // SKILL.md 不存在
@@ -350,9 +350,9 @@ describe('Direct JavaScript Coverage Test', () => {
                 readFileSync: jest.fn(),
               };
 
-              jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
-              jest.spyOn(require('fs'), 'existsSync').mockImplementation(mockFs.existsSync);
-              jest.spyOn(require('fs'), 'readFileSync').mockImplementation(mockFs.readFileSync);
+              jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
+              jest.spyOn(fs, 'existsSync').mockImplementation(mockFs.existsSync);
+              jest.spyOn(fs, 'readFileSync').mockImplementation(mockFs.readFileSync);
 
               mockFs.readdirSync.mockReturnValue([{ name: 'test-skill', isDirectory: () => true }]);
               mockFs.existsSync.mockReturnValue(true);
@@ -373,9 +373,9 @@ describe('Direct JavaScript Coverage Test', () => {
                 readFileSync: jest.fn(),
               };
 
-              jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
-              jest.spyOn(require('fs'), 'existsSync').mockImplementation(mockFs.existsSync);
-              jest.spyOn(require('fs'), 'readFileSync').mockImplementation(mockFs.readFileSync);
+              jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
+              jest.spyOn(fs, 'existsSync').mockImplementation(mockFs.existsSync);
+              jest.spyOn(fs, 'readFileSync').mockImplementation(mockFs.readFileSync);
 
               mockFs.readdirSync.mockReturnValue([{ name: 'test-skill', isDirectory: () => true }]);
               mockFs.existsSync.mockReturnValue(true);
@@ -404,9 +404,9 @@ describe('Direct JavaScript Coverage Test', () => {
                 readFileSync: jest.fn(),
               };
 
-              jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
-              jest.spyOn(require('fs'), 'existsSync').mockImplementation(mockFs.existsSync);
-              jest.spyOn(require('fs'), 'readFileSync').mockImplementation(mockFs.readFileSync);
+              jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
+              jest.spyOn(fs, 'existsSync').mockImplementation(mockFs.existsSync);
+              jest.spyOn(fs, 'readFileSync').mockImplementation(mockFs.readFileSync);
 
               // 测试中文语言下的技能加载
               installer.language = 'zh';
@@ -424,7 +424,7 @@ describe('Direct JavaScript Coverage Test', () => {
                 readdirSync: jest.fn(),
               };
 
-              jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
+              jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
 
               mockFs.readdirSync.mockReturnValue([]); // 空目录
 
@@ -468,13 +468,13 @@ describe('Direct JavaScript Coverage Test', () => {
       };
 
       // 使用 jest.spyOn 来模拟模块方法
-      jest.spyOn(require('fs'), 'existsSync').mockImplementation(mockFs.existsSync);
-      jest.spyOn(require('fs'), 'mkdirSync').mockImplementation(mockFs.mkdirSync);
-      jest.spyOn(require('fs'), 'rmSync').mockImplementation(mockFs.rmSync);
-      jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
-      jest.spyOn(require('fs'), 'copyFileSync').mockImplementation(mockFs.copyFileSync);
-      jest.spyOn(require('path'), 'join').mockImplementation(mockPath.join);
-      jest.spyOn(require('os'), 'homedir').mockImplementation(mockOs.homedir);
+      jest.spyOn(fs, 'existsSync').mockImplementation(mockFs.existsSync);
+      jest.spyOn(fs, 'mkdirSync').mockImplementation(mockFs.mkdirSync);
+      jest.spyOn(fs, 'rmSync').mockImplementation(mockFs.rmSync);
+      jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
+      jest.spyOn(fs, 'copyFileSync').mockImplementation(mockFs.copyFileSync);
+      jest.spyOn(path, 'join').mockImplementation(mockPath.join);
+      jest.spyOn(os, 'homedir').mockImplementation(mockOs.homedir);
     });
 
     afterEach(() => {
@@ -579,10 +579,10 @@ describe('Direct JavaScript Coverage Test', () => {
           copyFileSync: jest.fn(),
         };
 
-        jest.spyOn(require('fs'), 'existsSync').mockImplementation(mockFs.existsSync);
-        jest.spyOn(require('fs'), 'mkdirSync').mockImplementation(mockFs.mkdirSync);
-        jest.spyOn(require('fs'), 'readdirSync').mockImplementation(mockFs.readdirSync);
-        jest.spyOn(require('fs'), 'copyFileSync').mockImplementation(mockFs.copyFileSync);
+        jest.spyOn(fs, 'existsSync').mockImplementation(mockFs.existsSync);
+        jest.spyOn(fs, 'mkdirSync').mockImplementation(mockFs.mkdirSync);
+        jest.spyOn(fs, 'readdirSync').mockImplementation(mockFs.readdirSync);
+        jest.spyOn(fs, 'copyFileSync').mockImplementation(mockFs.copyFileSync);
 
         // 模拟源目录不存在
         mockFs.existsSync.mockReturnValue(false);
