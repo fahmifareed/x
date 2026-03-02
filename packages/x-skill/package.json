@@ -30,7 +30,7 @@
     "version": "tsx scripts/generate-version.ts",
     "clean": "rm -rf coverage lib es",
     "pretest": "npm run prestart",
-    "start": "node bin/index.js",
+    "start": "father build && node bin/index.js",
     "prestart": "npm run version",
     "lint": "biome lint bin/",
     "tsc": "tsc --noEmit"
