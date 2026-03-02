@@ -5,11 +5,7 @@ declare class HelpManager {
   private colorMap;
   constructor(messages?: LocaleMessages, language?: string);
   colorize(text: string, color: string): string;
-  getMessage(
-    key: keyof LocaleMessages,
-    replacements?: Record<string, string>,
-    lang?: string | null,
-  ): string;
+  getMessage(key: keyof LocaleMessages, replacements?: Record<string, string>): string;
   printSeparator(): void;
   showHelp(): void;
   showVersion(): boolean;
@@ -20,4 +16,3 @@ declare class HelpManager {
   printGoodbye(messages?: LocaleMessages): void;
 }
 export default HelpManager;
-//# sourceMappingURL=help.d.ts.map

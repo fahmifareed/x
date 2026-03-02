@@ -2,7 +2,6 @@ interface SkillLoaderOptions {
   githubOwner?: string;
   githubRepo?: string;
   tempDir?: string;
-  cacheDir?: string;
 }
 interface Skill {
   name: string;
@@ -14,7 +13,6 @@ declare class SkillLoader {
   private githubOwner;
   private githubRepo;
   private tempDir;
-  private cacheDir;
   constructor(options?: SkillLoaderOptions);
   makeRequest(
     url: string,
@@ -31,4 +29,3 @@ declare class SkillLoader {
   listVersions(): Promise<string[]>;
 }
 export default SkillLoader;
-//# sourceMappingURL=getSkillRepo.d.ts.map

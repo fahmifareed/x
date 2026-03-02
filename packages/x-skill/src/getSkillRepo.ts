@@ -7,7 +7,6 @@ interface SkillLoaderOptions {
   githubOwner?: string;
   githubRepo?: string;
   tempDir?: string;
-  cacheDir?: string;
 }
 
 interface GitHubContent {
@@ -49,13 +48,11 @@ class SkillLoader {
   private githubOwner: string;
   private githubRepo: string;
   private tempDir: string;
-  private cacheDir: string;
 
   constructor(options: SkillLoaderOptions = {}) {
     this.githubOwner = options.githubOwner || 'ant-design';
     this.githubRepo = options.githubRepo || 'x';
     this.tempDir = options.tempDir || path.join(os.tmpdir(), 'x-skill-temp');
-    this.cacheDir = options.cacheDir || path.join(os.tmpdir(), 'x-skill-cache');
   }
 
   async makeRequest(url: string, options: { headers?: Record<string, string> } = {}): Promise<any> {

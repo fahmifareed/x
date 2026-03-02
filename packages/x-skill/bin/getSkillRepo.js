@@ -14,12 +14,10 @@ class SkillLoader {
   githubOwner;
   githubRepo;
   tempDir;
-  cacheDir;
   constructor(options = {}) {
     this.githubOwner = options.githubOwner || 'ant-design';
     this.githubRepo = options.githubRepo || 'x';
     this.tempDir = options.tempDir || path.join(os.tmpdir(), 'x-skill-temp');
-    this.cacheDir = options.cacheDir || path.join(os.tmpdir(), 'x-skill-cache');
   }
   async makeRequest(url, options = {}) {
     return new Promise((resolve, reject) => {

@@ -92,4 +92,3 @@ export declare function getMessage(
 ): string;
 export declare const DEFAULT_LANGUAGE: Language;
 export declare const SUPPORTED_LANGUAGES: Language[];
-//# sourceMappingURL=index.d.ts.map

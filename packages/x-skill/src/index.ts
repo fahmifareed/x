@@ -44,6 +44,7 @@ class SkillInstaller {
   private skillLoader: SkillLoader;
   private helpManager: HelpManager;
   private args: ParsedArgs;
+  private cacheDir: string;
 
   constructor() {
     this.messages = this.loadLocaleMessages();
@@ -57,8 +58,8 @@ class SkillInstaller {
       githubOwner: 'ant-design',
       githubRepo: 'x',
       tempDir: path.join(os.tmpdir(), 'x-skill-temp'),
-      cacheDir: path.join(os.tmpdir(), 'x-skill-cache'),
     });
+    this.cacheDir = path.join(os.tmpdir(), 'x-skill-cache');
 
     this.helpManager = new HelpManager(this.messages, this.language);
 
@@ -176,10 +177,10 @@ class SkillInstaller {
 
   getCache(key: string): any {
     try {
-      if (!fs.existsSync(this.skillLoader['cacheDir'])) {
+      if (!fs.existsSync(this.cacheDir)) {
         return null;
       }
-      const cacheFile = path.join(this.skillLoader['cacheDir'], `${key}.json`);
+      const cacheFile = path.join(this.cacheDir, `${key}.json`);
       if (!fs.existsSync(cacheFile)) {
         return null;
       }
@@ -198,11 +199,11 @@ class SkillInstaller {
 
   setCache(key: string, data: any, ttlSeconds = 3600): void {
     try {
-      if (!fs.existsSync(this.skillLoader['cacheDir'])) {
-        fs.mkdirSync(this.skillLoader['cacheDir'], { recursive: true });
+      if (!fs.existsSync(this.cacheDir)) {
+        fs.mkdirSync(this.cacheDir, { recursive: true });
       }
 
-      const cacheFile = path.join(this.skillLoader['cacheDir'], `${key}.json`);
+      const cacheFile = path.join(this.cacheDir, `${key}.json`);
       const cacheData = {
         data,
         expires: Date.now() + ttlSeconds * 1000,
@@ -216,7 +217,7 @@ class SkillInstaller {
 
   clearCache(key: string): void {
     try {
-      const cacheFile = path.join(this.skillLoader['cacheDir'], `${key}.json`);
+      const cacheFile = path.join(this.cacheDir, `${key}.json`);
       if (fs.existsSync(cacheFile)) {
         fs.unlinkSync(cacheFile);
       }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import ProgressBar from 'progress';
-import { Language, LocaleMessages } from './locale/index';
+import { LocaleMessages } from './locale/index';
 interface SkillConfig {
   targets: {
     [key: string]: {
@@ -26,6 +26,7 @@ declare class SkillInstaller {
   private skillLoader;
   private helpManager;
   private args;
+  private cacheDir;
   constructor();
   colorize(text: string, color: string): string;
   questionAsync(question: string): Promise<string>;
@@ -43,15 +44,10 @@ declare class SkillInstaller {
   loadLocalSkills(): Promise<void>;
   askQuestion(question: string, options: string[]): Promise<string | null>;
   askMultipleChoice(question: string, options: string[]): Promise<string[]>;
-  getMessage(
-    key: keyof LocaleMessages,
-    replacements?: Record<string, string>,
-    lang?: Language | null,
-  ): string;
+  getMessage(key: keyof LocaleMessages, replacements?: Record<string, string>): string;
   createProgressBar(total: number): ProgressBar;
   run(): Promise<void>;
   installSkills(skillNames: string[], software: string, isGlobal: boolean): Promise<void>;
   copyDirectory(src: string, dest: string): void;
 }
 export { SkillInstaller };
-//# sourceMappingURL=index.d.ts.map

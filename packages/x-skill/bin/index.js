@@ -26,6 +26,7 @@ class SkillInstaller {
   skillLoader;
   helpManager;
   args;
+  cacheDir;
   constructor() {
     this.messages = this.loadLocaleMessages();
     this.rl = readline.createInterface({
@@ -36,9 +37,9 @@ class SkillInstaller {
     this.skillLoader = new _getSkillRepo.default({
       githubOwner: 'ant-design',
       githubRepo: 'x',
-      tempDir: path.join(os.tmpdir(), 'x-skill-temp'),
-      cacheDir: path.join(os.tmpdir(), 'x-skill-cache')
+      tempDir: path.join(os.tmpdir(), 'x-skill-temp')
     });
+    this.cacheDir = path.join(os.tmpdir(), 'x-skill-cache');
     this.helpManager = new _help.default(this.messages, this.language);
 
     // Parse command line arguments
@@ -141,10 +142,10 @@ class SkillInstaller {
   }
   getCache(key) {
     try {
-      if (!fs.existsSync(this.skillLoader['cacheDir'])) {
+      if (!fs.existsSync(this.cacheDir)) {
         return null;
       }
-      const cacheFile = path.join(this.skillLoader['cacheDir'], `${key}.json`);
+      const cacheFile = path.join(this.cacheDir, `${key}.json`);
       if (!fs.existsSync(cacheFile)) {
         return null;
       }
@@ -160,12 +161,12 @@ class SkillInstaller {
   }
   setCache(key, data, ttlSeconds = 3600) {
     try {
-      if (!fs.existsSync(this.skillLoader['cacheDir'])) {
-        fs.mkdirSync(this.skillLoader['cacheDir'], {
+      if (!fs.existsSync(this.cacheDir)) {
+        fs.mkdirSync(this.cacheDir, {
           recursive: true
         });
       }
-      const cacheFile = path.join(this.skillLoader['cacheDir'], `${key}.json`);
+      const cacheFile = path.join(this.cacheDir, `${key}.json`);
       const cacheData = {
         data,
         expires: Date.now() + ttlSeconds * 1000
@@ -177,7 +178,7 @@ class SkillInstaller {
   }
   clearCache(key) {
     try {
-      const cacheFile = path.join(this.skillLoader['cacheDir'], `${key}.json`);
+      const cacheFile = path.join(this.cacheDir, `${key}.json`);
       if (fs.existsSync(cacheFile)) {
         fs.unlinkSync(cacheFile);
       }
@@ -332,8 +333,7 @@ class SkillInstaller {
     console.error(`${_index.emojis.cross} ${this.colorize(this.getMessage('maxAttemptsExceeded'), 'red')}`);
     process.exit(1);
   }
-  getMessage(key, replacements = {}, lang = null) {
-    const targetLang = lang || this.language;
+  getMessage(key, replacements = {}) {
     let message = this.messages[key] || key;
     // Replace template variables
     Object.keys(replacements).forEach(placeholder => {
@@ -353,19 +353,6 @@ class SkillInstaller {
   }
   async run() {
     try {
-      // 检查是否在交互式终端中运行
-      if (!process.stdin.isTTY) {
-        console.error(`${_index.emojis.cross} ${this.colorize(`${this.getMessage('error')}: ${this.getMessage('nonInteractiveEnv')}`, 'red')}`);
-        console.log(`${_index.emojis.info} ${this.colorize(`${this.getMessage('usage')}: node packages/x-skill/bin/index.js`, 'cyan')}`);
-        process.exit(1);
-      }
-
-      // 检查是否有自动输入
-      if (process.argv.length > 2 && !['--help', '-h', '--version', '-V', '--list-versions', '-l', '--tag', '-t'].some(flag => process.argv.includes(flag))) {
-        console.log(`${_index.emojis.info} ${this.language === 'zh' ? '检测到命令行参数，使用非交互模式' : 'Command line arguments detected, using non-interactive mode'}`);
-        console.log(`${_index.emojis.info} ${this.language === 'zh' ? '可用参数: --help, --list-versions, --tag <version>' : 'Available arguments: --help, --list-versions, --tag <version>'}`);
-        return;
-      }
       await this.helpManager.printHeader();
 
       // Display version info if specified
