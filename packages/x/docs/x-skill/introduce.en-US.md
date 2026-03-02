@@ -33,17 +33,48 @@ We provide multiple flexible installation methods, you can choose the most suita
 
 Supports mainstream AI IDEs like Claude Code, CodeFuse, Cursor, complete installation with a single command:
 
+### Basic Installation
+
 ```bash
 # Install skill library globally
 npm i -g @ant-design/x-skill
 
-# Smart registration to current IDE
+# Smart registration to current IDE (interactive installation)
+npx x-skill
+```
+
+### Version Management
+
+Supports installation with specific version tags to ensure getting specific version features:
+
+```bash
+# View all available versions
+npx x-skill --list-versions
+# or
+npx x-skill -l
+
+# Install specific version (replace <tag> with actual version number)
+npx x-skill --tag <tag>
+# or
+npx x-skill -t <tag>
+
+# View current installer version (not skill version)
+npx x-skill --version
+# or
+npx x-skill -V
+```
+
+### Usage Examples
+
+```bash
+# Install latest stable version
 npx x-skill
 
-# Check skill package version
-npx x-skill -v
-// or
-npx x-skill --version
+# Install specific version to ensure compatibility
+npx x-skill --tag 2.3.0
+
+# View help information
+npx x-skill --help
 ```
 
 ### Method 2: Claude Code Integration

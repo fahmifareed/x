@@ -33,18 +33,48 @@ title: 介绍
 
 支持 Claude Code、CodeFuse、Cursor 等主流 AI IDE，一条命令即可完成安装：
 
+#### 基础安装
+
 ```bash
 # 全局安装技能库
 npm i -g @ant-design/x-skill
 
-# 智能注册到当前 IDE
+# 智能注册到当前 IDE（交互式安装）
+npx x-skill
+```
+
+#### 版本管理
+
+支持指定版本标签安装，确保获取特定版本的功能：
+
+```bash
+# 查看所有可用版本
+npx x-skill --list-versions
+# 或
+npx x-skill -l
+
+# 安装指定版本（替换 <tag> 为具体版本号）
+npx x-skill --tag <tag>
+# 或
+npx x-skill -t <tag>
+
+# 查看当前安装器的版本（非 skill 版本）
+npx x-skill --version
+# 或
+npx x-skill -V
+```
+
+#### 使用示例
+
+```bash
+# 安装最新稳定版本
 npx x-skill
 
-# 查看技能包版本
+# 安装指定版本确保兼容性
+npx x-skill --tag 2.3.0
 
-npx x-skill -v
-// or
-npx x-skill --version
+# 查看帮助信息
+npx x-skill --help
 ```
 
 ### 方式二：Claude Code 集成
