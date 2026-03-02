@@ -20,7 +20,7 @@
     "react"
   ],
   "scripts": {
-    "precompile": "npm run prestart",
+    "precompile": "npm run skillApi && npm run prestart",
     "compile": "father build",
     "skillApi": "tsx scripts/skillApi.ts",
     "test": "jest --config .jest.js --no-cache --collect-coverage",
@@ -30,8 +30,8 @@
     "version": "tsx scripts/generate-version.ts",
     "clean": "rm -rf coverage lib es",
     "pretest": "npm run prestart",
-    "start": "ut run compile && node bin/index.js",
-    "prestart": "npm run skillApi && npm run version",
+    "start": "node bin/index.js",
+    "prestart": "npm run version",
     "lint": "biome lint bin/",
     "tsc": "tsc --noEmit"
   },
