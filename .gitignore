@@ -18,7 +18,6 @@ Thumbs.db
 *.log.*
 *.json.gzip
 node_modules/
-bin/
 .buildpath
 .settings
 npm-debug.log
@@ -28,6 +27,7 @@ _data
 dist
 report.html
 lib
+bin
 es
 
 elasticsearch-*
