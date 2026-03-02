@@ -1,24 +1,14 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
-const os = require('os');
-const { emojis, messages } = require('./locale/index.js');
-
-// Handle -v parameter
-const args = process.argv.slice(2);
-if (args.includes('-v') || args.includes('--version')) {
-  try {
-    const packagePath = path.join(__dirname, '..', 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
-    console.log(packageJson.version);
-    process.exit(0);
-  } catch (error) {
-    console.error('Failed to read version:', error.message);
-    process.exit(1);
-  }
-}
+import fs from 'fs';
+import ora from 'ora';
+import os from 'os';
+import path from 'path';
+import ProgressBar from 'progress';
+import readline from 'readline';
+import SkillLoader from './getSkillRepo.js';
+import HelpManager from './help.js';
+import { emojis, messages } from './locale/index.js';
 
 class SkillInstaller {
   constructor() {
@@ -31,16 +21,114 @@ class SkillInstaller {
     });
 
     this.skillConfig = this.loadConfig();
-    this.loadSkills();
+    this.skillLoader = new SkillLoader({
+      githubOwner: 'ant-design',
+      githubRepo: 'x',
+      tempDir: path.join(os.tmpdir(), 'x-skill-temp'),
+      cacheDir: path.join(os.tmpdir(), 'x-skill-cache'),
+    });
+
+    this.helpManager = new HelpManager(this.messages, this.language);
+
+    // Parse command line arguments
+    this.args = this.parseArgs();
+  }
+
+  colorize(text, color) {
+    return this.helpManager.colorize(text, color);
+  }
+
+  questionAsync(question) {
+    return new Promise((resolve, reject) => {
+      if (!process.stdin.isTTY) {
+        reject(new Error(this.getMessage('nonInteractiveEnv')));
+        return;
+      }
+
+      if (this.rl.closed) {
+        reject(new Error(this.getMessage('readlineClosed')));
+        return;
+      }
+
+      // 确保stdout是TTY
+      if (!process.stdout.isTTY) {
+        reject(new Error(this.getMessage('stdoutNotTTY')));
+        return;
+      }
+
+      this.rl.question(question, (answer) => {
+        if (answer === null || answer === undefined) {
+          reject(new Error(this.getMessage('inputEnded')));
+        } else {
+          resolve(answer);
+        }
+      });
+
+      // Handle Ctrl+C gracefully
+      this.rl.on('SIGINT', () => {
+        console.log(`\n${this.colorize(this.getMessage('operationCanceled'), 'yellow')}`);
+        this.rl.close();
+        process.exit(0);
+      });
+    });
+  }
+
+  printSeparator() {
+    this.helpManager.printSeparator();
+  }
+
+  parseArgs() {
+    const args = process.argv.slice(2);
+    const parsed = {
+      tag: null,
+      help: false,
+      listVersions: false,
+    };
+
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (
+        (arg === '--tag' || arg === '-t') &&
+        i + 1 < args.length &&
+        !args[i + 1].startsWith('-')
+      ) {
+        parsed.tag = args[i + 1];
+        i++;
+      } else if (arg === '--list-versions' || arg === '-l') {
+        parsed.listVersions = true;
+      } else if (arg === '--help' || arg === '-h') {
+        parsed.help = true;
+      }
+    }
+
+    return parsed;
+  }
+
+  init() {
+    if (this.args.help) {
+      this.showHelp();
+      process.exit(0);
+    }
+
+    if (this.args.listVersions) {
+      this.listVersions().then(() => process.exit(0));
+      return;
+    }
+  }
+
+  showHelp() {
+    this.helpManager.showHelp();
   }
 
   loadConfig() {
-    const configPath = path.join(__dirname, '..', '.skill.json');
+    // 从 packages/x-skill 目录加载配置文件
+    const currentDir = path.dirname(new URL(import.meta.url).pathname);
+    const configPath = path.join(currentDir, '..', '.skill.json');
     try {
       const configData = fs.readFileSync(configPath, 'utf-8');
       return JSON.parse(configData);
     } catch (error) {
-      console.error('Failed to load skill config:', error);
+      console.error(this.getMessage('configLoadError', { message: error.message }));
       process.exit(1);
     }
   }
@@ -49,134 +137,258 @@ class SkillInstaller {
     try {
       return messages;
     } catch (error) {
-      console.error('Failed to load locale messages:', error);
+      console.error(this.getMessage('localeLoadError', { message: error.message }));
       return messages;
     }
   }
 
-  loadSkills() {
-    const skillsDir =
-      this.language === 'zh'
-        ? path.join(__dirname, '..', 'skills-zh')
-        : path.join(__dirname, '..', 'skills');
-
+  getCache(key) {
     try {
-      const skillDirs = fs
-        .readdirSync(skillsDir, { withFileTypes: true })
-        .filter((dirent) => dirent.isDirectory())
-        .map((dirent) => dirent.name);
+      if (!fs.existsSync(this.cacheDir)) {
+        return null;
+      }
+      const cacheFile = path.join(this.cacheDir, `${key}.json`);
+      if (!fs.existsSync(cacheFile)) {
+        return null;
+      }
 
-      this.skills = skillDirs.map((skillName) => {
-        const skillPath = path.join(skillsDir, skillName);
-        let description = '';
-        const skillMdPath = path.join(skillPath, 'SKILL.md');
+      const cacheData = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
+      if (Date.now() > cacheData.expires) {
+        fs.unlinkSync(cacheFile);
+        return null;
+      }
 
-        if (fs.existsSync(skillMdPath)) {
-          try {
-            const content = fs.readFileSync(skillMdPath, 'utf-8');
-            const descMatch =
-              content.match(/^description:\s*(.*)$/m) || content.match(/^#\s*(.*)$/m);
-            description = descMatch ? descMatch[1].trim() : '';
-            // If description is empty, only dashes, or same as skill name, don't display it
-            if (
-              !description ||
-              description === '-' ||
-              description === '---' ||
-              description === skillName
-            ) {
-              description = '';
-            }
-          } catch (_e) {
-            description = '';
-          }
-        }
+      return cacheData.data;
+    } catch (_error) {
+      return null;
+    }
+  }
 
-        return {
-          name: skillName,
-          path: skillPath,
-          description: description || skillName,
-        };
+  setCache(key, data, ttlSeconds = 3600) {
+    try {
+      if (!fs.existsSync(this.cacheDir)) {
+        fs.mkdirSync(this.cacheDir, { recursive: true });
+      }
+
+      const cacheFile = path.join(this.cacheDir, `${key}.json`);
+      const cacheData = {
+        data,
+        expires: Date.now() + ttlSeconds * 1000,
+      };
+
+      fs.writeFileSync(cacheFile, JSON.stringify(cacheData));
+    } catch (_error) {
+      // 缓存失败不影响主要功能
+    }
+  }
+
+  clearCache(key) {
+    try {
+      const cacheFile = path.join(this.cacheDir, `${key}.json`);
+      if (fs.existsSync(cacheFile)) {
+        fs.unlinkSync(cacheFile);
+      }
+    } catch (_error) {
+      // 清除缓存失败不影响主要功能
+    }
+  }
+
+  async listVersions() {
+    try {
+      const spinner = ora(this.colorize(this.getMessage('fetchingVersions'), 'cyan')).start();
+      const versions = await this.skillLoader.listVersions();
+      spinner.stop();
+
+      if (versions.length === 0) {
+        console.log(`${this.colorize(this.getMessage('noVersionsFound'), 'yellow')}`);
+        return;
+      }
+
+      console.log(`${this.colorize(this.getMessage('availableVersions'), 'green')}`);
+      versions.forEach((version, index) => {
+        const marker = index === 0 ? this.getMessage('latestMarker') : '';
+        console.log(`  ${this.colorize(version, 'yellow')}${marker}`);
       });
     } catch (error) {
-      console.error('Failed to load skills:', error);
+      console.error(`${this.colorize(this.getMessage('error'), 'red')} ${error.message}`);
+    }
+  }
+
+  async loadSkills() {
+    try {
+      console.log(`${this.colorize(this.getMessage('fetchingSkills'), 'cyan')}`);
+      const version = this.args.tag || 'latest';
+      const skills = await this.skillLoader.loadSkills(version, this.language);
+      this.skills = skills;
+
+      // 缓存结果
+      this.setCache(`skills_${skills[0]?.version || version}`, this.skills, 1800); // 缓存30分钟
+    } catch (error) {
+      if (error.message.includes('rate limit')) {
+        console.error(
+          `${this.colorize(this.getMessage('rateLimitError', { message: error.message }), 'red')}\n`,
+        );
+        console.log(
+          `${this.colorize(this.getMessage('info'), 'cyan')} ${this.getMessage('rateLimitHint')}`,
+        );
+      } else {
+        console.error(
+          `${this.colorize(this.getMessage('githubFetchError', { message: error.message }), 'red')}`,
+        );
+      }
+
+      // Fallback to local skills if GitHub fails
+      console.log(`${this.colorize(this.getMessage('usingLocalSkills'), 'yellow')}`);
+      await this.loadLocalSkills();
+
+      if (this.skills.length === 0) {
+        console.log(
+          `${emojis.warning} ${this.colorize(this.getMessage('noLocalSkills'), 'yellow')}`,
+        );
+      }
+    }
+  }
+
+  async loadLocalSkills() {
+    try {
+      const skills = await this.skillLoader.loadLocalSkills(this.language);
+      this.skills = skills;
+    } catch (error) {
+      console.error(this.getMessage('error'), error.message);
       process.exit(1);
     }
   }
 
-  askQuestion(question, options) {
+  async askQuestion(question, options) {
     // 防止空选项数组导致的无限递归
     if (!options || options.length === 0) {
-      console.log(`${emojis.warning} ${this.colorize('没有可用选项', 'red')}`);
-      return Promise.resolve(null);
+      console.log(`${emojis.warning} ${this.colorize(this.getMessage('noSelection'), 'red')}`);
+      return null;
     }
 
-    return new Promise((resolve) => {
-      console.log(`\n${this.colorize(`❓ ${question}`, 'cyan')}`);
-      this.printSeparator();
-      options.forEach((option, index) => {
-        const number = this.colorize(`${index + 1}.`, 'yellow');
-        console.log(`   ${number} ${option}`);
-      });
-      this.printSeparator();
-
-      this.rl.question(
-        this.colorize(this.getMessage('pleaseSelectNumber'), 'green'),
-        async (answer) => {
-          const index = parseInt(answer.trim(), 10) - 1;
-          if (index >= 0 && index < options.length) {
-            console.log(
-              `\n${emojis.check} ${this.getMessage('yourChoice')} ${this.colorize(options[index], 'green')}\n`,
-            );
-            resolve(options[index]);
-          } else {
-            console.log(
-              `${emojis.warning} ${this.colorize(this.getMessage('invalidChoice'), 'red')}`,
-            );
-            const result = await this.askQuestion(question, options);
-            resolve(result);
-          }
-        },
-      );
+    console.log(`\n${this.colorize(`❓ ${question}`, 'cyan')}`);
+    this.printSeparator();
+    options.forEach((option, index) => {
+      const number = this.colorize(`${index + 1}.`, 'yellow');
+      console.log(`   ${number} ${option}`);
     });
+    this.printSeparator();
+
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    console.log(this.colorize(`💡 ${this.getMessage('inputNumberTip')}`, 'dim'));
+
+    while (attempts < maxAttempts) {
+      try {
+        const answer = await this.questionAsync(
+          this.colorize('➤ ', 'green') + this.getMessage('pleaseSelectNumber'),
+        );
+
+        if (!answer || answer.trim() === '') {
+          console.log(`${emojis.warning} ${this.colorize(this.getMessage('inputEmpty'), 'red')}`);
+          attempts++;
+          continue;
+        }
+
+        const index = parseInt(answer.trim(), 10) - 1;
+        if (index >= 0 && index < options.length) {
+          console.log(
+            `\n${emojis.check} ${this.getMessage('yourChoice')} ${this.colorize(options[index], 'green')}\n`,
+          );
+          return options[index];
+        }
+        console.log(`${emojis.warning} ${this.colorize(this.getMessage('invalidChoice'), 'red')}`);
+        attempts++;
+      } catch (error) {
+        if (
+          error.message.includes('Input stream ended') ||
+          error.message.includes('Readline interface is closed')
+        ) {
+          console.error(`${emojis.cross} ${this.colorize(this.getMessage('inputEnded'), 'red')}`);
+          process.exit(1);
+        }
+        console.error(
+          `${emojis.cross} ${this.colorize(this.getMessage('error'), 'red')} ${error.message}`,
+        );
+        attempts++;
+      }
+    }
+
+    console.error(
+      `${emojis.cross} ${this.colorize(this.getMessage('maxAttemptsExceeded'), 'red')}`,
+    );
+    process.exit(1);
   }
 
-  askMultipleChoice(question, options) {
+  async askMultipleChoice(question, options) {
     // 防止空选项数组导致的无限递归
     if (!options || options.length === 0) {
-      console.log(`${emojis.warning} ${this.colorize('没有可用选项', 'red')}`);
-      return Promise.resolve([]);
+      console.log(`${emojis.warning} ${this.colorize(this.getMessage('noSelection'), 'red')}`);
+      return [];
     }
 
-    return new Promise((resolve) => {
-      console.log(`\n${this.colorize(`✨ ${question}`, 'cyan')}`);
-      this.printSeparator();
-      options.forEach((option, index) => {
-        const checkbox = this.colorize('[ ]', 'dim');
-        const number = this.colorize(`${index + 1}.`, 'yellow');
-        console.log(`   ${checkbox} ${number} ${option}`);
-      });
-      this.printSeparator();
+    console.log(`\n${this.colorize(`✨ ${question}`, 'cyan')}`);
+    options.forEach((option, index) => {
+      const checkbox = this.colorize('[ ]', 'dim');
+      const number = this.colorize(`${index + 1}.`, 'yellow');
+      console.log(`   ${checkbox} ${number} ${option}`);
+    });
+    console.log(''); // 添加空行让提示更清晰
 
-      this.rl.question(this.colorize(this.getMessage('pleaseSelect'), 'green'), async (answer) => {
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    console.log(this.colorize(`💡 ${this.getMessage('inputMultipleTip')}`, 'dim'));
+
+    while (attempts < maxAttempts) {
+      try {
+        const answer = await this.questionAsync(
+          this.colorize('➤ ', 'green') + this.getMessage('pleaseSelect'),
+        );
+
+        if (!answer || answer.trim() === '') {
+          console.log(`${emojis.warning} ${this.colorize(this.getMessage('inputEmpty'), 'red')}`);
+          attempts++;
+          continue;
+        }
+
         const indices = answer
           .trim()
           .split(',')
-          .map((s) => parseInt(s.trim(), 10) - 1);
-        const selected = indices.filter((i) => i >= 0 && i < options.length).map((i) => options[i]);
+          .map((s) => parseInt(s.trim(), 10) - 1)
+          .filter((i) => !isNaN(i) && i >= 0 && i < options.length);
+
+        const selected = indices.map((i) => options[i]);
 
         if (selected.length > 0) {
           console.log(`\n${emojis.check} ${this.getMessage('yourChoice')}`);
           selected.forEach((item) => {
             console.log(`   ${this.colorize(`• ${item}`, 'green')}`);
           });
-          resolve(selected);
-        } else {
-          console.log(`${emojis.warning} ${this.colorize(this.getMessage('noSelection'), 'red')}`);
-          const result = await this.askMultipleChoice(question, options);
-          resolve(result);
+          return selected;
         }
-      });
-    });
+        console.log(`${emojis.warning} ${this.colorize(this.getMessage('invalidInput'), 'red')}`);
+        attempts++;
+      } catch (error) {
+        if (
+          error.message.includes('Input stream ended') ||
+          error.message.includes('Readline interface is closed')
+        ) {
+          console.error(`${emojis.cross} ${this.colorize(this.getMessage('inputEnded'), 'red')}`);
+          process.exit(1);
+        }
+        console.error(
+          `${emojis.cross} ${this.colorize(this.getMessage('error'), 'red')} ${error.message}`,
+        );
+        attempts++;
+      }
+    }
+
+    console.error(
+      `${emojis.cross} ${this.colorize(this.getMessage('maxAttemptsExceeded'), 'red')}`,
+    );
+    process.exit(1);
   }
 
   getMessage(key, replacements = {}, lang = null) {
@@ -189,168 +401,141 @@ class SkillInstaller {
     return message;
   }
 
-  // Add colored output method
-  colorize(text, color) {
-    const colorMap = {
-      red: '\x1b[31m',
-      green: '\x1b[32m',
-      yellow: '\x1b[33m',
-      blue: '\x1b[34m',
-      magenta: '\x1b[35m',
-      cyan: '\x1b[36m',
-      white: '\x1b[37m',
-      bright: '\x1b[1m',
-      dim: '\x1b[2m',
-      reset: '\x1b[0m',
-    };
-    if (!colorMap[color]) {
-      return text;
-    }
-    return `${colorMap[color]}${text}${colorMap.reset}`;
-  }
-
-  // Add title ASCII art
-  printHeader() {
-    console.log(`${this.colorize('╔══════════════════════════════════╗', 'cyan')}
-${this.colorize('║', 'cyan')}    ${emojis.rocket} ${this.colorize('X-Skill 安装器', 'bright')} ${emojis.sparkles}    ${this.colorize('      ║', 'cyan')}
-${this.colorize('║', 'cyan')}    ${this.colorize('让开发变得更简单、更有趣！', 'dim')}    ${this.colorize('║', 'cyan')}
-${this.colorize('╚══════════════════════════════════╝', 'cyan')}`);
-  }
-
-  // Add loading animation
-  startSpinner(text) {
-    const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
-    let frameIndex = 0;
-    this.spinnerInterval = setInterval(() => {
-      const frame = frames[frameIndex];
-      process.stdout.write(`\r${this.colorize(frame, 'cyan')} ${text}`);
-      frameIndex = (frameIndex + 1) % frames.length;
-    }, 100);
-  }
-
-  stopSpinner() {
-    if (this.spinnerInterval) {
-      clearInterval(this.spinnerInterval);
-      this.spinnerInterval = null;
-      process.stdout.write('\r');
-    }
-  }
-
-  // Add progress bar - display only one continuously updated progress bar
-  printProgressBar(current, total, text = '') {
-    if (total === 0) {
-      const bar = '░'.repeat(30);
-      process.stdout.write(
-        `\r${this.colorize('[', 'green')}${this.colorize(bar, 'green')}${this.colorize(']', 'green')} 0% ${text}`,
-      );
-      return;
-    }
-
-    const percentage = Math.round((current / total) * 100);
-    const barLength = 30;
-    const filledLength = Math.round((barLength * current) / total);
-    const bar = '█'.repeat(filledLength) + '░'.repeat(barLength - filledLength);
-
-    // Use \r to return to line start and overwrite previous progress bar
-    process.stdout.write(
-      `\r${this.colorize('[', 'green')}${this.colorize(bar, 'green')}${this.colorize(']', 'green')} ${percentage}% ${text}`,
+  // Progress bar using progress library
+  createProgressBar(total) {
+    return new ProgressBar(
+      `  ${this.colorize(':bar', 'green')} ${this.colorize(':percent', 'cyan')} ${this.colorize(':current/:total', 'yellow')} ${this.colorize(':etas', 'magenta')} ${this.colorize('→', 'dim')} :text`,
+      {
+        total: total,
+        complete: '█',
+        incomplete: '░',
+        width: 30,
+      },
     );
-
-    // Only add newline when complete
-    if (current === total && current > 0) {
-      console.log(); // Add newline
-    }
-  }
-
-  // Strictly controlled single-line progress bar
-  updateSingleProgressBar(current, total, text = '') {
-    const percentage = Math.round((current / total) * 100);
-    const barLength = 30;
-    const filledLength = Math.round((barLength * current) / total);
-    const bar = '█'.repeat(filledLength) + '░'.repeat(barLength - filledLength);
-
-    // Strict control: clear entire line before display
-    const line = `${this.colorize('[', 'green')}${this.colorize(bar, 'green')}${this.colorize(']', 'green')} ${percentage}% ${text}`;
-
-    readline.clearLine(process.stdout, 0);
-    readline.cursorTo(process.stdout, 0);
-    process.stdout.write(line);
-  }
-
-  // Add decorative separator
-  printSeparator() {
-    console.log(this.colorize('─'.repeat(50), 'dim'));
   }
 
   async run() {
     try {
-      this.printHeader();
+      // 检查是否在交互式终端中运行
+      if (!process.stdin.isTTY) {
+        console.error(
+          `${emojis.cross} ${this.colorize(`${this.getMessage('error')}: ${this.getMessage('nonInteractiveEnv')}`, 'red')}`,
+        );
+        console.log(
+          `${emojis.info} ${this.colorize(`${this.getMessage('usage')}: node packages/x-skill/bin/index.js`, 'cyan')}`,
+        );
+        process.exit(1);
+      }
 
-      // Display bilingual welcome message before language selection
-      console.log(`\n${this.colorize(this.getMessage('welcome', {}, 'zh'), 'bright')}`);
-      console.log(`${this.colorize(this.getMessage('welcome', {}, 'en'), 'bright')}`);
-      console.log(`${this.colorize(this.getMessage('welcomeSub', {}, 'zh'), 'dim')}`);
-      console.log(`${this.colorize(this.getMessage('welcomeSub', {}, 'en'), 'dim')}`);
+      // 检查是否有自动输入
+      if (
+        process.argv.length > 2 &&
+        !['--help', '-h', '--version', '-V', '--list-versions', '-l', '--tag', '-t'].some((flag) =>
+          process.argv.includes(flag),
+        )
+      ) {
+        console.log(
+          `${emojis.info} ${this.language === 'zh' ? '检测到命令行参数，使用非交互模式' : 'Command line arguments detected, using non-interactive mode'}`,
+        );
+        console.log(
+          `${emojis.info} ${this.language === 'zh' ? '可用参数: --help, --list-versions, --tag <version>' : 'Available arguments: --help, --list-versions, --tag <version>'}`,
+        );
+        return;
+      }
+
+      await this.helpManager.printHeader(emojis);
+
+      // Display version info if specified
+      if (this.args.tag) {
+        console.log(
+          `${this.helpManager.colorize(this.getMessage('usingVersion', { version: this.args.tag }), 'cyan')}`,
+        );
+      }
+
+      // 短暂延迟以避免自动输入问题
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Language selection - bilingual display with dual language prompt
-      console.log(`\n${this.colorize('🌍 请选择语言 / Please select language:', 'cyan')}`);
-      this.printSeparator();
-      console.log(`   ${this.colorize('1.', 'yellow')} 中文`);
-      console.log(`   ${this.colorize('2.', 'yellow')} English`);
-      this.printSeparator();
+      this.helpManager.printLanguageSelection();
 
-      const languageChoice = await new Promise((resolve) => {
-        this.rl.question(
-          this.colorize('请选择 / Please select (输入数字/enter number): ', 'green'),
-          async (answer) => {
-            const choice = answer.trim();
-            if (choice === '1' || choice.toLowerCase() === 'zh') {
-              console.log(`\n${emojis.check} 你选择了中文 / You selected Chinese\n`);
-              resolve('中文');
-            } else if (choice === '2' || choice.toLowerCase() === 'en') {
-              console.log(`\n${emojis.check} 你选择了英文 / You selected English\n`);
-              resolve('English');
-            } else {
-              console.log(
-                `${emojis.warning} ${this.colorize('无效选择，请重试 / Invalid choice, please try again', 'red')}`,
-              );
-              const result = await this.askQuestion('请选择语言 / Please select language:', [
-                '中文',
-                'English',
-              ]);
-              resolve(result);
-            }
-          },
+      let languageChoice;
+      while (true) {
+        const answer = await this.questionAsync(
+          this.colorize(`${this.getMessage('selectLanguagePrompt')}: `, 'green'),
         );
-      });
+        const choice = answer.trim();
+        if (choice === '1' || choice.toLowerCase() === 'zh') {
+          console.log(`\n${emojis.check} 你选择了中文\n`);
+          languageChoice = '中文';
+          break;
+        }
+        if (choice === '2' || choice.toLowerCase() === 'en') {
+          console.log(`\n${emojis.check} You selected English\n`);
+          languageChoice = 'English';
+          break;
+        }
+        console.log(
+          `${emojis.warning} ${this.colorize('无效选择，请重新输入 / Invalid choice, please try again', 'red')}`,
+        );
+      }
 
       this.language = languageChoice === '中文' ? 'zh' : 'en';
 
-      // Reload skills based on selected language
-      this.loadSkills();
+      // Load skills from GitHub
+      await this.loadSkills();
 
-      // Display skills list
-      console.log(`\n${this.colorize(this.getMessage('foundSkills'), 'cyan')}`);
       const skillOptions = this.skills.map(
         (skill) =>
           `${skill.name}${skill.description && skill.description !== skill.name ? ` - ${skill.description}` : ''}`,
       );
 
-      const selectedSkills = await this.askMultipleChoice(
-        this.getMessage('selectSkills'),
-        skillOptions,
-      );
+      if (skillOptions.length === 0) {
+        console.log(
+          `${emojis.warning} ${this.colorize(this.getMessage('noSkillsFound'), 'yellow')}`,
+        );
+        return;
+      }
+
+      let selectedSkills = [];
+      while (selectedSkills.length === 0) {
+        selectedSkills = await this.askMultipleChoice(
+          this.getMessage('selectSkills'),
+          skillOptions,
+        );
+
+        if (selectedSkills.length === 0) {
+          console.log(
+            `${emojis.warning} ${this.colorize(this.getMessage('selectAtLeastOneSkill'), 'yellow')}`,
+          );
+        }
+      }
+
       const selectedSkillNames = selectedSkills.map((s) => s.split(' - ')[0]);
 
-      console.log(`\n${this.colorize(this.getMessage('availableSoftware'), 'cyan')}`);
       const softwareOptions = Object.entries(this.skillConfig.targets)
         .filter(([_, config]) => config.enabled)
         .map(([name]) => name);
 
-      const selectedSoftwareList = await this.askMultipleChoice(
-        this.getMessage('selectSoftware'),
-        softwareOptions,
-      );
+      if (softwareOptions.length === 0) {
+        console.log(
+          `${emojis.warning} ${this.colorize(this.getMessage('noSoftwareFound'), 'yellow')}`,
+        );
+        return;
+      }
+
+      let selectedSoftwareList = [];
+      while (selectedSoftwareList.length === 0) {
+        selectedSoftwareList = await this.askMultipleChoice(
+          this.getMessage('selectSoftware'),
+          softwareOptions,
+        );
+
+        if (selectedSoftwareList.length === 0) {
+          console.log(
+            `${emojis.warning} ${this.colorize(this.getMessage('selectAtLeastOneSoftware'), 'yellow')}`,
+          );
+        }
+      }
 
       // Installation method selection
       const installTypeOptions = [
@@ -358,60 +543,64 @@ ${this.colorize('╚════════════════════
         this.getMessage('projectInstall'),
       ];
 
-      const selectedInstallType = await this.askQuestion(
-        this.getMessage('selectInstallType'),
-        installTypeOptions,
-      );
+      let selectedInstallType = null;
+      while (!selectedInstallType) {
+        selectedInstallType = await this.askQuestion(
+          this.getMessage('selectInstallType'),
+          installTypeOptions,
+        );
+      }
+
       const isGlobal = selectedInstallType === this.getMessage('globalInstall');
 
       // Installation process
-      process.stdout.write(`${this.colorize(this.getMessage('copyingFiles'), 'yellow')} `);
-
       const totalSteps = selectedSoftwareList.length * selectedSkillNames.length;
-      let currentStep = 0;
 
-      // Display progress bar only once, continuously updated
-      const allTasks = [];
-      for (const software of selectedSoftwareList) {
-        for (const skillName of selectedSkillNames) {
-          allTasks.push({ skillName, software });
+      if (totalSteps > 0) {
+        const progressBar = this.createProgressBar(totalSteps);
+
+        const allTasks = [];
+        for (const software of selectedSoftwareList) {
+          for (const skillName of selectedSkillNames) {
+            allTasks.push({ skillName, software });
+          }
+        }
+
+        for (const task of allTasks) {
+          const { skillName, software } = task;
+          try {
+            await this.installSkills([skillName], software, isGlobal);
+            progressBar.tick({
+              text: `${skillName} -> ${software}`,
+            });
+          } catch (installError) {
+            console.error(
+              `${emojis.cross} ${this.colorize(this.getMessage('installError', { skill: skillName, error: installError.message }), 'red')}`,
+            );
+            progressBar.tick({
+              text: `${skillName} -> ${software} ${this.getMessage('installationFailed')}`,
+            });
+          }
         }
       }
-
-      // Start installation, progress bar will be updated in the loop
-
-      for (const task of allTasks) {
-        const { skillName, software } = task;
-        const progressMsg = `${skillName} -> ${software}`;
-
-        // Update single-line progress bar
-        this.updateSingleProgressBar(currentStep, totalSteps, progressMsg);
-
-        await this.installSkills([skillName], software, isGlobal);
-
-        currentStep++;
-      }
-
-      // Show 100% when complete
-      // Clean line end and show completion
-      readline.clearLine(process.stdout, 0);
-      readline.cursorTo(process.stdout, 0);
-      this.updateSingleProgressBar(totalSteps, totalSteps, this.getMessage('allComplete'));
-
       // Completion animation
-      console.log(`\n\n${this.colorize(this.messages[this.language].startUsing, 'bright')}`);
-      console.log(
-        `\n${this.colorize(this.messages[this.language].thankYou, 'magenta')} ${emojis.heart}`,
-      );
+      this.helpManager.printCompletion(this.messages[this.language]);
     } catch (error) {
-      this.stopSpinner();
-      console.error(
-        `\n${this.colorize(`${emojis.cross} ${this.getMessage('installFailed')}`, 'red')}\n`,
-        error.message,
-      );
+      if (
+        error.message.includes('Input stream ended') ||
+        error.message.includes('Readline interface is closed')
+      ) {
+        console.error(
+          `${emojis.cross} ${this.colorize(this.getMessage('programInterrupted'), 'red')}`,
+        );
+      } else {
+        this.helpManager.printError(error, this.messages[this.language]);
+      }
     } finally {
-      console.log(`\n${this.colorize(this.getMessage('goodbye'), 'cyan')}\n\n`);
-      this.rl.close();
+      this.helpManager.printGoodbye(this.messages[this.language]);
+      if (this.rl && !this.rl.closed) {
+        this.rl.close();
+      }
     }
   }
 
@@ -474,10 +663,32 @@ ${this.colorize('╚════════════════════
 }
 
 // Export class for testing purposes
-module.exports = { SkillInstaller };
+export { SkillInstaller };
 
 // If running directly, execute
-if (require.main === module) {
-  const installer = new SkillInstaller();
-  installer.run().catch(console.error);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const args = process.argv.slice(2);
+  const helpManager = new HelpManager();
+
+  // Handle version flag (only when it's the only argument)
+  if (args.length === 1 && (args[0] === '-V' || args[0] === '--version')) {
+    const success = helpManager.showVersion();
+    process.exit(success ? 0 : 1);
+  }
+
+  // Handle help flag
+  if (args.includes('--help') || args.includes('-h')) {
+    helpManager.showHelp();
+    process.exit(0);
+  }
+
+  // Handle list versions flag
+  if (args.includes('--list-versions') || args.includes('-l')) {
+    const installer = new SkillInstaller();
+    installer.listVersions().then(() => process.exit(0));
+  } else {
+    // Normal execution
+    const installer = new SkillInstaller();
+    installer.run().catch(console.error);
+  }
 }
