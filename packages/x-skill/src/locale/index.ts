@@ -1,13 +1,5 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.emojis = exports.SUPPORTED_LANGUAGES = exports.DEFAULT_LANGUAGE = void 0;
-exports.getMessage = getMessage;
-exports.messages = void 0;
 // 添加表情符号
-const emojis = exports.emojis = {
+export const emojis = {
   rocket: '🚀',
   package: '📦',
   sparkles: '✨',
@@ -23,18 +15,86 @@ const emojis = exports.emojis = {
   gear: '⚙️',
   computer: '💻',
   globe: '🌍',
-  bulb: '💡'
-};
+  bulb: '💡',
+} as const;
 
 // 定义表情符号类型
+export type EmojiKey = keyof typeof emojis;
 
 // 定义消息类型
+export interface LocaleMessages {
+  welcome: string;
+  welcomeSub: string;
+  selectLanguage: string;
+  selectLanguagePrompt: string;
+  selectSkills: string;
+  selectSoftware: string;
+  selectInstallType: string;
+  installComplete: string;
+  installFailed: string;
+  globalInstall: string;
+  projectInstall: string;
+  installingSkill: string;
+  updatingSkill: string;
+  installingDetail: string;
+  installError: string;
+  goodbye: string;
+  invalidChoice: string;
+  noSelection: string;
+  yourChoice: string;
+  pleaseSelect: string;
+  pleaseSelectNumber: string;
+  allComplete: string;
+  startUsing: string;
+  error: string;
+  warning: string;
+  info: string;
+  success: string;
+  cancel: string;
+  operationCanceled: string;
+  nonInteractiveEnv: string;
+  readlineClosed: string;
+  stdoutNotTTY: string;
+  inputEnded: string;
+  inputEmpty: string;
+  invalidInput: string;
+  maxAttemptsExceeded: string;
+  programInterrupted: string;
+  fetchingSkills: string;
+  fetchingVersions: string;
+  usingLocalSkills: string;
+  noLocalSkills: string;
+  noSkillsFound: string;
+  noSoftwareFound: string;
+  noVersionsFound: string;
+  rateLimitError: string;
+  rateLimitHint: string;
+  githubFetchError: string;
+  configLoadError: string;
+  localeLoadError: string;
+  versionReadError: string;
+  selectAtLeastOneSkill: string;
+  selectAtLeastOneSoftware: string;
+  inputNumberTip: string;
+  inputMultipleTip: string;
+  usage: string;
+  options: string;
+  examples: string;
+  environmentVariables: string;
+  usingVersion: string;
+  latestMarker: string;
+  availableVersions: string;
+  installationProgress: string;
+  installationFailed: string;
+}
 
 // 定义语言类型
+export type Language = 'zh' | 'en';
 
 // 定义消息对象类型
+export type Messages = Record<Language, LocaleMessages>;
 
-const messages = exports.messages = {
+export const messages: Messages = {
   zh: {
     welcome: `${emojis.rocket} 欢迎使用 X-Skill 安装器！`,
     welcomeSub: '我们将帮你快速安装所需的开发技能！',
@@ -73,6 +133,7 @@ const messages = exports.messages = {
     invalidInput: '无效输入，请重试',
     maxAttemptsExceeded: '多次输入失败，程序终止',
     programInterrupted: '程序被意外中断',
+
     // 网络和加载相关
     fetchingSkills: '正在从GitHub获取技能列表...',
     fetchingVersions: '获取可用版本...',
@@ -81,31 +142,37 @@ const messages = exports.messages = {
     noSkillsFound: '没有找到可用的技能',
     noSoftwareFound: '没有找到可用的软件目标',
     noVersionsFound: '没有找到版本标签',
+
     // GitHub API 相关
     rateLimitError: 'GitHub API 速率限制: {message}',
     rateLimitHint: '设置 GITHUB_TOKEN 环境变量可提高限制到每小时5000次',
     githubFetchError: '从GitHub获取技能失败: {message}',
+
     // 文件和配置相关
     configLoadError: '加载技能配置失败: {message}',
     localeLoadError: '加载语言配置失败: {message}',
     versionReadError: '读取版本失败: {message}',
+
     // 交互提示
     selectAtLeastOneSkill: '请至少选择一个技能',
     selectAtLeastOneSoftware: '请至少选择一个软件目标',
     inputNumberTip: '输入数字编号，如: 1',
     inputMultipleTip: '输入数字编号，多个选择用逗号分隔，如: 1,2,3',
+
     // 帮助信息
     usage: '用法',
     options: '选项',
     examples: '示例',
     environmentVariables: '环境变量',
+
     // 版本和标签
     usingVersion: '使用版本: {version}',
     latestMarker: ' (latest)',
     availableVersions: '可用版本:',
+
     // 安装过程
     installationProgress: '  :bar :percent :current/:total :etas → :text',
-    installationFailed: '(失败)'
+    installationFailed: '(失败)',
   },
   en: {
     welcome: `${emojis.rocket} Welcome to X-Skill Installer!`,
@@ -145,6 +212,7 @@ const messages = exports.messages = {
     invalidInput: 'Invalid input, please try again',
     maxAttemptsExceeded: 'Maximum attempts exceeded, program terminated',
     programInterrupted: 'Program interrupted unexpectedly',
+
     // 网络和加载相关
     fetchingSkills: 'Fetching skills from GitHub...',
     fetchingVersions: 'Fetching available versions...',
@@ -153,47 +221,59 @@ const messages = exports.messages = {
     noSkillsFound: 'No available skills found',
     noSoftwareFound: 'No available software targets found',
     noVersionsFound: 'No version tags found',
+
     // GitHub API 相关
     rateLimitError: 'GitHub API rate limit: {message}',
     rateLimitHint: 'Set GITHUB_TOKEN environment variable to increase limit to 5000 per hour',
     githubFetchError: 'Failed to fetch skills from GitHub: {message}',
+
     // 文件和配置相关
     configLoadError: 'Failed to load skill config: {message}',
     localeLoadError: 'Failed to load locale messages: {message}',
     versionReadError: 'Failed to read version: {message}',
+
     // 交互提示
     selectAtLeastOneSkill: 'Please select at least one skill',
     selectAtLeastOneSoftware: 'Please select at least one software target',
     inputNumberTip: 'Enter number, e.g., 1',
     inputMultipleTip: 'Enter numbers separated by commas, e.g., 1,2,3',
+
     // 帮助信息
     usage: 'Usage',
     options: 'Options',
     examples: 'Examples',
     environmentVariables: 'Environment Variables',
+
     // 版本和标签
     usingVersion: 'Using version: {version}',
     latestMarker: ' (latest)',
     availableVersions: 'Available versions:',
+
     // 安装过程
     installationProgress: '  :bar :percent :current/:total :etas → :text',
-    installationFailed: '(failed)'
-  }
+    installationFailed: '(failed)',
+  },
 };
 
 // 获取本地化消息的辅助函数
-function getMessage(lang, key, params) {
+export function getMessage(
+  lang: Language,
+  key: keyof LocaleMessages,
+  params?: Record<string, string | number>,
+): string {
   let message = messages[lang][key];
+
   if (params) {
     Object.entries(params).forEach(([param, value]) => {
       message = message.replace(new RegExp(`{${param}}`, 'g'), String(value));
     });
   }
+
   return message;
 }
 
 // 默认语言
-const DEFAULT_LANGUAGE = exports.DEFAULT_LANGUAGE = 'zh';
+export const DEFAULT_LANGUAGE: Language = 'zh';
 
 // 获取支持的语言列表
-const SUPPORTED_LANGUAGES = exports.SUPPORTED_LANGUAGES = Object.keys(messages);
+export const SUPPORTED_LANGUAGES: Language[] = Object.keys(messages) as Language[];

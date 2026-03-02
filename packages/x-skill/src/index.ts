@@ -1,59 +1,83 @@
 #!/usr/bin/env node
-"use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SkillInstaller = void 0;
-var fs = _interopRequireWildcard(require("fs"));
-var _ora = _interopRequireDefault(require("ora"));
-var os = _interopRequireWildcard(require("os"));
-var path = _interopRequireWildcard(require("path"));
-var _progress = _interopRequireDefault(require("progress"));
-var readline = _interopRequireWildcard(require("readline"));
-var _getSkillRepo = _interopRequireDefault(require("./getSkillRepo"));
-var _help = _interopRequireDefault(require("./help"));
-var _index = require("./locale/index");
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
+import * as fs from 'fs';
+import ora from 'ora';
+import * as os from 'os';
+import * as path from 'path';
+import ProgressBar from 'progress';
+import * as readline from 'readline';
+import SkillLoader from './getSkillRepo';
+import HelpManager from './help';
+import { emojis, Language, LocaleMessages, messages } from './locale/index';
+
+interface SkillConfig {
+  targets: {
+    [key: string]: {
+      enabled: boolean;
+      paths: {
+        global: string;
+        project: string;
+      };
+    };
+  };
+}
+
+interface ParsedArgs {
+  tag: string | null;
+  help: boolean;
+  listVersions: boolean;
+}
+
+interface Skill {
+  name: string;
+  path: string;
+  description: string;
+  version: string;
+}
+
 class SkillInstaller {
-  skills = [];
-  language = 'zh';
-  messages;
-  rl;
-  skillConfig;
-  skillLoader;
-  helpManager;
-  args;
+  private skills: Skill[] = [];
+  private language: Language = 'zh';
+  private messages: LocaleMessages;
+  private rl: readline.Interface;
+  private skillConfig: SkillConfig;
+  private skillLoader: SkillLoader;
+  private helpManager: HelpManager;
+  private args: ParsedArgs;
+
   constructor() {
     this.messages = this.loadLocaleMessages();
     this.rl = readline.createInterface({
       input: process.stdin,
-      output: process.stdout
+      output: process.stdout,
     });
+
     this.skillConfig = this.loadConfig();
-    this.skillLoader = new _getSkillRepo.default({
+    this.skillLoader = new SkillLoader({
       githubOwner: 'ant-design',
       githubRepo: 'x',
       tempDir: path.join(os.tmpdir(), 'x-skill-temp'),
-      cacheDir: path.join(os.tmpdir(), 'x-skill-cache')
+      cacheDir: path.join(os.tmpdir(), 'x-skill-cache'),
     });
-    this.helpManager = new _help.default(this.messages, this.language);
+
+    this.helpManager = new HelpManager(this.messages, this.language);
 
     // Parse command line arguments
     this.args = this.parseArgs();
   }
-  colorize(text, color) {
+
+  colorize(text: string, color: string): string {
     return this.helpManager.colorize(text, color);
   }
-  questionAsync(question) {
+
+  questionAsync(question: string): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!process.stdin.isTTY) {
         reject(new Error(this.getMessage('nonInteractiveEnv')));
         return;
       }
-      if (this.rl.closed) {
+
+      if ((this.rl as any).closed) {
         reject(new Error(this.getMessage('readlineClosed')));
         return;
       }
@@ -63,7 +87,8 @@ class SkillInstaller {
         reject(new Error(this.getMessage('stdoutNotTTY')));
         return;
       }
-      this.rl.question(question, answer => {
+
+      this.rl.question(question, (answer) => {
         if (answer === null || answer === undefined) {
           reject(new Error(this.getMessage('inputEnded')));
         } else {
@@ -79,19 +104,26 @@ class SkillInstaller {
       });
     });
   }
-  printSeparator() {
+
+  printSeparator(): void {
     this.helpManager.printSeparator();
   }
-  parseArgs() {
+
+  parseArgs(): ParsedArgs {
     const args = process.argv.slice(2);
-    const parsed = {
+    const parsed: ParsedArgs = {
       tag: null,
       help: false,
-      listVersions: false
+      listVersions: false,
     };
+
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      if ((arg === '--tag' || arg === '-t') && i + 1 < args.length && !args[i + 1].startsWith('-')) {
+      if (
+        (arg === '--tag' || arg === '-t') &&
+        i + 1 < args.length &&
+        !args[i + 1].startsWith('-')
+      ) {
         parsed.tag = args[i + 1];
         i++;
       } else if (arg === '--list-versions' || arg === '-l') {
@@ -100,22 +132,27 @@ class SkillInstaller {
         parsed.help = true;
       }
     }
+
     return parsed;
   }
-  init() {
+
+  init(): void {
     if (this.args.help) {
       this.showHelp();
       process.exit(0);
     }
+
     if (this.args.listVersions) {
       this.listVersions().then(() => process.exit(0));
       return;
     }
   }
-  showHelp() {
+
+  showHelp(): void {
     this.helpManager.showHelp();
   }
-  loadConfig() {
+
+  loadConfig(): SkillConfig {
     // 从 packages/x-skill 目录加载配置文件
     const currentDir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
     const configPath = path.join(currentDir, '..', '.skill.json');
@@ -123,23 +160,21 @@ class SkillInstaller {
       const configData = fs.readFileSync(configPath, 'utf-8');
       return JSON.parse(configData);
     } catch (error) {
-      console.error(this.getMessage('configLoadError', {
-        message: error.message
-      }));
+      console.error(this.getMessage('configLoadError', { message: (error as Error).message }));
       process.exit(1);
     }
   }
-  loadLocaleMessages() {
+
+  loadLocaleMessages(): LocaleMessages {
     try {
-      return _index.messages.zh; // 默认返回中文消息
+      return messages.zh; // 默认返回中文消息
     } catch (error) {
-      console.error(this.getMessage('localeLoadError', {
-        message: error.message
-      }));
-      return _index.messages.zh;
+      console.error(this.getMessage('localeLoadError', { message: (error as Error).message }));
+      return messages.zh;
     }
   }
-  getCache(key) {
+
+  getCache(key: string): any {
     try {
       if (!fs.existsSync(this.skillLoader['cacheDir'])) {
         return null;
@@ -148,34 +183,38 @@ class SkillInstaller {
       if (!fs.existsSync(cacheFile)) {
         return null;
       }
+
       const cacheData = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
       if (Date.now() > cacheData.expires) {
         fs.unlinkSync(cacheFile);
         return null;
       }
+
       return cacheData.data;
     } catch (_error) {
       return null;
     }
   }
-  setCache(key, data, ttlSeconds = 3600) {
+
+  setCache(key: string, data: any, ttlSeconds = 3600): void {
     try {
       if (!fs.existsSync(this.skillLoader['cacheDir'])) {
-        fs.mkdirSync(this.skillLoader['cacheDir'], {
-          recursive: true
-        });
+        fs.mkdirSync(this.skillLoader['cacheDir'], { recursive: true });
       }
+
       const cacheFile = path.join(this.skillLoader['cacheDir'], `${key}.json`);
       const cacheData = {
         data,
-        expires: Date.now() + ttlSeconds * 1000
+        expires: Date.now() + ttlSeconds * 1000,
       };
+
       fs.writeFileSync(cacheFile, JSON.stringify(cacheData));
     } catch (_error) {
       // 缓存失败不影响主要功能
     }
   }
-  clearCache(key) {
+
+  clearCache(key: string): void {
     try {
       const cacheFile = path.join(this.skillLoader['cacheDir'], `${key}.json`);
       if (fs.existsSync(cacheFile)) {
@@ -185,25 +224,31 @@ class SkillInstaller {
       // 清除缓存失败不影响主要功能
     }
   }
-  async listVersions() {
+
+  async listVersions(): Promise<void> {
     try {
-      const spinner = (0, _ora.default)(this.colorize(this.getMessage('fetchingVersions'), 'cyan')).start();
+      const spinner = ora(this.colorize(this.getMessage('fetchingVersions'), 'cyan')).start();
       const versions = await this.skillLoader.listVersions();
       spinner.stop();
+
       if (versions.length === 0) {
         console.log(`${this.colorize(this.getMessage('noVersionsFound'), 'yellow')}`);
         return;
       }
+
       console.log(`${this.colorize(this.getMessage('availableVersions'), 'green')}`);
       versions.forEach((version, index) => {
         const marker = index === 0 ? this.getMessage('latestMarker') : '';
         console.log(`  ${this.colorize(version, 'yellow')}${marker}`);
       });
     } catch (error) {
-      console.error(`${this.colorize(this.getMessage('error'), 'red')} ${error.message}`);
+      console.error(
+        `${this.colorize(this.getMessage('error'), 'red')} ${(error as Error).message}`,
+      );
     }
   }
-  async loadSkills() {
+
+  async loadSkills(): Promise<void> {
     try {
       console.log(`${this.colorize(this.getMessage('fetchingSkills'), 'cyan')}`);
       const version = this.args.tag || 'latest';
@@ -213,40 +258,48 @@ class SkillInstaller {
       // 缓存结果
       this.setCache(`skills_${skills[0]?.version || version}`, this.skills, 1800); // 缓存30分钟
     } catch (error) {
-      if (error.message.includes('rate limit')) {
-        console.error(`${this.colorize(this.getMessage('rateLimitError', {
-          message: error.message
-        }), 'red')}\n`);
-        console.log(`${this.colorize(this.getMessage('info'), 'cyan')} ${this.getMessage('rateLimitHint')}`);
+      if ((error as Error).message.includes('rate limit')) {
+        console.error(
+          `${this.colorize(this.getMessage('rateLimitError', { message: (error as Error).message }), 'red')}\n`,
+        );
+        console.log(
+          `${this.colorize(this.getMessage('info'), 'cyan')} ${this.getMessage('rateLimitHint')}`,
+        );
       } else {
-        console.error(`${this.colorize(this.getMessage('githubFetchError', {
-          message: error.message
-        }), 'red')}`);
+        console.error(
+          `${this.colorize(this.getMessage('githubFetchError', { message: (error as Error).message }), 'red')}`,
+        );
       }
 
       // Fallback to local skills if GitHub fails
       console.log(`${this.colorize(this.getMessage('usingLocalSkills'), 'yellow')}`);
       await this.loadLocalSkills();
+
       if (this.skills.length === 0) {
-        console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('noLocalSkills'), 'yellow')}`);
+        console.log(
+          `${emojis.warning} ${this.colorize(this.getMessage('noLocalSkills'), 'yellow')}`,
+        );
       }
     }
   }
-  async loadLocalSkills() {
+
+  async loadLocalSkills(): Promise<void> {
     try {
       const skills = await this.skillLoader.loadLocalSkills(this.language);
       this.skills = skills;
     } catch (error) {
-      console.error(this.getMessage('error'), error.message);
+      console.error(this.getMessage('error'), (error as Error).message);
       process.exit(1);
     }
   }
-  async askQuestion(question, options) {
+
+  async askQuestion(question: string, options: string[]): Promise<string | null> {
     // 防止空选项数组导致的无限递归
     if (!options || options.length === 0) {
-      console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('noSelection'), 'red')}`);
+      console.log(`${emojis.warning} ${this.colorize(this.getMessage('noSelection'), 'red')}`);
       return null;
     }
+
     console.log(`\n${this.colorize(`❓ ${question}`, 'cyan')}`);
     this.printSeparator();
     options.forEach((option, index) => {
@@ -254,42 +307,61 @@ class SkillInstaller {
       console.log(`   ${number} ${option}`);
     });
     this.printSeparator();
+
     let attempts = 0;
     const maxAttempts = 3;
+
     console.log(this.colorize(`💡 ${this.getMessage('inputNumberTip')}`, 'dim'));
+
     while (attempts < maxAttempts) {
       try {
-        const answer = await this.questionAsync(this.colorize('➤ ', 'green') + this.getMessage('pleaseSelectNumber'));
+        const answer = await this.questionAsync(
+          this.colorize('➤ ', 'green') + this.getMessage('pleaseSelectNumber'),
+        );
+
         if (!answer || answer.trim() === '') {
-          console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('inputEmpty'), 'red')}`);
+          console.log(`${emojis.warning} ${this.colorize(this.getMessage('inputEmpty'), 'red')}`);
           attempts++;
           continue;
         }
+
         const index = parseInt(answer.trim(), 10) - 1;
         if (index >= 0 && index < options.length) {
-          console.log(`\n${_index.emojis.check} ${this.getMessage('yourChoice')} ${this.colorize(options[index], 'green')}\n`);
+          console.log(
+            `\n${emojis.check} ${this.getMessage('yourChoice')} ${this.colorize(options[index], 'green')}\n`,
+          );
           return options[index];
         }
-        console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('invalidChoice'), 'red')}`);
+        console.log(`${emojis.warning} ${this.colorize(this.getMessage('invalidChoice'), 'red')}`);
         attempts++;
       } catch (error) {
-        if (error.message.includes('Input stream ended') || error.message.includes('Readline interface is closed')) {
-          console.error(`${_index.emojis.cross} ${this.colorize(this.getMessage('inputEnded'), 'red')}`);
+        if (
+          (error as Error).message.includes('Input stream ended') ||
+          (error as Error).message.includes('Readline interface is closed')
+        ) {
+          console.error(`${emojis.cross} ${this.colorize(this.getMessage('inputEnded'), 'red')}`);
           process.exit(1);
         }
-        console.error(`${_index.emojis.cross} ${this.colorize(this.getMessage('error'), 'red')} ${error.message}`);
+        console.error(
+          `${emojis.cross} ${this.colorize(this.getMessage('error'), 'red')} ${(error as Error).message}`,
+        );
         attempts++;
       }
     }
-    console.error(`${_index.emojis.cross} ${this.colorize(this.getMessage('maxAttemptsExceeded'), 'red')}`);
+
+    console.error(
+      `${emojis.cross} ${this.colorize(this.getMessage('maxAttemptsExceeded'), 'red')}`,
+    );
     process.exit(1);
   }
-  async askMultipleChoice(question, options) {
+
+  async askMultipleChoice(question: string, options: string[]): Promise<string[]> {
     // 防止空选项数组导致的无限递归
     if (!options || options.length === 0) {
-      console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('noSelection'), 'red')}`);
+      console.log(`${emojis.warning} ${this.colorize(this.getMessage('noSelection'), 'red')}`);
       return [];
     }
+
     console.log(`\n${this.colorize(`✨ ${question}`, 'cyan')}`);
     options.forEach((option, index) => {
       const checkbox = this.colorize('[ ]', 'dim');
@@ -300,170 +372,219 @@ class SkillInstaller {
 
     let attempts = 0;
     const maxAttempts = 3;
+
     console.log(this.colorize(`💡 ${this.getMessage('inputMultipleTip')}`, 'dim'));
+
     while (attempts < maxAttempts) {
       try {
-        const answer = await this.questionAsync(this.colorize('➤ ', 'green') + this.getMessage('pleaseSelect'));
+        const answer = await this.questionAsync(
+          this.colorize('➤ ', 'green') + this.getMessage('pleaseSelect'),
+        );
+
         if (!answer || answer.trim() === '') {
-          console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('inputEmpty'), 'red')}`);
+          console.log(`${emojis.warning} ${this.colorize(this.getMessage('inputEmpty'), 'red')}`);
           attempts++;
           continue;
         }
-        const indices = answer.trim().split(',').map(s => parseInt(s.trim(), 10) - 1).filter(i => !isNaN(i) && i >= 0 && i < options.length);
-        const selected = indices.map(i => options[i]);
+
+        const indices = answer
+          .trim()
+          .split(',')
+          .map((s) => parseInt(s.trim(), 10) - 1)
+          .filter((i) => !isNaN(i) && i >= 0 && i < options.length);
+
+        const selected = indices.map((i) => options[i]);
+
         if (selected.length > 0) {
-          console.log(`\n${_index.emojis.check} ${this.getMessage('yourChoice')}`);
-          selected.forEach(item => {
+          console.log(`\n${emojis.check} ${this.getMessage('yourChoice')}`);
+          selected.forEach((item) => {
             console.log(`   ${this.colorize(`• ${item}`, 'green')}`);
           });
           return selected;
         }
-        console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('invalidInput'), 'red')}`);
+        console.log(`${emojis.warning} ${this.colorize(this.getMessage('invalidInput'), 'red')}`);
         attempts++;
       } catch (error) {
-        if (error.message.includes('Input stream ended') || error.message.includes('Readline interface is closed')) {
-          console.error(`${_index.emojis.cross} ${this.colorize(this.getMessage('inputEnded'), 'red')}`);
+        if (
+          (error as Error).message.includes('Input stream ended') ||
+          (error as Error).message.includes('Readline interface is closed')
+        ) {
+          console.error(`${emojis.cross} ${this.colorize(this.getMessage('inputEnded'), 'red')}`);
           process.exit(1);
         }
-        console.error(`${_index.emojis.cross} ${this.colorize(this.getMessage('error'), 'red')} ${error.message}`);
+        console.error(
+          `${emojis.cross} ${this.colorize(this.getMessage('error'), 'red')} ${(error as Error).message}`,
+        );
         attempts++;
       }
     }
-    console.error(`${_index.emojis.cross} ${this.colorize(this.getMessage('maxAttemptsExceeded'), 'red')}`);
+
+    console.error(
+      `${emojis.cross} ${this.colorize(this.getMessage('maxAttemptsExceeded'), 'red')}`,
+    );
     process.exit(1);
   }
-  getMessage(key, replacements = {}, lang = null) {
-    const targetLang = lang || this.language;
+
+  getMessage(key: keyof LocaleMessages, replacements: Record<string, string> = {}): string {
     let message = this.messages[key] || key;
     // Replace template variables
-    Object.keys(replacements).forEach(placeholder => {
+    Object.keys(replacements).forEach((placeholder) => {
       message = message.replace(new RegExp(`{${placeholder}}`, 'g'), replacements[placeholder]);
     });
     return message;
   }
 
   // Progress bar using progress library
-  createProgressBar(total) {
-    return new _progress.default(`  ${this.colorize(':bar', 'green')} ${this.colorize(':percent', 'cyan')} ${this.colorize(':current/:total', 'yellow')} ${this.colorize(':etas', 'magenta')} ${this.colorize('→', 'dim')} :text`, {
-      total: total,
-      complete: '█',
-      incomplete: '░',
-      width: 30
-    });
+  createProgressBar(total: number): ProgressBar {
+    return new ProgressBar(
+      `  ${this.colorize(':bar', 'green')} ${this.colorize(':percent', 'cyan')} ${this.colorize(':current/:total', 'yellow')} ${this.colorize(':etas', 'magenta')} ${this.colorize('→', 'dim')} :text`,
+      {
+        total: total,
+        complete: '█',
+        incomplete: '░',
+        width: 30,
+      },
+    );
   }
-  async run() {
-    try {
-      // 检查是否在交互式终端中运行
-      if (!process.stdin.isTTY) {
-        console.error(`${_index.emojis.cross} ${this.colorize(`${this.getMessage('error')}: ${this.getMessage('nonInteractiveEnv')}`, 'red')}`);
-        console.log(`${_index.emojis.info} ${this.colorize(`${this.getMessage('usage')}: node packages/x-skill/bin/index.js`, 'cyan')}`);
-        process.exit(1);
-      }
 
-      // 检查是否有自动输入
-      if (process.argv.length > 2 && !['--help', '-h', '--version', '-V', '--list-versions', '-l', '--tag', '-t'].some(flag => process.argv.includes(flag))) {
-        console.log(`${_index.emojis.info} ${this.language === 'zh' ? '检测到命令行参数，使用非交互模式' : 'Command line arguments detected, using non-interactive mode'}`);
-        console.log(`${_index.emojis.info} ${this.language === 'zh' ? '可用参数: --help, --list-versions, --tag <version>' : 'Available arguments: --help, --list-versions, --tag <version>'}`);
-        return;
-      }
+  async run(): Promise<void> {
+    try {
       await this.helpManager.printHeader();
 
       // Display version info if specified
       if (this.args.tag) {
-        console.log(`${this.helpManager.colorize(this.getMessage('usingVersion', {
-          version: this.args.tag
-        }), 'cyan')}`);
+        console.log(
+          `${this.helpManager.colorize(this.getMessage('usingVersion', { version: this.args.tag }), 'cyan')}`,
+        );
       }
 
       // 短暂延迟以避免自动输入问题
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Language selection - bilingual display with dual language prompt
       this.helpManager.printLanguageSelection();
-      let languageChoice;
+
+      let languageChoice: string;
       while (true) {
-        const answer = await this.questionAsync(this.colorize(`${this.getMessage('selectLanguagePrompt')}: `, 'green'));
+        const answer = await this.questionAsync(
+          this.colorize(`${this.getMessage('selectLanguagePrompt')}: `, 'green'),
+        );
         const choice = answer.trim();
         if (choice === '1' || choice.toLowerCase() === 'zh') {
-          console.log(`\n${_index.emojis.check} 你选择了中文\n`);
+          console.log(`\n${emojis.check} 你选择了中文\n`);
           languageChoice = '中文';
           break;
         }
         if (choice === '2' || choice.toLowerCase() === 'en') {
-          console.log(`\n${_index.emojis.check} You selected English\n`);
+          console.log(`\n${emojis.check} You selected English\n`);
           languageChoice = 'English';
           break;
         }
-        console.log(`${_index.emojis.warning} ${this.colorize('无效选择，请重新输入 / Invalid choice, please try again', 'red')}`);
+        console.log(
+          `${emojis.warning} ${this.colorize('无效选择，请重新输入 / Invalid choice, please try again', 'red')}`,
+        );
       }
+
       this.language = languageChoice === '中文' ? 'zh' : 'en';
 
       // Load skills from GitHub
       await this.loadSkills();
-      const skillOptions = this.skills.map(skill => `${skill.name}${skill.description && skill.description !== skill.name ? ` - ${skill.description}` : ''}`);
+
+      const skillOptions = this.skills.map(
+        (skill) =>
+          `${skill.name}${skill.description && skill.description !== skill.name ? ` - ${skill.description}` : ''}`,
+      );
+
       if (skillOptions.length === 0) {
-        console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('noSkillsFound'), 'yellow')}`);
+        console.log(
+          `${emojis.warning} ${this.colorize(this.getMessage('noSkillsFound'), 'yellow')}`,
+        );
         return;
       }
-      let selectedSkills = [];
+
+      let selectedSkills: string[] = [];
       while (selectedSkills.length === 0) {
-        selectedSkills = await this.askMultipleChoice(this.getMessage('selectSkills'), skillOptions);
+        selectedSkills = await this.askMultipleChoice(
+          this.getMessage('selectSkills'),
+          skillOptions,
+        );
+
         if (selectedSkills.length === 0) {
-          console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('selectAtLeastOneSkill'), 'yellow')}`);
+          console.log(
+            `${emojis.warning} ${this.colorize(this.getMessage('selectAtLeastOneSkill'), 'yellow')}`,
+          );
         }
       }
-      const selectedSkillNames = selectedSkills.map(s => s.split(' - ')[0]);
-      const softwareOptions = Object.entries(this.skillConfig.targets).filter(([_, config]) => config.enabled).map(([name]) => name);
+
+      const selectedSkillNames = selectedSkills.map((s) => s.split(' - ')[0]);
+
+      const softwareOptions = Object.entries(this.skillConfig.targets)
+        .filter(([_, config]) => config.enabled)
+        .map(([name]) => name);
+
       if (softwareOptions.length === 0) {
-        console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('noSoftwareFound'), 'yellow')}`);
+        console.log(
+          `${emojis.warning} ${this.colorize(this.getMessage('noSoftwareFound'), 'yellow')}`,
+        );
         return;
       }
-      let selectedSoftwareList = [];
+
+      let selectedSoftwareList: string[] = [];
       while (selectedSoftwareList.length === 0) {
-        selectedSoftwareList = await this.askMultipleChoice(this.getMessage('selectSoftware'), softwareOptions);
+        selectedSoftwareList = await this.askMultipleChoice(
+          this.getMessage('selectSoftware'),
+          softwareOptions,
+        );
+
         if (selectedSoftwareList.length === 0) {
-          console.log(`${_index.emojis.warning} ${this.colorize(this.getMessage('selectAtLeastOneSoftware'), 'yellow')}`);
+          console.log(
+            `${emojis.warning} ${this.colorize(this.getMessage('selectAtLeastOneSoftware'), 'yellow')}`,
+          );
         }
       }
 
       // Installation method selection
-      const installTypeOptions = [this.getMessage('globalInstall'), this.getMessage('projectInstall')];
-      let selectedInstallType = null;
+      const installTypeOptions = [
+        this.getMessage('globalInstall'),
+        this.getMessage('projectInstall'),
+      ];
+
+      let selectedInstallType: string | null = null;
       while (!selectedInstallType) {
-        selectedInstallType = await this.askQuestion(this.getMessage('selectInstallType'), installTypeOptions);
+        selectedInstallType = await this.askQuestion(
+          this.getMessage('selectInstallType'),
+          installTypeOptions,
+        );
       }
+
       const isGlobal = selectedInstallType === this.getMessage('globalInstall');
 
       // Installation process
       const totalSteps = selectedSoftwareList.length * selectedSkillNames.length;
+
       if (totalSteps > 0) {
         const progressBar = this.createProgressBar(totalSteps);
+
         const allTasks = [];
         for (const software of selectedSoftwareList) {
           for (const skillName of selectedSkillNames) {
-            allTasks.push({
-              skillName,
-              software
-            });
+            allTasks.push({ skillName, software });
           }
         }
+
         for (const task of allTasks) {
-          const {
-            skillName,
-            software
-          } = task;
+          const { skillName, software } = task;
           try {
             await this.installSkills([skillName], software, isGlobal);
             progressBar.tick({
-              text: `${skillName} -> ${software}`
+              text: `${skillName} -> ${software}`,
             });
           } catch (installError) {
-            console.error(`${_index.emojis.cross} ${this.colorize(this.getMessage('installError', {
-              skill: skillName,
-              error: installError.message
-            }), 'red')}`);
+            console.error(
+              `${emojis.cross} ${this.colorize(this.getMessage('installError', { skill: skillName, error: (installError as Error).message }), 'red')}`,
+            );
             progressBar.tick({
-              text: `${skillName} -> ${software} ${this.getMessage('installationFailed')}`
+              text: `${skillName} -> ${software} ${this.getMessage('installationFailed')}`,
             });
           }
         }
@@ -471,65 +592,73 @@ class SkillInstaller {
       // Completion animation
       this.helpManager.printCompletion(this.messages);
     } catch (error) {
-      if (error.message.includes('Input stream ended') || error.message.includes('Readline interface is closed')) {
-        console.error(`${_index.emojis.cross} ${this.colorize(this.getMessage('programInterrupted'), 'red')}`);
+      if (
+        (error as Error).message.includes('Input stream ended') ||
+        (error as Error).message.includes('Readline interface is closed')
+      ) {
+        console.error(
+          `${emojis.cross} ${this.colorize(this.getMessage('programInterrupted'), 'red')}`,
+        );
       } else {
-        this.helpManager.printError(error, this.messages);
+        this.helpManager.printError(error as Error, this.messages);
       }
     } finally {
       this.helpManager.printGoodbye(this.messages);
-      if (this.rl && !this.rl.closed) {
+      if (this.rl && !(this.rl as any).closed) {
         this.rl.close();
       }
     }
   }
-  async installSkills(skillNames, software, isGlobal) {
+
+  async installSkills(skillNames: string[], software: string, isGlobal: boolean): Promise<void> {
     const targetConfig = this.skillConfig.targets[software];
     if (!targetConfig) {
       throw new Error(`Software ${software} not found in configuration`);
     }
+
     const targetPath = isGlobal ? targetConfig.paths.global : targetConfig.paths.project;
-    const fullTargetPath = isGlobal ? path.join(os.homedir(), targetPath) : path.join(process.cwd(), targetPath);
+    const fullTargetPath = isGlobal
+      ? path.join(os.homedir(), targetPath)
+      : path.join(process.cwd(), targetPath);
+
     if (!fs.existsSync(fullTargetPath)) {
-      fs.mkdirSync(fullTargetPath, {
-        recursive: true
-      });
+      fs.mkdirSync(fullTargetPath, { recursive: true });
     }
+
     for (const skillName of skillNames) {
-      const skill = this.skills.find(s => s.name === skillName);
+      const skill = this.skills.find((s) => s.name === skillName);
       if (!skill) {
         // Silently skip skills not found, no warning output
         continue;
       }
+
       const sourcePath = skill.path;
       const destPath = path.join(fullTargetPath, skillName);
+
       if (fs.existsSync(destPath)) {
         // Silently delete existing skills, no update notification
-        fs.rmSync(destPath, {
-          recursive: true,
-          force: true
-        });
+        fs.rmSync(destPath, { recursive: true, force: true });
       }
+
       this.copyDirectory(sourcePath, destPath);
     }
   }
-  copyDirectory(src, dest) {
+
+  copyDirectory(src: string, dest: string): void {
     if (!fs.existsSync(dest)) {
-      fs.mkdirSync(dest, {
-        recursive: true
-      });
+      fs.mkdirSync(dest, { recursive: true });
     }
 
     // If source directory doesn't exist, return early
     if (!fs.existsSync(src)) {
       return;
     }
-    const entries = fs.readdirSync(src, {
-      withFileTypes: true
-    });
+
+    const entries = fs.readdirSync(src, { withFileTypes: true });
     for (const entry of entries) {
       const srcPath = path.join(src, entry.name);
       const destPath = path.join(dest, entry.name);
+
       if (entry.isDirectory()) {
         this.copyDirectory(srcPath, destPath);
       } else {
@@ -540,12 +669,13 @@ class SkillInstaller {
 }
 
 // Export class for testing purposes
-exports.SkillInstaller = SkillInstaller;
+export { SkillInstaller };
+
 // If running directly, execute
 // 检查是否直接运行
 if (require.main === module || process.argv[1] === __filename) {
   const args = process.argv.slice(2);
-  const helpManager = new _help.default();
+  const helpManager = new HelpManager();
 
   // Handle version flag (only when it's the only argument)
   if (args.length === 1 && (args[0] === '-V' || args[0] === '--version')) {

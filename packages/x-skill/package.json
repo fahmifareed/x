@@ -9,7 +9,6 @@
   "bin": {
     "x-skill": "bin/index.js"
   },
-  "type": "module",
   "keywords": [
     "AI",
     "SKILL",
@@ -22,16 +21,16 @@
   ],
   "scripts": {
     "precompile": "npm run prestart",
+    "compile": "father build",
     "skillApi": "tsx scripts/skillApi.ts",
-    "compile": "echo '✅ compile success' && exit 0",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --config .jest.cjs --no-cache --collect-coverage",
-    "coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --config .jest.cjs --no-cache --collect-coverage --coverage",
+    "test": "jest --config .jest.js --no-cache --collect-coverage",
+    "coverage": "jest --config .jest.js --no-cache --collect-coverage --coverage",
     "test:dekko": "tsx scripts/dekko.ts",
     "prepublishOnly": "tsx ../../scripts/pre-publish.ts x-skill",
     "version": "tsx scripts/generate-version.ts",
     "clean": "rm -rf coverage lib es",
     "pretest": "npm run prestart",
-    "start": "node bin/index.js",
+    "start": "ut run compile && node bin/index.js",
     "prestart": "npm run skillApi && npm run version",
     "lint": "biome lint bin/",
     "tsc": "tsc --noEmit"
@@ -52,9 +51,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.5",
+    "@types/jest": "^29.5.12",
     "@types/node": "^24.0.3",
     "jest": "^29.7.0",
     "mock-fs": "^5.5.0",
+    "ts-jest": "^29.2.5",
     "tsx": "^4.19.1",
     "typescript": "~5.9.3"
   },
