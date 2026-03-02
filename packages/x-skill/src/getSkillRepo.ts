@@ -1,7 +1,7 @@
-import * as fs from 'fs';
-import * as https from 'https';
-import * as os from 'os';
-import * as path from 'path';
+import fs from 'fs';
+import https from 'https';
+import os from 'os';
+import path from 'path';
 
 interface SkillLoaderOptions {
   githubOwner?: string;
@@ -63,6 +63,7 @@ class SkillLoader {
           Accept: 'application/vnd.github.v3+json',
           ...options.headers,
         } as Record<string, string>,
+        timeout: 60000, // 60秒超时
       };
 
       // 添加GitHub token支持
@@ -74,7 +75,7 @@ class SkillLoader {
         };
       }
 
-      https
+      const req = https
         .get(url, requestOptions, (res) => {
           let data = '';
           res.on('data', (chunk) => (data += chunk));
@@ -88,7 +89,7 @@ class SkillLoader {
             } else if (res.statusCode === 302 || res.statusCode === 301) {
               // Follow redirect
               const redirectOptions = { ...requestOptions };
-              https
+              const redirectReq = https
                 .get(res.headers.location!, redirectOptions, (res2) => {
                   let data2 = '';
                   res2.on('data', (chunk) => (data2 += chunk));
@@ -105,6 +106,12 @@ class SkillLoader {
                   });
                 })
                 .on('error', reject);
+
+              // 设置重定向请求的超时
+              redirectReq.setTimeout(60000, () => {
+                redirectReq.destroy();
+                reject(new Error('Request timeout after 60 seconds'));
+              });
             } else {
               if (res.statusCode === 403) {
                 reject(
@@ -119,6 +126,12 @@ class SkillLoader {
           });
         })
         .on('error', reject);
+
+      // 设置超时
+      req.setTimeout(60000, () => {
+        req.destroy();
+        reject(new Error('Request timeout after 60 seconds'));
+      });
     });
   }
 
@@ -168,18 +181,8 @@ class SkillLoader {
         }
       }
     } catch (_error) {
-      // Fallback: try to download individual files we know should exist
-      const filesToTry = ['SKILL.md', 'index.js', 'package.json'];
-      for (const file of filesToTry) {
-        try {
-          const fileUrl = `${url}/${file}`;
-          const fileContent = await this.downloadFile(fileUrl);
-          const filePath = path.join(destPath, file);
-          fs.writeFileSync(filePath, fileContent);
-        } catch (_e) {
-          // Skip files that don't exist
-        }
-      }
+      // 远程下载失败时，直接抛出错误，让上层处理兜底逻辑
+      throw new Error(`Failed to download directory from remote: ${_error}`);
     }
   }
 
@@ -188,6 +191,16 @@ class SkillLoader {
     version = 'latest',
     language = 'en',
   ): Promise<string> {
+    // Create temp directory
+    if (!fs.existsSync(this.tempDir)) {
+      fs.mkdirSync(this.tempDir, { recursive: true });
+    }
+
+    const skillTempDir = path.join(this.tempDir, skillName);
+    if (!fs.existsSync(skillTempDir)) {
+      fs.mkdirSync(skillTempDir, { recursive: true });
+    }
+
     try {
       // 获取最新标签
       const tag = version === 'latest' ? await this.getLatestTag() : version;
@@ -195,22 +208,31 @@ class SkillLoader {
       const baseUrl = `https://raw.githubusercontent.com/${this.githubOwner}/${this.githubRepo}/${tag}/${basePath}`;
       const skillUrl = `${baseUrl}/${skillName}`;
 
-      // Create temp directory
-      if (!fs.existsSync(this.tempDir)) {
-        fs.mkdirSync(this.tempDir, { recursive: true });
-      }
-
-      const skillTempDir = path.join(this.tempDir, skillName);
-      if (!fs.existsSync(skillTempDir)) {
-        fs.mkdirSync(skillTempDir, { recursive: true });
-      }
-
       // Download skill files
       await this.downloadDirectory(skillUrl, skillTempDir);
 
       return skillTempDir;
     } catch (error) {
-      throw new Error(`Failed to download skill ${skillName}: ${(error as Error).message}`);
+      console.warn(
+        `Failed to download skill ${skillName} from remote: ${(error as Error).message}`,
+      );
+      console.warn('Using local skill files instead...');
+
+      // 使用本地技能文件夹作为兜底
+      const currentDir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+      const packageDir = path.join(currentDir, '..');
+      const skillsDir =
+        language === 'zh'
+          ? path.join(packageDir, 'skills-zh', skillName)
+          : path.join(packageDir, 'skills', skillName);
+
+      if (!fs.existsSync(skillsDir)) {
+        throw new Error(`Local skill directory not found: ${skillsDir}`);
+      }
+
+      // 复制本地文件夹到目标位置
+      this.copyDirectorySync(skillsDir, skillTempDir);
+      return skillTempDir;
     }
   }
 
@@ -283,7 +305,6 @@ class SkillLoader {
       const tag = version === 'latest' ? await this.getLatestTag() : version;
       const basePath = language === 'zh' ? 'packages/x-skill/skills-zh' : 'packages/x-skill/skills';
       const apiUrl = `https://api.github.com/repos/${this.githubOwner}/${this.githubRepo}/contents/${basePath}?ref=${tag}`;
-
       const contents = (await this.makeRequest(apiUrl)) as GitHubContent[];
       const skillDirs = contents.filter((item) => item.type === 'dir').map((item) => item.name);
 
@@ -331,7 +352,17 @@ class SkillLoader {
 
       return skills;
     } catch (error) {
-      throw new Error(`Failed to load skills: ${(error as Error).message}`);
+      console.warn(`Failed to load skills from remote: ${(error as Error).message}`);
+      console.warn('Falling back to local skills...');
+
+      // 兜底逻辑：远程失败时使用本地文件
+      try {
+        return await this.loadLocalSkills(language);
+      } catch (localError) {
+        throw new Error(
+          `Failed to load skills from both remote and local: ${(localError as Error).message}`,
+        );
+      }
     }
   }
 
@@ -382,6 +413,29 @@ class SkillLoader {
       });
     } catch (error) {
       throw new Error(`Failed to load local skills: ${(error as Error).message}`);
+    }
+  }
+
+  private copyDirectorySync(src: string, dest: string): void {
+    // 先移除目标文件夹（如果存在），确保干净复制
+    if (fs.existsSync(dest)) {
+      fs.rmSync(dest, { recursive: true, force: true });
+    }
+
+    // 创建目标文件夹
+    fs.mkdirSync(dest, { recursive: true });
+
+    const items = fs.readdirSync(src, { withFileTypes: true });
+
+    for (const item of items) {
+      const srcPath = path.join(src, item.name);
+      const destPath = path.join(dest, item.name);
+
+      if (item.isDirectory()) {
+        this.copyDirectorySync(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
     }
   }
 

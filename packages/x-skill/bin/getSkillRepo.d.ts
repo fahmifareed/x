@@ -26,6 +26,7 @@ declare class SkillLoader {
   getLatestTag(): Promise<string>;
   loadSkills(version?: string, language?: string): Promise<Skill[]>;
   loadLocalSkills(language?: string): Promise<Skill[]>;
+  private copyDirectorySync;
   listVersions(): Promise<string[]>;
 }
 export default SkillLoader;
