@@ -108,7 +108,7 @@ try {
   if (fs.existsSync(marketplaceJsonPath)) {
     const marketplaceJson = JSON.parse(fs.readFileSync(marketplaceJsonPath, 'utf-8'));
     marketplaceJson.metadata.version = currentVersion;
-    fs.writeFileSync(marketplaceJsonPath, JSON.stringify(marketplaceJson, null, 2) + '\n', 'utf-8');
+    fs.writeFileSync(marketplaceJsonPath, `${JSON.stringify(marketplaceJson, null, 2)}\n`, 'utf-8');
     console.log(`✅ Updated marketplace.json version to ${currentVersion}`);
   } else {
     console.log(`⚠️  marketplace.json not found at ${marketplaceJsonPath}`);
