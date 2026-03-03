@@ -264,10 +264,6 @@ const App = () => {
   console.log(messages, 'messages');
   return (
     <Flex vertical gap="middle">
-      <div>
-        <h3>{locale.customProviderTitle}</h3>
-        <p>{locale.customProviderDesc}</p>
-      </div>
       <Flex gap="small">
         <Button disabled={!isRequesting} onClick={abort}>
           {locale.abort}
