@@ -7,14 +7,15 @@ type ParserOptions = {
   openLinksInNewTab?: boolean;
   components?: XMarkdownProps['components'];
   protectCustomTagNewlines?: boolean;
+  escapeRawHtml?: boolean;
 };
 
 export const other = {
   escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/,
-  escapeTest: /[&<>"']/,
+  escapeTest: /[&<>"'/]/,
   notSpaceStart: /^\S*/,
   endingNewline: /\n$/,
-  escapeReplace: /[&<>"']/g,
+  escapeReplace: /[&<>"'/]/g,
   escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g,
   completeFencedCode: /^ {0,3}(`{3,}|~{3,})([\s\S]*?)\n {0,3}\1[ \n\t]*$/,
 };
@@ -25,6 +26,7 @@ const escapeReplacements: { [index: string]: string } = {
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#39;',
+  '/': '&#x2F;',
 };
 const getEscapeReplacement = (ch: string) => escapeReplacements[ch];
 
@@ -54,8 +56,21 @@ class Parser {
     this.configureLinkRenderer();
     this.configureParagraphRenderer();
     this.configureCodeRenderer();
+    this.configureHtmlEscapeRenderer();
     // user config at last
     this.markdownInstance.use(markedConfig);
+  }
+
+  private configureHtmlEscapeRenderer() {
+    if (!this.options.escapeRawHtml) return;
+
+    const renderer = {
+      html(this: Renderer, token: Tokens.HTML | Tokens.Tag) {
+        const { raw = '', text = '' } = token;
+        return escapeHtml(raw || text, true);
+      },
+    };
+    this.markdownInstance.use({ renderer });
   }
 
   private configureLinkRenderer() {
@@ -86,7 +101,8 @@ class Parser {
   public configureCodeRenderer() {
     const renderer = {
       code({ text, raw, lang, escaped, codeBlockStyle }: Tokens.Code): string {
-        const langString = (lang || '').match(other.notSpaceStart)?.[0];
+        const infoString = (lang || '').trim();
+        const langString = infoString.match(other.notSpaceStart)?.[0];
         const code = `${text.replace(other.endingNewline, '')}\n`;
         const isIndentedCode = codeBlockStyle === 'indented';
         // if code is indented, it's done because it has no end tag
@@ -95,8 +111,11 @@ class Parser {
         const escapedCode = escaped ? code : escapeHtml(code, true);
 
         const classAttr = langString ? ` class="language-${escapeHtml(langString)}"` : '';
+        const dataAttrs =
+          ` data-block="true" data-state="${streamStatus}"` +
+          (infoString ? ` data-lang="${escapeHtml(infoString)}"` : '');
 
-        return `<pre><code data-block="true" data-state="${streamStatus}"${classAttr}>${escapedCode}</code></pre>\n`;
+        return `<pre><code${dataAttrs}${classAttr}>${escapedCode}</code></pre>\n`;
       },
     };
     this.markdownInstance.use({ renderer });
