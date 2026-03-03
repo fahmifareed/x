@@ -98,6 +98,7 @@ ${this.colorize(this.getMessage('options' as keyof LocaleMessages), 'yellow')}
   -l, --list-versions     ${listDesc}
   -h, --help             ${helpDesc}
   -V, --version          ${versionDesc}
+  -v, --version          ${versionDesc}
 
 ${this.colorize(this.getMessage('examples' as keyof LocaleMessages), 'yellow')}
   x-skill                  ${example1}

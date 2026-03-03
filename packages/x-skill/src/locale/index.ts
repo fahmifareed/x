@@ -51,11 +51,6 @@ export interface LocaleMessages {
   info: string;
   success: string;
   cancel: string;
-  operationCanceled: string;
-  nonInteractiveEnv: string;
-  readlineClosed: string;
-  stdoutNotTTY: string;
-  inputEnded: string;
   inputEmpty: string;
   invalidInput: string;
   maxAttemptsExceeded: string;
@@ -124,11 +119,6 @@ export const messages: Messages = {
     info: '提示',
     success: '成功',
     cancel: '取消',
-    operationCanceled: '操作已取消',
-    nonInteractiveEnv: '非交互式环境',
-    readlineClosed: 'Readline interface is closed',
-    stdoutNotTTY: 'stdout不是交互式终端',
-    inputEnded: '输入流意外结束',
     inputEmpty: '输入不能为空，请重试',
     invalidInput: '无效输入，请重试',
     maxAttemptsExceeded: '多次输入失败，程序终止',
@@ -203,11 +193,6 @@ export const messages: Messages = {
     info: 'Info',
     success: 'Success',
     cancel: 'Cancel',
-    operationCanceled: 'Operation canceled',
-    nonInteractiveEnv: 'Non-interactive environment',
-    readlineClosed: 'Readline interface is closed',
-    stdoutNotTTY: 'stdout is not interactive terminal',
-    inputEnded: 'Input stream ended unexpectedly',
     inputEmpty: 'Input cannot be empty, please try again',
     invalidInput: 'Invalid input, please try again',
     maxAttemptsExceeded: 'Maximum attempts exceeded, program terminated',

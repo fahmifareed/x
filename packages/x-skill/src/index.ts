@@ -72,36 +72,9 @@ class SkillInstaller {
   }
 
   questionAsync(question: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!process.stdin.isTTY) {
-        reject(new Error(this.getMessage('nonInteractiveEnv')));
-        return;
-      }
-
-      if ((this.rl as any).closed) {
-        reject(new Error(this.getMessage('readlineClosed')));
-        return;
-      }
-
-      // 确保stdout是TTY
-      if (!process.stdout.isTTY) {
-        reject(new Error(this.getMessage('stdoutNotTTY')));
-        return;
-      }
-
+    return new Promise((resolve) => {
       this.rl.question(question, (answer) => {
-        if (answer === null || answer === undefined) {
-          reject(new Error(this.getMessage('inputEnded')));
-        } else {
-          resolve(answer);
-        }
-      });
-
-      // Handle Ctrl+C gracefully
-      this.rl.on('SIGINT', () => {
-        console.log(`\n${this.colorize(this.getMessage('operationCanceled'), 'yellow')}`);
-        this.rl.close();
-        process.exit(0);
+        resolve(answer);
       });
     });
   }
@@ -336,13 +309,6 @@ class SkillInstaller {
         console.log(`${emojis.warning} ${this.colorize(this.getMessage('invalidChoice'), 'red')}`);
         attempts++;
       } catch (error) {
-        if (
-          (error as Error).message.includes('Input stream ended') ||
-          (error as Error).message.includes('Readline interface is closed')
-        ) {
-          console.error(`${emojis.cross} ${this.colorize(this.getMessage('inputEnded'), 'red')}`);
-          process.exit(1);
-        }
         console.error(
           `${emojis.cross} ${this.colorize(this.getMessage('error'), 'red')} ${(error as Error).message}`,
         );
@@ -406,13 +372,6 @@ class SkillInstaller {
         console.log(`${emojis.warning} ${this.colorize(this.getMessage('invalidInput'), 'red')}`);
         attempts++;
       } catch (error) {
-        if (
-          (error as Error).message.includes('Input stream ended') ||
-          (error as Error).message.includes('Readline interface is closed')
-        ) {
-          console.error(`${emojis.cross} ${this.colorize(this.getMessage('inputEnded'), 'red')}`);
-          process.exit(1);
-        }
         console.error(
           `${emojis.cross} ${this.colorize(this.getMessage('error'), 'red')} ${(error as Error).message}`,
         );
@@ -679,7 +638,7 @@ if (require.main === module || process.argv[1] === __filename) {
   const helpManager = new HelpManager();
 
   // Handle version flag (only when it's the only argument)
-  if (args.length === 1 && (args[0] === '-V' || args[0] === '--version')) {
+  if (args.length === 1 && (args[0] === '-V' || args[0] === '--version' || args[0] === '-v')) {
     const success = helpManager.showVersion();
     process.exit(success ? 0 : 1);
   }
