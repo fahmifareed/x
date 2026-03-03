@@ -49,19 +49,21 @@ Supports installation with specific version tags to ensure getting specific vers
 
 ```bash
 # View all available versions
-npx x-skill --list-versions
+x-skill --list-versions
+
 # or
-npx x-skill -l
+x-skill -l
 
 # Install specific version (replace <tag> with actual version number)
-npx x-skill --tag <tag>
+x-skill --tag <tag>
 # or
-npx x-skill -t <tag>
+x-skill -t <tag>
 
 # View current installer version (not skill version)
-npx x-skill --version
+x-skill --version
 # or
-npx x-skill -V
+x-skill -V
+x-skill -v
 ```
 
 ### Usage Examples

@@ -49,19 +49,21 @@ npx x-skill
 
 ```bash
 # 查看所有可用版本
-npx x-skill --list-versions
+x-skill --list-versions
+
 # 或
-npx x-skill -l
+x-skill -l
 
 # 安装指定版本（替换 <tag> 为具体版本号）
-npx x-skill --tag <tag>
+x-skill --tag <tag>
 # 或
-npx x-skill -t <tag>
+x-skill -t <tag>
 
 # 查看当前安装器的版本（非 skill 版本）
-npx x-skill --version
+x-skill --version
 # 或
-npx x-skill -V
+x-skill -V
+x-skill -v
 ```
 
 #### 使用示例
