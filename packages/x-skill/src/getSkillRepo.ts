@@ -161,10 +161,28 @@ class SkillLoader {
 
   async downloadDirectory(url: string, destPath: string): Promise<void> {
     try {
-      // First, try to get the directory listing
-      const apiUrl = url
-        .replace('raw.githubusercontent.com', 'api.github.com/repos')
-        .replace('/skills/', '/contents/packages/x-skill/skills/');
+      // 构建正确的GitHub API URL
+      let apiUrl: string;
+
+      if (url.includes('raw.githubusercontent.com')) {
+        // 转换raw URL到GitHub API URL
+        const match = url.match(/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)/);
+        if (match) {
+          const [, owner, repo, ref, path] = match;
+          apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+          if (ref !== 'main' && ref !== 'master') {
+            apiUrl += `?ref=${ref}`;
+          }
+        } else {
+          throw new Error('Invalid raw GitHub URL format');
+        }
+      } else if (url.includes('api.github.com')) {
+        // 已经是GitHub API URL
+        apiUrl = url;
+      } else {
+        throw new Error('Unsupported URL format');
+      }
+
       const contents = (await this.makeRequest(apiUrl)) as GitHubContent[];
 
       for (const item of contents) {
@@ -205,11 +223,12 @@ class SkillLoader {
       // 获取最新标签
       const tag = version === 'latest' ? await this.getLatestTag() : version;
       const basePath = language === 'zh' ? 'packages/x-skill/skills-zh' : 'packages/x-skill/skills';
-      const baseUrl = `https://raw.githubusercontent.com/${this.githubOwner}/${this.githubRepo}/${tag}/${basePath}`;
-      const skillUrl = `${baseUrl}/${skillName}`;
+
+      // 使用GitHub API URL
+      const apiUrl = `https://api.github.com/repos/${this.githubOwner}/${this.githubRepo}/contents/${basePath}/${skillName}?ref=${tag}`;
 
       // Download skill files
-      await this.downloadDirectory(skillUrl, skillTempDir);
+      await this.downloadDirectory(apiUrl, skillTempDir);
 
       return skillTempDir;
     } catch (error) {
