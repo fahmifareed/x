@@ -16,6 +16,67 @@ tag: vVERSION
 
 ---
 
+## 2.3.0
+
+`2026-02-26`
+
+### @ant-design/x
+
+- 🆕 Conversation's onActiveChange callback now returns both the activated item and its key value, while updating useMergedState to useControlledState. [#1762](https://github.com/ant-design/x/pull/1762) by [kimteayon](https://github.com/kimteayon)
+- 🐛 Optimized the visual presentation of Sender's disabled state buttons, unified the addition of transparent border handling to ensure consistent appearance across different button variants when disabled. [#1751](https://github.com/ant-design/x/pull/1751) by [Rain120](https://github.com/Rain120)
+
+### @ant-design/x-markdown
+
+- 🆕 XMarkdown adds escapeRawHtml property, allowing users to choose whether to escape raw HTML during rendering. [#1769](https://github.com/ant-design/x/pull/1769) by [Div627](https://github.com/Div627)
+- 🐛 Fixed XMarkdown rendering when encountering unclosed inline code in lists, ensuring list markers are preserved in special unclosed cases. [#1739](https://github.com/ant-design/x/pull/1739) by [Div627](https://github.com/Div627)
+- 🐛 Improved parsing of block-level LaTeX formulas, with more tolerant handling of trailing whitespace and indentation, enhancing compatibility with different line ending formats and reducing misjudgment and rendering issues. [#1744](https://github.com/ant-design/x/pull/1744) by [Waiter](https://github.com/Waiter)
+- 🐛 Optimized dark mode CodeHighlighter and Mermaid plugin styling issues. [#1766](https://github.com/ant-design/x/pull/1766) by [menghany](https://github.com/menghany)
+
+### @ant-design/x-sdk
+
+- 🆕 useXChat adds queueRequest method, implementing initialization message sending for ConversationKey and SessionId. [#1761](https://github.com/ant-design/x/pull/1761) by [kimteayon](https://github.com/kimteayon)
+
+### @ant-design/x-skill
+
+- 🆕 Added skill installation commands, simultaneously releasing three skills: use-x-chat, x-chat-provider, and x-request. [#1753](https://github.com/ant-design/x/pull/1753), [#1767](https://github.com/ant-design/x/pull/1767) by [kimteayon](https://github.com/kimteayon)
+
+### Others
+
+- 🛠 Fixed build errors caused by dependency upgrades. [#1754](https://github.com/ant-design/x/pull/1754) by [kimteayon](https://github.com/kimteayon)
+- 🛠 Resolved domhandler's ModuleNotFoundError in CodeSandbox preview. [#1754](https://github.com/ant-design/x/pull/1754) by [Div627](https://github.com/Div627)
+
+## 2.2.2
+
+`2026-02-06`
+
+### @ant-design/x
+
+- 🛠 Fixed some documentation and types to support AI Coding. [#1733](https://github.com/ant-design/x/pull/1733) by [kimteayon](https://github.com/kimteayon)
+- 💄 Fixed Bubble.List style and semantic issues. [#1731](https://github.com/ant-design/x/pull/1731) by [anxLiang](https://github.com/anxLiang)
+- 🐛 Fixed Sender insert node replacement issue when replaceCharacters is configured. [#1727](https://github.com/ant-design/x/pull/1727) by [kimteayon](https://github.com/kimteayon)
+
+## 2.2.1
+
+`2026-01-30`
+
+### @ant-design/x
+
+- 💄 Fixed Bubble.List style issues. [#1713](https://github.com/ant-design/x/pull/1713) by [anxLiang](https://github.com/anxLiang), [#1704](https://github.com/ant-design/x/pull/1704) by [anxLiang](https://github.com/anxLiang)
+- 🐛 Fixed Node environment build errors caused by other third-party dependencies `esm` paths. [#1708](https://github.com/ant-design/x/pull/1708) by [kimteayon](https://github.com/kimteayon)
+
+### @ant-design/x-markdown
+
+- 🐛 Fixed streaming rendering cache invalidation issue where cache would prematurely commit and cause rendering anomalies when list items contained inline code (like - \code\`\` ). [#1709](https://github.com/ant-design/x/pull/1709) by [Div627](https://github.com/Div627)
+- 🆕 Custom code rendering now accepts language information. [#1705](https://github.com/ant-design/x/pull/1705) by [Aarebecca](https://github.com/Aarebecca)
+
+### @ant-design/x-sdk
+
+- 🆕 When XRequest is used together with Chat Provider, it will additionally obtain the assembled message. [#1714](https://github.com/ant-design/x/pull/1714) by [kimteayon](https://github.com/kimteayon)
+
+### Others
+
+- 📖 Optimized official website to improve user experience. [#1717](https://github.com/ant-design/x/pull/1717) by [kimteayon](https://github.com/kimteayon), [#1707](https://github.com/ant-design/x/pull/1707) by [Div627](https://github.com/Div627)
+
 ## 2.2.0
 
 `2026-01-26`

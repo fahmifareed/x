@@ -1,8 +1,7 @@
 import { Bubble } from '@ant-design/x';
 import XMarkdown from '@ant-design/x-markdown';
-import { Button, Flex, Space, Switch, Typography } from 'antd';
+import { Button, Flex, Space, Switch, Typography, theme } from 'antd';
 import React from 'react';
-import { useMarkdownTheme } from '../_utils';
 import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
 
@@ -63,8 +62,10 @@ const { Text } = Typography;
 
 const App = () => {
   const [enableAnimation, setEnableAnimation] = React.useState(true);
+  const [enableDebug, setEnableDebug] = React.useState(true);
   const [hasNextChunk, setHasNextChunk] = React.useState(true);
-  const [className] = useMarkdownTheme();
+  const { theme: antdTheme } = theme.useToken();
+  const className = antdTheme.id === 0 ? 'x-markdown-light' : 'x-markdown-dark';
   const [index, setIndex] = React.useState(0);
   const timer = React.useRef<NodeJS.Timeout | null>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -100,13 +101,20 @@ const App = () => {
   }, [index]);
 
   return (
-    <Flex vertical gap="small" style={{ height: 600, overflow: 'auto' }} ref={contentRef}>
-      <Space align="center" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+    <div style={{ height: 400, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Space
+        align="center"
+        style={{ display: 'flex', justifyContent: 'flex-end', flexShrink: 0, marginBottom: 8 }}
+        wrap
+      >
         <Space>
           <Text>Animation</Text>
           <Switch checked={enableAnimation} onChange={setEnableAnimation} />
         </Space>
-
+        <Space>
+          <Text>Debug panel</Text>
+          <Switch checked={enableDebug} onChange={setEnableDebug} />
+        </Space>
         <Button
           onClick={() => {
             setIndex(0);
@@ -117,23 +125,26 @@ const App = () => {
         </Button>
       </Space>
 
-      <Bubble
-        style={{ width: '100%' }}
-        styles={{
-          body: { width: '100%' },
-        }}
-        variant="borderless"
-        content={text.slice(0, index)}
-        className={className}
-        contentRender={(content) => (
-          <XMarkdown
-            streaming={{ enableAnimation, hasNextChunk, animationConfig: { fadeDuration: 400 } }}
-          >
-            {content}
-          </XMarkdown>
-        )}
-      />
-    </Flex>
+      <Flex vertical style={{ flex: 1, minHeight: 0, overflow: 'auto' }} ref={contentRef}>
+        <Bubble
+          style={{ width: '100%' }}
+          styles={{
+            body: { width: '100%' },
+          }}
+          variant="borderless"
+          content={text.slice(0, index)}
+          className={className}
+          contentRender={(content) => (
+            <XMarkdown
+              debug={enableDebug}
+              streaming={{ enableAnimation, hasNextChunk, animationConfig: { fadeDuration: 400 } }}
+            >
+              {content}
+            </XMarkdown>
+          )}
+        />
+      </Flex>
+    </div>
   );
 };
 
