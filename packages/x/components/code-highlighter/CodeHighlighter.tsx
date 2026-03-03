@@ -155,20 +155,12 @@ const CodeHighlighter = React.forwardRef<HTMLDivElement, CodeHighlighterProps>((
     </Highlighter>
   );
 
-  // Determine if we need Suspense fallback
-  // - Light mode with lang: async language loading
-  // - Full mode: async full Prism loading
-  // - Light mode without lang: sync, no Suspense needed
-  const needsSuspense = prismLightMode ? !!lang : true;
-
-  const highlightedCode = needsSuspense ? (
+  const highlightedCode = (
     <Suspense
       fallback={<code style={{ whiteSpace: 'pre-wrap' }}>{children.replace(/\n$/, '')}</code>}
     >
       {codeElement}
     </Suspense>
-  ) : (
-    codeElement
   );
 
   return (
