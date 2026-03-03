@@ -84,35 +84,59 @@ class SkillInstaller {
 
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      if (
-        (arg === '--tag' || arg === '-t') &&
-        i + 1 < args.length &&
-        !args[i + 1].startsWith('-')
-      ) {
-        parsed.tag = args[++i];
-      } else if (arg === '--list-versions' || arg === '-l') {
-        parsed.listVersions = true;
-      } else if (arg === '--help' || arg === '-h') {
-        parsed.help = true;
-      } else if (arg === '--version' || arg === '-V' || arg === '-v') {
-        this.helpManager.showVersion();
-        process.exit(0);
+      switch (arg) {
+        case '-t':
+        case '--tag':
+          if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
+            parsed.tag = args[++i];
+          } else {
+            console.error('错误: --tag 参数需要一个值');
+            process.exit(1);
+          }
+          break;
+        case '-l':
+        case '--list-versions':
+          parsed.listVersions = true;
+          break;
+        case '-h':
+        case '--help':
+          parsed.help = true;
+          break;
+        case '-v':
+        case '-V':
+        case '--version':
+          this.helpManager.showVersion();
+          process.exit(0);
+          break;
+        default:
+          if (arg.startsWith('-')) {
+            console.error(`错误: 未知的选项 '${arg}'`);
+            console.error('使用 --help 查看可用选项');
+            process.exit(1);
+          }
+          break;
       }
     }
 
     return parsed;
   }
 
-  init(): void {
+  /**
+   * 处理非交互式命令
+   * @returns 如果处理了非交互式命令则返回true，否则返回false
+   */
+  handleNonInteractiveCommands(): boolean {
     if (this.args.help) {
       this.showHelp();
-      process.exit(0);
+      return true;
     }
 
     if (this.args.listVersions) {
       this.listVersions().then(() => process.exit(0));
-      return;
+      return true;
     }
+
+    return false;
   }
 
   showHelp(): void {
@@ -382,6 +406,11 @@ class SkillInstaller {
   }
 
   async run(): Promise<void> {
+    // 首先处理非交互式命令
+    if (this.handleNonInteractiveCommands()) {
+      return;
+    }
+
     try {
       await this.helpManager.printHeader();
 

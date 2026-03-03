@@ -98,7 +98,7 @@ ${this.colorize(getMessage('examples', this.language), 'yellow')}
 
   showVersion(): boolean {
     try {
-      const packagePath = path.join(process.cwd(), 'package.json');
+      const packagePath = path.join(__dirname, '..', 'package.json');
       const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
       console.log(packageJson.version);
       return true;
