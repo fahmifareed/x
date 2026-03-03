@@ -260,8 +260,6 @@ const App = () => {
       message: { role: lastMessage.message.role, content: locale.editSystemMessage },
     });
   };
-
-  console.log(messages, 'messages');
   return (
     <Flex vertical gap="middle">
       <Flex gap="small">
