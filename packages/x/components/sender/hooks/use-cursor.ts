@@ -56,7 +56,7 @@ interface UseCursorReturn {
     editableRef?: React.RefObject<HTMLDivElement | null>,
     lastSelectionRef?: React.RefObject<Range | null>,
   ) => {
-    type: 'box' | 'slot' | 'end' | 'start' | 'content';
+    type: 'box' | 'slot' | 'end' | 'start';
     slotType?: SlotConfigBaseType['type'];
     range?: Range;
     slotKey?: string;
@@ -75,7 +75,28 @@ const useCursor = (options?: UseCursorOptions): UseCursorReturn => {
     }
     return window.getSelection();
   }, []);
+  const findOuterContainer = (node: Node, editableDom: HTMLElement): HTMLElement => {
+    if (!node || !editableDom) {
+      return editableDom;
+    }
+    let currentNode: Node | null = node;
+    let lastSpan: HTMLElement | null = null;
 
+    // 如果当前节点是文本节点，从父节点开始
+    if (currentNode.nodeType === Node.TEXT_NODE) {
+      currentNode = currentNode.parentElement;
+    }
+
+    // 向上遍历DOM树，找到最外层的span元素
+    while (currentNode && currentNode !== editableDom) {
+      if (currentNode instanceof HTMLElement && currentNode.tagName === 'SPAN') {
+        lastSpan = currentNode;
+      }
+      currentNode = currentNode.parentElement;
+    }
+
+    return lastSpan || editableDom;
+  };
   const getRange = useCallback((): { range: Range | null; selection: Selection | null } => {
     const selection = getSelection();
     if (!selection) {
@@ -315,19 +336,27 @@ const useCursor = (options?: UseCursorOptions): UseCursorReturn => {
       }
 
       try {
-        const range = selection.getRangeAt(0);
-
+        let range = selection.getRangeAt(0);
+        let cloneRange = range.cloneRange();
         // 验证光标位置是否在目标节点内
         if (!targetNode.contains(range.startContainer)) {
           return { value: '', startContainer: null, startOffset: 0 };
         }
 
-        const clone = range.cloneRange();
-        clone.selectNodeContents(targetNode);
-        clone.setEnd(range.startContainer, range.startOffset);
+        if (range.endContainer === targetNode) {
+          if (range.endContainer.lastChild?.nodeType === Node.TEXT_NODE) {
+            const lastDom = range.endContainer.lastChild as Text;
+            range = document.createRange();
+            range.setStart(lastDom, lastDom.length);
+            range.setEnd(lastDom, lastDom.length);
+          }
+        }
+        cloneRange = range.cloneRange();
+        cloneRange.selectNodeContents(targetNode);
+        cloneRange.setEnd(range.startContainer, range.startOffset);
 
         // 清理并返回结果
-        const value = clone.toString().replace(/\u200B/g, ''); // 移除零宽空格
+        const value = cloneRange.toString().replace(/\u200B/g, ''); // 移除零宽空格
 
         return {
           value,
@@ -378,18 +407,31 @@ const useCursor = (options?: UseCursorOptions): UseCursorReturn => {
         return { type: 'end', selection };
       }
 
-      const container =
-        range.endContainer.nodeType === Node.TEXT_NODE
-          ? range.endContainer.parentElement
-          : (range.endContainer as HTMLElement);
+      // 检查是否在可编辑区域内，如果不在则设置对应的光标位置
+      const isEndInEditableBox = editableDom.contains(range.endContainer);
+      const isStartInEditableBox = editableDom.contains(range.startContainer);
 
-      if (!container) {
+      if (!isEndInEditableBox) {
+        setEndCursor(editableDom, true);
         return { type: 'end', selection };
       }
 
-      if (options?.getNodeInfo) {
-        const { slotKey, slotConfig } = options.getNodeInfo(container) || {};
+      if (!isStartInEditableBox) {
+        setStartCursor(editableDom, true);
+        return { type: 'start', selection };
+      }
 
+      // 获取容器信息
+      const endContainer = findOuterContainer(range.endContainer, editableDom);
+      const startContainer = findOuterContainer(range.startContainer, editableDom);
+
+      // 检查是否是 slot 类型
+      if (
+        endContainer === startContainer &&
+        startContainer !== editableDom &&
+        options?.getNodeInfo
+      ) {
+        const { slotKey, slotConfig, skillKey } = options.getNodeInfo(endContainer) || {};
         if (slotKey) {
           return {
             type: 'slot',
@@ -399,16 +441,15 @@ const useCursor = (options?: UseCursorOptions): UseCursorReturn => {
             selection,
           };
         }
+        if (skillKey) {
+          return { type: 'start', selection };
+        }
       }
 
-      const isInEditableBox = editableDom.contains(range.endContainer);
-      if (isInEditableBox) {
-        return { type: 'box', range, selection };
-      }
-
-      return { type: 'end', selection };
+      // 在可编辑区域内但不是 slot，返回 box
+      return { type: 'box', range, selection };
     },
-    [options, getRange, getSelection],
+    [options, getRange, getSelection, setEndCursor, setStartCursor, findOuterContainer],
   );
 
   /**
