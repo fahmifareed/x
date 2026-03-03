@@ -1,5 +1,6 @@
 import { render, waitFor } from '@testing-library/react';
 import React from 'react';
+import XProvider from '../../x-provider';
 import CodeHighlighter from '../index';
 
 jest.mock('react', () => ({
@@ -364,6 +365,9 @@ describe('CodeHighlighter', () => {
         </CodeHighlighter>,
       );
       // Should early return with plain <code> element (no highlighting)
+      await waitFor(() => {
+        expect(container.textContent).toContain('plain code');
+      });
       // Verify it's the early return path (bare code element)
       expect(container.querySelector('.ant-codeHighlighter')).toBeNull();
     });
@@ -405,16 +409,28 @@ describe('CodeHighlighter', () => {
   });
 
   describe('RTL support', () => {
-    it('should render with RTL direction', async () => {
-      // Mock XProvider context with RTL direction
+    it('should render component without RTL context', async () => {
       const { container } = render(
-        <CodeHighlighter lang="javascript" data-direction="rtl">
-          {`console.log("test");`}
-        </CodeHighlighter>,
+        <CodeHighlighter lang="javascript">{`console.log("test");`}</CodeHighlighter>,
       );
       await waitFor(() => {
         expect(container.querySelector('.ant-codeHighlighter')).toBeInTheDocument();
       });
+      // Without RTL context, should not have RTL class
+      expect(container.querySelector('.ant-codeHighlighter-rtl')).toBeNull();
+    });
+
+    it('should apply RTL class when direction is rtl in XProvider context', async () => {
+      const { container } = render(
+        <XProvider direction="rtl">
+          <CodeHighlighter lang="javascript">{`console.log("test");`}</CodeHighlighter>
+        </XProvider>,
+      );
+
+      await waitFor(() => {
+        expect(container.querySelector('.ant-codeHighlighter')).toBeInTheDocument();
+      });
+      expect(container.querySelector('.ant-codeHighlighter-rtl')).toBeInTheDocument();
     });
   });
 
