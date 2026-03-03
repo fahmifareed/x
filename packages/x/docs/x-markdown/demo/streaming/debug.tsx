@@ -1,8 +1,7 @@
 import { Bubble } from '@ant-design/x';
 import XMarkdown from '@ant-design/x-markdown';
-import { Button, Flex, Space } from 'antd';
+import { Button, Flex, Space, theme } from 'antd';
 import React from 'react';
-import { useMarkdownTheme } from '../_utils';
 import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
 
@@ -60,7 +59,8 @@ Based on the RICH interaction paradigm, we provide many atomic components for di
 `;
 
 const App = () => {
-  const [className] = useMarkdownTheme();
+  const { theme: antdTheme } = theme.useToken();
+  const className = antdTheme.id === 0 ? 'x-markdown-light' : 'x-markdown-dark';
   const [index, setIndex] = React.useState(0);
   const [hasNextChunk, setHasNextChunk] = React.useState(false);
   const timer = React.useRef<NodeJS.Timeout | null>(null);
@@ -102,26 +102,31 @@ const App = () => {
   };
 
   return (
-    <Flex vertical gap="small" style={{ height: 600, overflow: 'auto' }} ref={contentRef}>
-      <Space align="center" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+    <div style={{ height: 600, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Space
+        align="center"
+        style={{ display: 'flex', justifyContent: 'flex-end', flexShrink: 0, marginBottom: 8 }}
+      >
         <Button onClick={handleReRender}>Re-Render</Button>
       </Space>
 
-      <Bubble
-        style={{ width: '100%' }}
-        styles={{
-          body: { width: '100%' },
-        }}
-        variant="borderless"
-        content={text.slice(0, index)}
-        className={className}
-        contentRender={(content) => (
-          <XMarkdown debug streaming={{ enableAnimation: true, hasNextChunk }}>
-            {content}
-          </XMarkdown>
-        )}
-      />
-    </Flex>
+      <Flex vertical style={{ flex: 1, minHeight: 0, overflow: 'auto' }} ref={contentRef}>
+        <Bubble
+          style={{ width: '100%' }}
+          styles={{
+            body: { width: '100%' },
+          }}
+          variant="borderless"
+          content={text.slice(0, index)}
+          className={className}
+          contentRender={(content) => (
+            <XMarkdown debug streaming={{ enableAnimation: true, hasNextChunk }}>
+              {content}
+            </XMarkdown>
+          )}
+        />
+      </Flex>
+    </div>
   );
 };
 
