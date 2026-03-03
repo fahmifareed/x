@@ -1,7 +1,7 @@
 import figlet from 'figlet';
 import * as fs from 'fs';
 import * as path from 'path';
-import { LocaleMessages } from './locale/index';
+import { getMessage, type Language } from './locale/index';
 
 interface ColorMap {
   [key: string]: string;
@@ -18,12 +18,10 @@ interface ColorMap {
 }
 
 class HelpManager {
-  private messages: LocaleMessages;
-  private language: string;
+  private language: Language;
   private colorMap: ColorMap;
 
-  constructor(messages: LocaleMessages = {} as LocaleMessages, language = 'zh') {
-    this.messages = messages;
+  constructor(language = 'zh' as Language) {
     this.language = language;
     this.colorMap = {
       red: '\x1b[31m',
@@ -44,17 +42,6 @@ class HelpManager {
       return text;
     }
     return `${this.colorMap[color]}${text}${this.colorMap.reset}`;
-  }
-
-  getMessage(key: keyof LocaleMessages, replacements: Record<string, string> = {}): string {
-    let message = this.messages[key] || key;
-
-    // Replace template variables
-    Object.keys(replacements).forEach((placeholder) => {
-      message = message.replace(new RegExp(`{${placeholder}}`, 'g'), replacements[placeholder]);
-    });
-
-    return message;
   }
 
   printSeparator(): void {
@@ -87,20 +74,20 @@ class HelpManager {
     console.log(`
 ${this.colorize(`${title}`, 'cyan')} - ${description}
 
-${this.colorize(this.getMessage('usage' as keyof LocaleMessages), 'yellow')}
+${this.colorize(getMessage('usage', this.language), 'yellow')}
   x-skill [${this.language === 'zh' ? '选项' : 'options'}]
 
-${this.colorize(this.getMessage('environmentVariables' as keyof LocaleMessages), 'yellow')}
+${this.colorize(getMessage('environmentVariables', this.language), 'yellow')}
   GITHUB_TOKEN           ${githubTokenDesc}
 
-${this.colorize(this.getMessage('options' as keyof LocaleMessages), 'yellow')}
+${this.colorize(getMessage('options', this.language), 'yellow')}
   -t, --tag <tag>         ${tagDesc}
   -l, --list-versions     ${listDesc}
   -h, --help             ${helpDesc}
   -V, --version          ${versionDesc}
   -v, --version          ${versionDesc}
 
-${this.colorize(this.getMessage('examples' as keyof LocaleMessages), 'yellow')}
+${this.colorize(getMessage('examples', this.language), 'yellow')}
   x-skill                  ${example1}
   x-skill -t v1.0.0        ${example2}
   x-skill --list-versions  ${example3}
@@ -117,7 +104,7 @@ ${this.colorize(this.getMessage('examples' as keyof LocaleMessages), 'yellow')}
       return true;
     } catch (error) {
       console.error(
-        this.getMessage('versionReadError' as keyof LocaleMessages, {
+        getMessage('versionReadError', this.language, {
           message: (error as Error).message,
         }),
       );
@@ -135,28 +122,22 @@ ${this.colorize(this.getMessage('examples' as keyof LocaleMessages), 'yellow')}
   }
 
   printLanguageSelection(): void {
-    console.log(
-      `\n${this.colorize(this.getMessage('selectLanguage' as keyof LocaleMessages), 'cyan')}`,
-    );
+    console.log(`\n${this.colorize(getMessage('selectLanguage', this.language), 'cyan')}`);
     this.printSeparator();
     console.log(`   ${this.colorize('1.', 'yellow')} 中文`);
     console.log(`   ${this.colorize('2.', 'yellow')} English`);
     this.printSeparator();
   }
 
-  printCompletion(messages: LocaleMessages = {} as LocaleMessages): void {
-    console.log(`\n\n${this.colorize(messages.startUsing || '开始愉快地使用吧！', 'bright')}`);
+  printCompletion(): void {
+    console.log(`\n\n${this.colorize(getMessage('startUsing', this.language), 'bright')}`);
   }
 
-  printError(error: Error, messages: LocaleMessages = {} as LocaleMessages): void {
+  printError(error: Error): void {
     console.error(
-      `\n${this.colorize(`❌ ${messages.installFailed || '安装失败'}`, 'red')}\n`,
+      `\n${this.colorize(`❌ ${getMessage('installFailed', this.language)}`, 'red')}\n`,
       error.message,
     );
-  }
-
-  printGoodbye(messages: LocaleMessages = {} as LocaleMessages): void {
-    console.log(`\n${this.colorize(messages.goodbye || '再见！', 'cyan')}\n\n`);
   }
 }
 

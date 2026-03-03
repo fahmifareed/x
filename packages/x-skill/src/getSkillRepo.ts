@@ -160,47 +160,34 @@ class SkillLoader {
   }
 
   async downloadDirectory(url: string, destPath: string): Promise<void> {
-    try {
-      // 构建正确的GitHub API URL
-      let apiUrl: string;
+    let apiUrl: string;
 
-      if (url.includes('raw.githubusercontent.com')) {
-        // 转换raw URL到GitHub API URL
-        const match = url.match(/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)/);
-        if (match) {
-          const [, owner, repo, ref, path] = match;
-          apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-          if (ref !== 'main' && ref !== 'master') {
-            apiUrl += `?ref=${ref}`;
-          }
-        } else {
-          throw new Error('Invalid raw GitHub URL format');
-        }
-      } else if (url.includes('api.github.com')) {
-        // 已经是GitHub API URL
-        apiUrl = url;
-      } else {
-        throw new Error('Unsupported URL format');
+    if (url.includes('raw.githubusercontent.com')) {
+      const match = url.match(/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)/);
+      if (!match) throw new Error('Invalid raw GitHub URL format');
+      const [, owner, repo, ref, path] = match;
+      apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+      if (ref !== 'main' && ref !== 'master') {
+        apiUrl += `?ref=${ref}`;
       }
+    } else if (url.includes('api.github.com')) {
+      apiUrl = url;
+    } else {
+      throw new Error('Unsupported URL format');
+    }
 
-      const contents = (await this.makeRequest(apiUrl)) as GitHubContent[];
+    const contents = (await this.makeRequest(apiUrl)) as GitHubContent[];
 
-      for (const item of contents) {
-        if (item.type === 'file') {
-          const fileContent = await this.downloadFile(item.download_url!);
-          const filePath = path.join(destPath, item.name);
-          fs.writeFileSync(filePath, fileContent);
-        } else if (item.type === 'dir') {
-          const subDirPath = path.join(destPath, item.name);
-          if (!fs.existsSync(subDirPath)) {
-            fs.mkdirSync(subDirPath, { recursive: true });
-          }
-          await this.downloadDirectory(item.url!, subDirPath);
-        }
+    for (const item of contents) {
+      if (item.type === 'file') {
+        const fileContent = await this.downloadFile(item.download_url!);
+        const filePath = path.join(destPath, item.name);
+        fs.writeFileSync(filePath, fileContent);
+      } else if (item.type === 'dir') {
+        const subDirPath = path.join(destPath, item.name);
+        fs.mkdirSync(subDirPath, { recursive: true });
+        await this.downloadDirectory(item.url!, subDirPath);
       }
-    } catch (_error) {
-      // 远程下载失败时，直接抛出错误，让上层处理兜底逻辑
-      throw new Error(`Failed to download directory from remote: ${_error}`);
     }
   }
 
@@ -209,37 +196,38 @@ class SkillLoader {
     version = 'latest',
     language = 'en',
   ): Promise<string> {
-    // Create temp directory
-    if (!fs.existsSync(this.tempDir)) {
-      fs.mkdirSync(this.tempDir, { recursive: true });
-    }
-
+    fs.mkdirSync(this.tempDir, { recursive: true });
     const skillTempDir = path.join(this.tempDir, skillName);
-    if (!fs.existsSync(skillTempDir)) {
-      fs.mkdirSync(skillTempDir, { recursive: true });
+
+    // 安装前清理同名技能文件夹
+    if (fs.existsSync(skillTempDir)) {
+      fs.rmSync(skillTempDir, { recursive: true, force: true });
     }
+    fs.mkdirSync(skillTempDir, { recursive: true });
 
     try {
-      // 获取最新标签
+      // 1. 先从GitHub下载，设置60秒超时
       const tag = version === 'latest' ? await this.getLatestTag() : version;
       const basePath = language === 'zh' ? 'packages/x-skill/skills-zh' : 'packages/x-skill/skills';
-
-      // 使用GitHub API URL
       const apiUrl = `https://api.github.com/repos/${this.githubOwner}/${this.githubRepo}/contents/${basePath}/${skillName}?ref=${tag}`;
 
-      // Download skill files
-      await this.downloadDirectory(apiUrl, skillTempDir);
+      // 使用Promise.race实现超时控制
+      const downloadPromise = this.downloadDirectory(apiUrl, skillTempDir);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Download timeout: 60s')), 60000),
+      );
 
+      await Promise.race([downloadPromise, timeoutPromise]);
       return skillTempDir;
     } catch (error) {
       console.warn(
-        `Failed to download skill ${skillName} from remote: ${(error as Error).message}`,
+        `Failed to download skill ${skillName} from GitHub: ${(error as Error).message}`,
       );
-      console.warn('Using local skill files instead...');
 
-      // 使用本地技能文件夹作为兜底
-      const currentDir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
-      const packageDir = path.join(currentDir, '..');
+      // 2. 下载失败，提示失败并安装本地技能
+      console.log(`Installing local skill: ${skillName}`);
+
+      const packageDir = path.join(__dirname, '..');
       const skillsDir =
         language === 'zh'
           ? path.join(packageDir, 'skills-zh', skillName)
@@ -249,10 +237,37 @@ class SkillLoader {
         throw new Error(`Local skill directory not found: ${skillsDir}`);
       }
 
-      // 复制本地文件夹到目标位置
       this.copyDirectorySync(skillsDir, skillTempDir);
       return skillTempDir;
     }
+  }
+
+  private compareVersions(a: GitHubTag, b: GitHubTag): number {
+    const parseVersion = (version: string): ParsedVersion => {
+      const cleanVersion = version.replace(/^v/, '');
+      const parts = cleanVersion.split('-')[0].split('.');
+      return {
+        major: parseInt(parts[0] || '0', 10),
+        minor: parseInt(parts[1] || '0', 10),
+        patch: parseInt(parts[2] || '0', 10),
+        prerelease: cleanVersion.includes('-') ? cleanVersion.split('-')[1] : null,
+      };
+    };
+
+    const vA = parseVersion(a.name);
+    const vB = parseVersion(b.name);
+
+    if (vA.major !== vB.major) return vB.major - vA.major;
+    if (vA.minor !== vB.minor) return vB.minor - vA.minor;
+    if (vA.patch !== vB.patch) return vB.patch - vA.patch;
+
+    if (!vA.prerelease && vB.prerelease) return -1;
+    if (vA.prerelease && !vB.prerelease) return 1;
+    if (vA.prerelease && vB.prerelease) {
+      return vA.prerelease.localeCompare(vB.prerelease);
+    }
+
+    return 0;
   }
 
   async getLatestTag(): Promise<string> {
@@ -261,48 +276,15 @@ class SkillLoader {
         `https://api.github.com/repos/${this.githubOwner}/${this.githubRepo}/tags`,
       )) as GitHubTag[];
 
-      // 语义化版本号比较函数
-      const compareVersions = (a: GitHubTag, b: GitHubTag): number => {
-        const parseVersion = (version: string): ParsedVersion => {
-          const cleanVersion = version.replace(/^v/, '');
-          const parts = cleanVersion.split('-')[0].split('.');
-          return {
-            major: parseInt(parts[0] || '0', 10),
-            minor: parseInt(parts[1] || '0', 10),
-            patch: parseInt(parts[2] || '0', 10),
-            prerelease: cleanVersion.includes('-') ? cleanVersion.split('-')[1] : null,
-          };
-        };
-
-        const vA = parseVersion(a.name);
-        const vB = parseVersion(b.name);
-
-        if (vA.major !== vB.major) return vB.major - vA.major;
-        if (vA.minor !== vB.minor) return vB.minor - vA.minor;
-        if (vA.patch !== vB.patch) return vB.patch - vA.patch;
-
-        if (!vA.prerelease && vB.prerelease) return -1;
-        if (vA.prerelease && !vB.prerelease) return 1;
-        if (vA.prerelease && vB.prerelease) {
-          return vA.prerelease.localeCompare(vB.prerelease);
-        }
-
-        return 0;
-      };
-
-      // 过滤有效的版本标签
-      const validVersions = tags.filter((tag) => {
-        const name = tag.name;
-        const versionRegex = /^v?\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/;
-        return versionRegex.test(name);
-      });
+      const validVersions = tags.filter((tag) =>
+        /^v?\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(tag.name),
+      );
 
       if (validVersions.length > 0) {
-        validVersions.sort(compareVersions);
+        validVersions.sort(this.compareVersions);
         return validVersions[0].name;
       }
 
-      // 如果没有有效的版本标签，使用最新的标签（即使不是语义化版本）
       if (tags.length > 0) {
         tags.sort(
           (a, b) =>
@@ -314,8 +296,30 @@ class SkillLoader {
       return 'main';
     } catch (error) {
       console.error('Failed to fetch tags:', (error as Error).message);
-      // 在错误情况下，尝试使用 main 分支作为最后的 fallback
       return 'main';
+    }
+  }
+
+  private extractDescription(skillPath: string, skillName: string): string {
+    const skillMdPath = path.join(skillPath, 'SKILL.md');
+    if (!fs.existsSync(skillMdPath)) return skillName;
+
+    try {
+      const content = fs.readFileSync(skillMdPath, 'utf-8');
+      const descMatch = content.match(/^description:\s*(.*)$/m) || content.match(/^#\s*(.*)$/m);
+      const description = descMatch ? descMatch[1].trim() : '';
+
+      if (
+        !description ||
+        description === '-' ||
+        description === '---' ||
+        description === skillName
+      ) {
+        return skillName;
+      }
+      return description;
+    } catch {
+      return skillName;
     }
   }
 
@@ -323,8 +327,15 @@ class SkillLoader {
     try {
       const tag = version === 'latest' ? await this.getLatestTag() : version;
       const basePath = language === 'zh' ? 'packages/x-skill/skills-zh' : 'packages/x-skill/skills';
+
+      // 使用Promise.race实现列表获取超时控制
       const apiUrl = `https://api.github.com/repos/${this.githubOwner}/${this.githubRepo}/contents/${basePath}?ref=${tag}`;
-      const contents = (await this.makeRequest(apiUrl)) as GitHubContent[];
+      const listPromise = this.makeRequest(apiUrl) as Promise<GitHubContent[]>;
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('List skills timeout: 60s')), 60000),
+      );
+
+      const contents = await Promise.race([listPromise, timeoutPromise]);
       const skillDirs = contents.filter((item) => item.type === 'dir').map((item) => item.name);
 
       const skills: Skill[] = [];
@@ -332,32 +343,10 @@ class SkillLoader {
       for (const skillName of skillDirs) {
         try {
           const skillTempDir = await this.downloadSkillFromGitHub(skillName, version, language);
-          let description = '';
-          const skillMdPath = path.join(skillTempDir, 'SKILL.md');
-
-          if (fs.existsSync(skillMdPath)) {
-            try {
-              const content = fs.readFileSync(skillMdPath, 'utf-8');
-              const descMatch =
-                content.match(/^description:\s*(.*)$/m) || content.match(/^#\s*(.*)$/m);
-              description = descMatch ? descMatch[1].trim() : '';
-              if (
-                !description ||
-                description === '-' ||
-                description === '---' ||
-                description === skillName
-              ) {
-                description = '';
-              }
-            } catch (_e) {
-              description = '';
-            }
-          }
-
           skills.push({
             name: skillName,
             path: skillTempDir,
-            description: description || skillName,
+            description: this.extractDescription(skillTempDir, skillName),
             version: tag,
           });
         } catch (error) {
@@ -372,80 +361,47 @@ class SkillLoader {
       return skills;
     } catch (error) {
       console.warn(`Failed to load skills from remote: ${(error as Error).message}`);
-      console.warn('Falling back to local skills...');
-
-      // 兜底逻辑：远程失败时使用本地文件
-      try {
-        return await this.loadLocalSkills(language);
-      } catch (localError) {
-        throw new Error(
-          `Failed to load skills from both remote and local: ${(localError as Error).message}`,
-        );
-      }
+      return await this.loadLocalSkills(language);
     }
   }
 
   async loadLocalSkills(language = 'zh'): Promise<Skill[]> {
-    // 获取当前脚本所在目录
-    const currentDir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
-    const packageDir = path.join(currentDir, '..');
-
+    const packageDir = path.join(__dirname, '..');
     const skillsDir =
       language === 'zh' ? path.join(packageDir, 'skills-zh') : path.join(packageDir, 'skills');
 
-    try {
-      const skillDirs = fs
-        .readdirSync(skillsDir, { withFileTypes: true })
-        .filter((dirent) => dirent.isDirectory())
-        .map((dirent) => dirent.name);
+    const skillDirs = fs
+      .readdirSync(skillsDir, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
 
-      return skillDirs.map((skillName) => {
-        const skillPath = path.join(skillsDir, skillName);
-        let description = '';
-        const skillMdPath = path.join(skillPath, 'SKILL.md');
-
-        if (fs.existsSync(skillMdPath)) {
-          try {
-            const content = fs.readFileSync(skillMdPath, 'utf-8');
-            const descMatch =
-              content.match(/^description:\s*(.*)$/m) || content.match(/^#\s*(.*)$/m);
-            description = descMatch ? descMatch[1].trim() : '';
-            if (
-              !description ||
-              description === '-' ||
-              description === '---' ||
-              description === skillName
-            ) {
-              description = '';
-            }
-          } catch (_e) {
-            description = '';
-          }
-        }
-
-        return {
-          name: skillName,
-          path: skillPath,
-          description: description || skillName,
-          version: 'local',
-        };
-      });
-    } catch (error) {
-      throw new Error(`Failed to load local skills: ${(error as Error).message}`);
-    }
+    return skillDirs.map((skillName) => {
+      const skillPath = path.join(skillsDir, skillName);
+      return {
+        name: skillName,
+        path: skillPath,
+        description: this.extractDescription(skillPath, skillName),
+        version: 'local',
+      };
+    });
   }
 
   private copyDirectorySync(src: string, dest: string): void {
-    // 先移除目标文件夹（如果存在），确保干净复制
+    // 防止递归嵌套：检查目标路径是否是源路径的子目录
+    const srcResolved = path.resolve(src);
+    const destResolved = path.resolve(dest);
+
+    if (destResolved.startsWith(srcResolved) && destResolved !== srcResolved) {
+      throw new Error(`Cannot copy directory into itself: ${src} -> ${dest}`);
+    }
+
+    // 清理目标目录并创建新目录
     if (fs.existsSync(dest)) {
       fs.rmSync(dest, { recursive: true, force: true });
     }
-
-    // 创建目标文件夹
     fs.mkdirSync(dest, { recursive: true });
 
     const items = fs.readdirSync(src, { withFileTypes: true });
-
     for (const item of items) {
       const srcPath = path.join(src, item.name);
       const destPath = path.join(dest, item.name);
@@ -468,48 +424,16 @@ class SkillLoader {
         throw new Error('No version tags found');
       }
 
-      // 语义化版本号比较函数
-      const compareVersions = (a: GitHubTag, b: GitHubTag): number => {
-        const parseVersion = (version: string): ParsedVersion => {
-          const cleanVersion = version.replace(/^v/, '');
-          const parts = cleanVersion.split('-')[0].split('.');
-          return {
-            major: parseInt(parts[0] || '0', 10),
-            minor: parseInt(parts[1] || '0', 10),
-            patch: parseInt(parts[2] || '0', 10),
-            prerelease: cleanVersion.includes('-') ? cleanVersion.split('-')[1] : null,
-          };
-        };
-
-        const vA = parseVersion(a.name);
-        const vB = parseVersion(b.name);
-
-        if (vA.major !== vB.major) return vB.major - vA.major;
-        if (vA.minor !== vB.minor) return vB.minor - vA.minor;
-        if (vA.patch !== vB.patch) return vB.patch - vA.patch;
-
-        if (!vA.prerelease && vB.prerelease) return -1;
-        if (vA.prerelease && !vB.prerelease) return 1;
-        if (vA.prerelease && vB.prerelease) {
-          return vA.prerelease.localeCompare(vB.prerelease);
-        }
-
-        return 0;
-      };
-
-      // 过滤有效的版本标签并排序
-      const validVersions = tags.filter((tag) => {
-        const name = tag.name;
-        const versionRegex = /^v?\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/;
-        return versionRegex.test(name);
-      });
+      const validVersions = tags.filter((tag) =>
+        /^v?\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(tag.name),
+      );
 
       if (validVersions.length > 0) {
-        validVersions.sort(compareVersions);
+        validVersions.sort(this.compareVersions);
         return validVersions.map((tag) => tag.name);
       }
 
-      return tags.map((tag) => tag.name); // 如果没有有效的版本标签，返回所有标签
+      return tags.map((tag) => tag.name);
     } catch (error) {
       throw new Error(`Failed to fetch tags: ${(error as Error).message}`);
     }

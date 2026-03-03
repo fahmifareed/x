@@ -38,7 +38,6 @@ export interface LocaleMessages {
   updatingSkill: string;
   installingDetail: string;
   installError: string;
-  goodbye: string;
   invalidChoice: string;
   noSelection: string;
   yourChoice: string;
@@ -106,7 +105,6 @@ export const messages: Messages = {
     updatingSkill: `${emojis.info} 更新已存在的技能: {skill}`,
     installingDetail: `${emojis.check} {skill} -> {path}`,
     installError: `${emojis.cross} 安装 {skill} 失败: {error}`,
-    goodbye: `${emojis.heart}  再见！祝你开发愉快！`,
     invalidChoice: '无效选择，请重试',
     noSelection: '请至少选择一个选项',
     yourChoice: '你选择了:',
@@ -180,7 +178,6 @@ export const messages: Messages = {
     updatingSkill: `${emojis.info} Updating existing skill: {skill}`,
     installingDetail: `${emojis.check} {skill} -> {path}`,
     installError: `${emojis.cross} Failed to install {skill}: {error}`,
-    goodbye: `${emojis.heart}  Goodbye! Happy coding!`,
     invalidChoice: 'Invalid choice, please try again',
     noSelection: 'Please select at least one option',
     yourChoice: 'You selected:',
@@ -240,25 +237,24 @@ export const messages: Messages = {
   },
 };
 
-// 获取本地化消息的辅助函数
-export function getMessage(
-  lang: Language,
-  key: keyof LocaleMessages,
-  params?: Record<string, string | number>,
-): string {
-  let message = messages[lang][key];
-
-  if (params) {
-    Object.entries(params).forEach(([param, value]) => {
-      message = message.replace(new RegExp(`{${param}}`, 'g'), String(value));
-    });
-  }
-
-  return message;
-}
-
 // 默认语言
 export const DEFAULT_LANGUAGE: Language = 'zh';
 
 // 获取支持的语言列表
 export const SUPPORTED_LANGUAGES: Language[] = Object.keys(messages) as Language[];
+
+// 统一的 getMessage 工具函数
+export function getMessage(
+  key: keyof LocaleMessages,
+  language: Language = DEFAULT_LANGUAGE,
+  replacements: Record<string, string> = {},
+): string {
+  let message = messages[language]?.[key] || key;
+
+  // Replace template variables
+  Object.keys(replacements).forEach((placeholder) => {
+    message = message.replace(new RegExp(`{${placeholder}}`, 'g'), replacements[placeholder]);
+  });
+
+  return message;
+}
