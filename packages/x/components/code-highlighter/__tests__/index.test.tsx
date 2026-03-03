@@ -380,6 +380,17 @@ describe('CodeHighlighter', () => {
       });
     });
 
+    it('should render immediate fallback code while language is loading', () => {
+      const { container } = render(
+        <CodeHighlighter lang="javascript" prismLightMode>
+          {`console.log("fallback");`}
+        </CodeHighlighter>,
+      );
+      const codeElement = container.querySelector('code');
+      expect(codeElement).toBeInTheDocument();
+      expect(codeElement?.textContent).toContain('console.log("fallback");');
+    });
+
     it('should render Suspense fallback when prismLightMode=false', async () => {
       const { container } = render(
         <CodeHighlighter lang="javascript" prismLightMode={false}>
