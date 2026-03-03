@@ -1,5 +1,5 @@
 import type { BubbleListProps } from '@ant-design/x';
-import { Bubble, Sender } from '@ant-design/x';
+import { Bubble, FileCard, Sender } from '@ant-design/x';
 import { AbstractChatProvider, useXChat, XRequest, XRequestOptions } from '@ant-design/x-sdk';
 import { Button, Flex } from 'antd';
 import React from 'react';
@@ -132,16 +132,8 @@ const role: BubbleListProps['role'] = {
           {content.attachments && content.attachments.length > 0 && (
             <div style={{ marginTop: content.content ? 8 : 0 }}>
               {content.attachments.map((attachment, index) => (
-                <div key={index} style={{ marginBottom: 4 }}>
-                  <a
-                    href={attachment.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: '#1890ff', textDecoration: 'underline' }}
-                  >
-                    📎 {attachment.name}
-                    {attachment.size && ` (${(attachment.size / 1024).toFixed(1)}KB)`}
-                  </a>
+                <div key={index} style={{ marginBottom: 8 }}>
+                  <FileCard type="file" name={attachment.name} />
                 </div>
               ))}
             </div>
@@ -186,10 +178,6 @@ const useLocale = () => {
     editSystemMessage: isCN ? '编辑系统消息' : 'Edit a system message',
     editUserMessage: isCN ? '编辑用户消息' : 'Edit a user message',
     editAIResponse: isCN ? '编辑AI回复' : 'Edit an AI response',
-    customProviderTitle: isCN ? '自定义Provider示例' : 'Custom Provider Example',
-    customProviderDesc: isCN
-      ? '这是一个使用自定义Provider的示例，展示了如何继承AbstractChatProvider来实现自定义的数据处理逻辑。'
-      : 'This is an example using a custom provider, demonstrating how to extend AbstractChatProvider to implement custom data processing logic.',
   };
 };
 
