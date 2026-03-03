@@ -2,11 +2,9 @@ import type { GenerateStyle } from '../../theme/interface';
 import type { BubbleToken } from './bubble';
 
 const genBubbleListStyle: GenerateStyle<BubbleToken> = (token) => {
-  const { componentCls, padding } = token;
+  const { componentCls } = token;
   return {
     [`${componentCls}-list`]: {
-      display: 'flex',
-      gap: padding,
       maxHeight: '100%',
       width: '100%',
       boxSizing: 'border-box',
@@ -27,6 +25,7 @@ const genBubbleListStyle: GenerateStyle<BubbleToken> = (token) => {
       [`${componentCls}-list-scroll-box`]: {
         overflowY: 'auto',
         display: 'flex',
+        width: '100%',
         maxHeight: '100%',
         flexDirection: 'column',
         scrollbarWidth: 'thin',
