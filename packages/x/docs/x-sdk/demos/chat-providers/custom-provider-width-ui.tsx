@@ -14,12 +14,26 @@ interface CustomInput {
 }
 
 interface CustomOutput {
-  data: string;
+  data: {
+    content: string;
+    attachments?: {
+      name: string;
+      url: string;
+      type: string;
+      size?: number;
+    }[];
+  };
 }
 
 interface CustomMessage {
   content: string;
   role: 'user' | 'assistant' | 'system';
+  attachments?: {
+    name: string;
+    url: string;
+    type: string;
+    size?: number;
+  }[];
 }
 
 // 自定义Provider实现：继承AbstractChatProvider实现自定义聊天逻辑
@@ -63,19 +77,36 @@ class CustomProvider<
     // Handle completion marker or empty data
     if (!chunk || !chunk?.data || chunk?.data?.includes('[DONE]')) {
       return {
-        content: `${originMessage?.content}`,
+        content: originMessage?.content || '',
         role: 'assistant',
+        attachments: originMessage?.attachments || [],
       } as ChatMessage;
     }
 
     try {
       // 处理流式数据：解析JSON格式
       // Process streaming data: parse JSON format
-      const chunkJson = JSON.parse(chunk.data);
+      const data = JSON.parse(chunk.data);
       const content = originMessage?.content || '';
+
+      // 合并附件信息，避免数据丢失
+      // Merge attachment information to avoid data loss
+      const existingAttachments = originMessage?.attachments || [];
+      const newAttachments: CustomMessage['attachments'] = data.attachments || [];
+      const mergedAttachments = [...existingAttachments];
+
+      // 只添加新的附件，避免重复
+      // Only add new attachments to avoid duplicates
+      newAttachments?.forEach((newAttach: NonNullable<CustomMessage['attachments']>[0]) => {
+        if (!mergedAttachments.some((existing) => existing.url === newAttach.url)) {
+          mergedAttachments.push(newAttach);
+        }
+      });
+
       return {
-        content: `${content}${chunkJson.data || ''}`,
+        content: `${content}${data.content || ''}`,
         role: 'assistant',
+        attachments: mergedAttachments,
       } as ChatMessage;
     } catch (_error) {
       // 如果解析失败，直接使用原始数据
@@ -83,6 +114,7 @@ class CustomProvider<
       return {
         content: `${originMessage?.content || ''}${chunk.data || ''}`,
         role: 'assistant',
+        attachments: originMessage?.attachments || [],
       } as ChatMessage;
     }
   }
@@ -94,19 +126,40 @@ const role: BubbleListProps['role'] = {
   assistant: {
     placement: 'start',
     contentRender(content: CustomMessage) {
-      return (content as any)?.content;
+      return (
+        <div>
+          {content.content && <div>{content.content}</div>}
+          {content.attachments && content.attachments.length > 0 && (
+            <div style={{ marginTop: content.content ? 8 : 0 }}>
+              {content.attachments.map((attachment, index) => (
+                <div key={index} style={{ marginBottom: 4 }}>
+                  <a
+                    href={attachment.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#1890ff', textDecoration: 'underline' }}
+                  >
+                    📎 {attachment.name}
+                    {attachment.size && ` (${(attachment.size / 1024).toFixed(1)}KB)`}
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
     },
   },
   user: {
     placement: 'end',
     contentRender(content: CustomMessage) {
-      return (content as any)?.content;
+      return content.content;
     },
   },
   system: {
     variant: 'borderless', // 无边框样式
     contentRender(content: CustomMessage) {
-      return content?.content;
+      return content.content;
     },
   },
 };
@@ -148,7 +201,7 @@ const App = () => {
   // Use custom provider: create custom chat provider instance
   const [provider] = React.useState(
     new CustomProvider<CustomMessage, CustomInput, CustomOutput>({
-      request: XRequest('https://api.x.ant.design/api/custom_chat_provider_stream', {
+      request: XRequest('https://api.x.ant.design/api/attachment_stream', {
         manual: true,
         params: {
           stream: true,
@@ -220,6 +273,7 @@ const App = () => {
     });
   };
 
+  console.log(messages, 'messages');
   return (
     <Flex vertical gap="middle">
       <div>
