@@ -70,13 +70,13 @@ x-skill -v
 
 ```bash
 # Install latest stable version
-npx x-skill
+x-skill
 
 # Install specific version to ensure compatibility
-npx x-skill --tag 2.3.0
+x-skill --tag 2.3.0
 
 # View help information
-npx x-skill --help
+x-skill --help
 ```
 
 ### Method 2: Claude Code Integration

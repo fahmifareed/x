@@ -70,13 +70,13 @@ x-skill -v
 
 ```bash
 # 安装最新稳定版本
-npx x-skill
+x-skill
 
 # 安装指定版本确保兼容性
-npx x-skill --tag 2.3.0
+x-skill --tag 2.3.0
 
 # 查看帮助信息
-npx x-skill --help
+x-skill --help
 ```
 
 ### 方式二：Claude Code 集成
