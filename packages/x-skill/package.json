@@ -32,7 +32,7 @@
     "pretest": "npm run prestart",
     "start": "father build && node bin/index.js",
     "prestart": "npm run version",
-    "lint": "biome lint bin/",
+    "lint": "biome lint src/",
     "tsc": "tsc --noEmit"
   },
   "sideEffects": true,
