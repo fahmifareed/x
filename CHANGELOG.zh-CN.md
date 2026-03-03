@@ -15,6 +15,103 @@ tag: vVERSION
 
 ---
 
+## 2.3.0
+
+`2026-02-26`
+
+### @ant-design/x
+
+- 🆕 Conversation 的 onActiveChange 回调现在同时返回被激活的项及其键值，同时更新 useMergedState 为 useControlledState。[#1762](https://github.com/ant-design/x/pull/1762) 由 [kimteayon](https://github.com/kimteayon) 提交
+- 🐛 优化 Sender 禁用状态按钮的视觉表现，统一添加透明边框处理，确保不同按钮变体在禁用时的外观一致。[#1751](https://github.com/ant-design/x/pull/1751) 由 [Rain120](https://github.com/Rain120) 提交
+
+### @ant-design/x-markdown
+
+- 🆕 XMarkdown 新增 escapeRawHtml 属性，允许用户在渲染时选择是否对原始 HTML 进行转义。[#1769](https://github.com/ant-design/x/pull/1769) 由 [Div627](https://github.com/Div627) 提交
+- 🐛 修复 XMarkdown 列表中遇到未闭合行内代码时的渲染，确保列表标记在特殊未闭合情况仍被保留。[#1739](https://github.com/ant-design/x/pull/1739) 由 [Div627](https://github.com/Div627) 提交
+- 🐛 改进了块级 LaTeX 公式的解析，对结尾处的空白与缩进处理更宽容，提升了对不同行尾格式的兼容性，减少误判与渲染问题。[#1744](https://github.com/ant-design/x/pull/1744) 由 [Waiter](https://github.com/Waiter) 提交
+- 🐛 优化深色模式 CodeHighlighter，Mermaid 插件样式问题。[#1766](https://github.com/ant-design/x/pull/1766) 由 [menghany](https://github.com/menghany) 提交
+
+### @ant-design/x-sdk
+
+- 🆕 useXChat 新增 queueRequest 方法，实现 ConversationKey 和 SessionId 的初始化消息发送。[#1761](https://github.com/ant-design/x/pull/1761) 由 [kimteayon](https://github.com/kimteayon) 提交
+
+### @ant-design/x-skill
+
+- 🆕 新增 skill 安装指令，同时发布 use-x-chat、x-chat-provider、x-request 三个 skill。[#1753](https://github.com/ant-design/x/pull/1768)、[#1767](https://github.com/ant-design/x/pull/1767) 由 [kimteayon](https://github.com/kimteayon) 提交
+
+### 其他
+
+- 🛠 修复了因依赖升级导致的构建错误问题。 [#1754](https://github.com/ant-design/x/pull/1754) 由 [kimteayon](https://github.com/kimteayon) 提交
+- 🛠 解决 CodeSandbox 预览中 domhandler 的 ModuleNotFoundError 错误。[#1754](https://github.com/ant-design/x/pull/1754) 由 [Div627](https://github.com/Div627) 提交
+
+## 2.2.2
+
+`2026-02-06`
+
+### @ant-design/x
+
+- 🛠 修复一些文档和类型来支持 AI Coding。[#1733](https://github.com/ant-design/x/pull/1733) 由 [kimteayon](https://github.com/kimteayon) 提交
+- 💄 修复 Bubble.List 样式和语义化问题。[#1731](https://github.com/ant-design/x/pull/1731) 由 [anxLiang](https://github.com/anxLiang) 提交
+- 🐛 修复 Sender 插入节点配置了 replaceCharacters 时的替换问题。[#1727](https://github.com/ant-design/x/pull/1727) 由 [kimteayon](https://github.com/kimteayon) 提交
+
+## 2.2.1
+
+`2026-01-30`
+
+### @ant-design/x
+
+- 💄 修复 Bubble.List 样式问题。[#1713](https://github.com/ant-design/x/pull/1713) 由 [anxLiang](https://github.com/anxLiang) 提交、[#1704](https://github.com/ant-design/x/pull/1704) 由 [anxLiang](https://github.com/anxLiang) 提交
+- 🐛 修复因其他三方依赖 `esm` 路径导致 Node 环境构建报错问题。[#1708](https://github.com/ant-design/x/pull/1708) 由 [kimteayon](https://github.com/kimteayon) 提交
+
+### @ant-design/x-markdown
+
+- 🐛 修复流式渲染缓存失效问题，当列表项包含行内代码（如 - \code\`\` ）时，缓存会提前提交导致渲染异常。[#1709](https://github.com/ant-design/x/pull/1709) 由 [Div627](https://github.com/Div627) 提交
+- 🆕 自定义代码渲染支持接受语言信息。[#1705](https://github.com/ant-design/x/pull/1705) 由 [Aarebecca](https://github.com/Aarebecca) 提交
+
+### @ant-design/x-sdk
+
+- 🆕 XRequest 与 Chat Provider 一起使用时会额外获取到组装好的 message。[#1714](https://github.com/ant-design/x/pull/1714) 由 [kimteayon](https://github.com/kimteayon) 提交
+
+### 其他
+
+- 📖 优化官网站点提升用户体验。[#1717](https://github.com/ant-design/x/pull/1717) 由 [kimteayon](https://github.com/kimteayon) 提交、[#1707](https://github.com/ant-design/x/pull/1707) 由 [Div627](https://github.com/Div627) 提交
+
+## 2.2.0
+
+`2026-01-26`
+
+### @ant-design/x
+
+- Sender
+  - 🐛 修复光标在技能位置时插入位置错误问题。[#1633](https://github.com/ant-design/x/pull/1633) 由 [IsDyh01](https://github.com/IsDyh01) 提交
+  - 🛠 重构插入节点位置能力，同时重写测试用例。[#1612](https://github.com/ant-design/x/pull/1612) 由 [kimteayon](https://github.com/kimteayon) 提交
+- XProvider
+  - 🐛 修复设置 `iconPrefixCls` 不生效问题。[#1656](https://github.com/ant-design/x/pull/1656) 由 [kimteayon](https://github.com/kimteayon) 提交
+  - 🐛 修复设置 `prefix` 不生效问题。[#1642](https://github.com/ant-design/x/pull/1642) 由 [kimteayon](https://github.com/kimteayon) 提交
+  - 🐛 修复 `layer` 设置问题。 [#1616](https://github.com/ant-design/x/pull/1616) 由 [kimteayon](https://github.com/kimteayon) 提交
+- 🐛 修复因强制 `antd` 依赖 `es` 路径导致 Node 环境构建报错问题。[#1645](https://github.com/ant-design/x/pull/1645) 由 [kimteayon](https://github.com/kimteayon) 提交
+- 🐛 修复 ThoughtChain 布局导致动画卡顿问题。[#1641](https://github.com/ant-design/x/pull/1641) 由 [IsDyh01](https://github.com/IsDyh01) 提交
+- 🐛 修复 Think 布局导致动画卡顿问题。[#1636](https://github.com/ant-design/x/pull/1636) 由 [IsDyh01](https://github.com/IsDyh01) 提交
+- 🐛 修复 Sources 设置了位置但无法定位内容问题。 [#1683](https://github.com/ant-design/x/pull/1683) 由 [kimteayon](https://github.com/kimteayon) 提交
+- 🐛 修复 Bubble.List 内部高度变化滚动条变化错误问题。[#1690](https://github.com/ant-design/x/pull/1690) 由 [anxLiang](https://github.com/anxLiang) 提交
+- 🆕 新增 Mermaid 设置初始化配置和操作栏功能。[#1631](https://github.com/ant-design/x/pull/1631) 由 [Div627](https://github.com/Div627) 提交
+- 🆕 新增 Attachments 设置卡片类型能力。[#1610](https://github.com/ant-design/x/pull/1610) 由 [kimteayon](https://github.com/kimteayon) 提交
+
+### @ant-design/x-sdk
+
+- 🆕 XRequest 新增重连接能力。[#1629](https://github.com/ant-design/x/pull/1629) 由 [hylin](https://github.com/hylin) 提交
+- 🆕 XRequest 和 XStream 支持流数据解析引入了可配置的分隔符 `streamSeparator`、`partSeparator`、`kvSeparator` 能力，同时为 TextDecoderStream 添加了 polyfill 以提高兼容性，修复了 undefined 值被添加到流结果中的问题。 [#1611](https://github.com/ant-design/x/pull/1611) 由 [kimteayon](https://github.com/kimteayon) 提交
+
+### @ant-design/x-markdown
+
+- 🆕 增强 XMarkdown 解析器，使其支持带占位符保护的自定义组件。[#1668](https://github.com/ant-design/x/pull/1668) 由 [yanghuanrong](https://github.com/yanghuanrong) 提交
+- 🆕 新增 XMarkdown 基于 Playwright Component Testing 实现流式 Markdown 渲染的性能基准测试能力。[#1314](https://github.com/ant-design/x/pull/1314) 由 [Div627](https://github.com/Div627) 提交
+- 🆕 新增 XMarkdown 流式语法对行内代码缓存的功能。[#1630](https://github.com/ant-design/x/pull/1630) 由 [Div627](https://github.com/Div627) 提交
+
+### 其他
+
+- 📖 优化官网站点提升用户体验。[#1675](https://github.com/ant-design/x/pull/1675) 由 [hongxuWei](https://github.com/hongxuWei) 提交、[#1644](https://github.com/ant-design/x/pull/1644) 由 [kimteayon](https://github.com/kimteayon) 提交、[#1658](https://github.com/ant-design/x/pull/1658) 由 [kimteayon](https://github.com/kimteayon) 提交、[#1646](https://github.com/ant-design/x/pull/1646) 由 [kimteayon](https://github.com/kimteayon) 提交、[#1651](https://github.com/ant-design/x/pull/1651) 由 [kimteayon](https://github.com/kimteayon) 提交、[#1650](https://github.com/ant-design/x/pull/1650) 由 [Div627](https://github.com/Div627) 提交、[#1635](https://github.com/ant-design/x/pull/1635) 由 [IsDyh01](https://github.com/IsDyh01) 提交、[#1627](https://github.com/ant-design/x/pull/1627) 由 [Alexzjt](https://github.com/Alexzjt) 提交、[#1615](https://github.com/ant-design/x/pull/1615) 由 [Yx0201](https://github.com/Yx0201) 提交
+
 ## 2.1.3
 
 `2026-01-04`
