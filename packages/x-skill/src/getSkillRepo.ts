@@ -162,15 +162,18 @@ class SkillLoader {
   async downloadDirectory(url: string, destPath: string): Promise<void> {
     let apiUrl: string;
 
-    if (url.includes('raw.githubusercontent.com')) {
-      const match = url.match(/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)/);
-      if (!match) throw new Error('Invalid raw GitHub URL format');
-      const [, owner, repo, ref, path] = match;
-      apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    const urlObj = new URL(url);
+
+    if (urlObj.hostname === 'raw.githubusercontent.com') {
+      const pathParts = urlObj.pathname.split('/').filter(Boolean);
+      if (pathParts.length < 4) throw new Error('Invalid raw GitHub URL format');
+      const [owner, repo, ref, ...pathPartsRest] = pathParts;
+      const filePath = pathPartsRest.join('/');
+      apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
       if (ref !== 'main' && ref !== 'master') {
         apiUrl += `?ref=${ref}`;
       }
-    } else if (url.includes('api.github.com')) {
+    } else if (urlObj.hostname === 'api.github.com') {
       apiUrl = url;
     } else {
       throw new Error('Unsupported URL format');
