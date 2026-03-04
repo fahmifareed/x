@@ -1,4 +1,4 @@
-import SkillMeta from '@ant-design/x-skill/bin/skill-meta.json';
+import SkillMeta from '@ant-design/x-skill/skill-meta.json';
 import { Empty, Flex, List, Spin, Tag, Typography } from 'antd';
 import { createStyles, css } from 'antd-style';
 import React, { useMemo } from 'react';
