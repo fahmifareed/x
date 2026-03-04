@@ -51,9 +51,14 @@ function extractSkillMetadata(skillName: string): SkillMetadata | null {
   const skillFileEn = path.join(SKILL_ROOT_EN, skillName, 'SKILL.md');
   const skillFileZh = path.join(SKILL_ROOT_ZH, skillName, 'SKILL.md');
 
+  // 从package.json读取版本号
+  const packageJsonPath = path.join(__dirname, '../package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const packageVersion = packageJson.version;
+
   let descEn = '';
   let descZh = '';
-  let version = '2.3.0-beta.1';
+  let version = packageVersion;
   let name = skillName;
 
   // 读取英文描述
@@ -120,7 +125,7 @@ function extractSkillMetadata(skillName: string): SkillMetadata | null {
   return {
     skill: skillName,
     name: name || skillName,
-    version: version || '2.3.0-beta.1',
+    version: version || packageVersion,
     desc: descEn,
     descZh: descZh || descEn,
     tags,

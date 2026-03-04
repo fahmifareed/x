@@ -182,12 +182,15 @@ class SkillLoader {
     const contents = (await this.makeRequest(apiUrl)) as GitHubContent[];
 
     for (const item of contents) {
+      // 使用path.basename()清理文件名，防止路径遍历攻击
+      const safeName = path.basename(item.name);
+
       if (item.type === 'file') {
         const fileContent = await this.downloadFile(item.download_url!);
-        const filePath = path.join(destPath, item.name);
+        const filePath = path.join(destPath, safeName);
         fs.writeFileSync(filePath, fileContent);
       } else if (item.type === 'dir') {
-        const subDirPath = path.join(destPath, item.name);
+        const subDirPath = path.join(destPath, safeName);
         fs.mkdirSync(subDirPath, { recursive: true });
         await this.downloadDirectory(item.url!, subDirPath);
       }
@@ -406,8 +409,10 @@ class SkillLoader {
 
     const items = fs.readdirSync(src, { withFileTypes: true });
     for (const item of items) {
-      const srcPath = path.join(src, item.name);
-      const destPath = path.join(dest, item.name);
+      // 使用path.basename()清理文件名，防止路径遍历攻击
+      const safeName = path.basename(item.name);
+      const srcPath = path.join(src, safeName);
+      const destPath = path.join(dest, safeName);
 
       if (item.isDirectory()) {
         this.copyDirectorySync(srcPath, destPath);
