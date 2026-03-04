@@ -8,8 +8,6 @@ order: 1
 description: Display a predefined set of questions or suggestion.
 cover: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*UfhXRamlAf0AAAAAAAAAAAAADgCCAQ/original
 coverDark: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*3CN5RLKP0X4AAAAAAAAAAAAADgCCAQ/original
-demo:
-  cols: 1
 ---
 
 ## When To Use
@@ -44,12 +42,6 @@ The Prompts component is used to display a predefined set of questions or sugges
 | onItemClick | Callback function when a prompt item is clicked. | (info: { data: PromptProps }) => void | - | - |
 | fadeIn | Fade in effect | boolean | - | - |
 | fadeInLeft | Fade left in effect | boolean | - | - |
-
-#### SemanticType
-
-```typescript | pure
-type SemanticType = 'list' | 'item' | 'content' | 'title' | 'subList' | 'subItem';
-```
 
 ### PromptProps
 

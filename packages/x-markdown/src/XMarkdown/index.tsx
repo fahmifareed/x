@@ -1,7 +1,7 @@
-import classnames from 'classnames';
+import { clsx } from 'clsx';
 import React, { useMemo } from 'react';
-import useXProviderContext from '../hooks/use-x-provider-context';
 import { Parser, Renderer } from './core';
+import DebugPanel from './DebugPanel';
 import { useStreaming } from './hooks';
 import { XMarkdownProps } from './interface';
 import './index.css';
@@ -14,11 +14,13 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
     content,
     children,
     rootClassName,
-    prefixCls: customizePrefixCls,
     className,
     style,
     openLinksInNewTab,
     dompurifyConfig,
+    protectCustomTagNewlines,
+    escapeRawHtml,
+    debug,
     footer,
   } = props;
 
@@ -32,23 +34,11 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
   }, [footer, props?.components]);
 
   // ============================ style ============================
-  const { direction: contextDirection, getPrefixCls } = useXProviderContext();
-
-  const prefixCls = getPrefixCls('x-markdown', customizePrefixCls);
-
-  const mergedCls = classnames(prefixCls, 'x-markdown', rootClassName, className);
-
-  const mergedStyle: React.CSSProperties = useMemo(
-    () => ({
-      direction: contextDirection === 'rtl' ? 'rtl' : 'ltr',
-      ...style,
-    }),
-    [contextDirection, style],
-  );
+  const mergedCls = clsx('x-markdown', rootClassName, className);
 
   // ============================ Streaming ============================
-  const output = useStreaming(content || children || '', streaming);
 
+  const output = useStreaming(content || children || '', { streaming, components });
   const displayContent = useMemo(() => {
     if (streaming?.hasNextChunk) {
       return output + '<xmd-footer></xmd-footer>';
@@ -56,20 +46,26 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
 
     return !footer ? output : output.replace(/<xmd-footer><\/xmd-footer>/g, '') || '';
   }, [streaming?.hasNextChunk, output, footer]);
-
   // ============================ Render ============================
-  const parser = new Parser({
-    markedConfig: config,
-    paragraphTag,
-    openLinksInNewTab,
-    configureRenderCleaner: (code: string, type) => {
-      if (type === 'code') {
-        return !footer ? code : code.replace(/<xmd-footer><\/xmd-footer>/g, '') || '';
-      }
+  const parser = useMemo(
+    () =>
+      new Parser({
+        markedConfig: config,
+        paragraphTag,
+        openLinksInNewTab,
+        components,
+        protectCustomTagNewlines,
+        escapeRawHtml,
+        configureRenderCleaner: (code: string, type) => {
+          if (type === 'code') {
+            return !footer ? code : code.replace(/<xmd-footer><\/xmd-footer>/g, '') || '';
+          }
 
-      return code;
-    },
-  });
+          return code;
+        },
+      }),
+    [config, paragraphTag, openLinksInNewTab, components, protectCustomTagNewlines, escapeRawHtml],
+  );
 
   const renderer = useMemo(
     () =>
@@ -94,9 +90,12 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
   }
 
   return (
-    <div className={mergedCls} style={mergedStyle}>
-      {renderer.render(htmlString)}
-    </div>
+    <>
+      <div className={mergedCls} style={style}>
+        {renderer.render(htmlString)}
+      </div>
+      {debug ? <DebugPanel /> : null}
+    </>
   );
 });
 

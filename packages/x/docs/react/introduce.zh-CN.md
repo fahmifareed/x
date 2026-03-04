@@ -4,7 +4,7 @@ title: Ant Design X
 subtitle: ｜AI界面解决方案
 ---
 
-Ant Design X 是一款AI应用复合工具集，融合了 UI 组件库、流式 Markdown 渲染引擎和 AI SDK，为开发者提供构建下一代 AI 驱动应用的完整工具链。
+Ant Design X 是一款 AI 应用复合工具集，融合了 UI 组件库、流式 Markdown 渲染引擎和 AI SDK，为开发者提供构建下一代 AI 驱动应用的完整工具链。
 
 **`@ant-design/x` - 智能界面构建框架**
 
@@ -17,6 +17,10 @@ Ant Design X 是一款AI应用复合工具集，融合了 UI 组件库、流式 
 **`@ant-design/x-sdk` - AI 对话数据流管理**
 
 提供完整的工具 API 集合、开箱即用的 AI 对话应用数据流管理、简化开发流程，提升开发效率。查看详情请点击[这里](/x-sdks/introduce-cn)。
+
+**`@ant-design/x-skill` - 智能技能库**
+
+是专为 Ant Design X 打造的智能技能库，提供了一系列精心设计的 Agent 技能。这些技能能够显著提升开发效率，帮助您快速构建高质量的 AI 对话应用，并有效解决开发过程中遇到的各种问题，详情点击[这里](/x-skills/introduce-cn)。
 
 <div class="pic-plus">
   <img width="150" src="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*eco6RrQhxbMAAAAAAAAAAAAADgCCAQ/original"/>

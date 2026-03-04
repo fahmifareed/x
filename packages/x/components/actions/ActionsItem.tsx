@@ -1,7 +1,7 @@
 import { CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons';
+import pickAttrs from '@rc-component/util/lib/pickAttrs';
 import { Tooltip } from 'antd';
-import classnames from 'classnames';
-import pickAttrs from 'rc-util/lib/pickAttrs';
+import { clsx } from 'clsx';
 import React from 'react';
 import { useXProviderContext } from '../x-provider';
 import useStyle from './style';
@@ -24,6 +24,7 @@ export enum ACTIONS_ITEM_STATUS {
    */
   DEFAULT = 'default',
 }
+type SemanticType = 'root' | 'default' | 'running' | 'error' | 'loading';
 
 export interface ActionsItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   /**
@@ -57,15 +58,27 @@ export interface ActionsItemProps extends Omit<React.HTMLAttributes<HTMLDivEleme
    * @descEN Root node style class.
    */
   rootClassName?: string;
+  /**
+   * @desc 语义化结构 className
+   * @descEN Semantic structure class names
+   */
+  classNames?: Partial<Record<SemanticType, string>>;
+  /**
+   * @desc 语义化结构 style
+   * @descEN Semantic structure styles
+   */
+  styles?: Partial<Record<SemanticType, React.CSSProperties>>;
 }
 
 const ActionsItem: React.FC<ActionsItemProps> = (props) => {
   const {
-    status = ACTIONS_ITEM_STATUS.DEFAULT,
+    status = 'default',
     defaultIcon,
     runningIcon,
     label,
     className,
+    classNames = {},
+    styles = {},
     style,
     prefixCls: customizePrefixCls,
     rootClassName,
@@ -88,15 +101,18 @@ const ActionsItem: React.FC<ActionsItemProps> = (props) => {
 
   // ============================ Classname ============================
 
-  const mergedCls = classnames(
+  const mergedCls = clsx(
     itemCls,
     hashId,
     cssVarCls,
     rootClassName,
     className,
+    classNames.root,
+    prefixCls,
     `${prefixCls}-item`,
     {
       [`${itemCls}-rtl`]: direction === 'rtl',
+      [`${classNames[status]}`]: classNames[status],
     },
   );
 
@@ -111,7 +127,11 @@ const ActionsItem: React.FC<ActionsItemProps> = (props) => {
 
   return (
     <Tooltip title={label}>
-      <div {...domProps} className={mergedCls} style={style}>
+      <div
+        {...domProps}
+        className={mergedCls}
+        style={{ ...style, ...styles.root, ...styles?.[status] }}
+      >
         {iconNode}
       </div>
     </Tooltip>

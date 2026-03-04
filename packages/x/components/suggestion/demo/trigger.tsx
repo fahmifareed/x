@@ -2,7 +2,7 @@ import { Suggestion } from '@ant-design/x';
 import { Select } from 'antd';
 import React from 'react';
 
-let uuid = 0;
+let _uuid = 0;
 
 const Demo: React.FC = () => {
   const [tags, setTags] = React.useState<string[]>([]);
@@ -11,10 +11,10 @@ const Demo: React.FC = () => {
   return (
     <Suggestion<string>
       items={(info) => [{ label: `Trigger by '${info}'`, value: String(info) }]}
-      onSelect={(info) => {
-        uuid += 1;
-        setTags([...tags, `Cell_${uuid}`]);
-        setValue(value.replace(info, ''));
+      onSelect={() => {
+        _uuid += 1;
+        setTags([...tags, `Cell_${value.replace(/\//g, '')}`]);
+        setValue('');
       }}
     >
       {({ onTrigger, onKeyDown }) => {
@@ -24,14 +24,14 @@ const Demo: React.FC = () => {
             style={{ width: '100%' }}
             mode="tags"
             open={false}
-            searchValue={value}
-            onChange={(nextTags) => {
-              if (nextTags.length < tags.length) {
-                setTags(nextTags);
-              }
+            showSearch={{
+              searchValue: value,
+              onSearch: (nextVal) => {
+                setValue(nextVal);
+              },
             }}
-            onSearch={(nextVal) => {
-              setValue(nextVal);
+            onChange={(nextTags) => {
+              setTags(nextTags);
             }}
             onKeyDown={(e) => {
               if (e.key === '/' || e.key === '#') {

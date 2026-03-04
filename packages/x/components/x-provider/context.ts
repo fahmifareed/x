@@ -1,25 +1,22 @@
-import type {
-  ConfigProviderProps as AntdConfigProviderProps,
-  ThemeConfig,
-} from 'antd/es/config-provider';
+import type { ConfigProviderProps as AntdConfigProviderProps, ThemeConfig } from 'antd';
 import React from 'react';
 import type { AnyObject, ShortcutKeys } from '../_util/type';
 import type { ActionsProps } from '../actions/interface';
-import { AttachmentsProps } from '../attachments';
+import type { AttachmentsProps } from '../attachments';
 import type { BubbleProps } from '../bubble';
+import type { CodeHighlighterProps } from '../code-highlighter';
 import type { ConversationsProps } from '../conversations';
 import type { FileCardProps } from '../file-card';
 import { Locale } from '../locale';
+import type { MermaidProps } from '../mermaid';
 import type { PromptsProps } from '../prompts';
 import type { SenderProps } from '../sender';
 import type { SourcesProps } from '../sources';
 import type { SuggestionProps } from '../suggestion';
-import { OverrideToken } from '../theme/cssinjs-utils';
-import { MappingAlgorithm } from '../theme/interface';
+import type { MappingAlgorithm, OverrideToken } from '../theme/interface';
 import type { ThinkProps } from '../think';
 import type { ThoughtChainProps } from '../thought-chain';
 import type { WelcomeProps } from '../welcome';
-import { MarkdownComponentsConfig as XMarkdownComponentsConfig } from './XMarkdownComponents';
 
 interface BaseComponentConfig {
   style: React.CSSProperties;
@@ -49,6 +46,8 @@ export interface XComponentsConfig {
   think?: ComponentConfig<ThinkProps>;
   fileCard?: ComponentConfig<FileCardProps>;
   sources?: ComponentConfig<SourcesProps>;
+  codeHighlighter?: ComponentConfig<CodeHighlighterProps>;
+  mermaid?: ComponentConfig<MermaidProps>;
 }
 
 type ComponentsConfig = {
@@ -59,7 +58,6 @@ type ComponentsConfig = {
 
 export interface XProviderProps
   extends XComponentsConfig,
-    XMarkdownComponentsConfig,
     Omit<AntdConfigProviderProps, 'theme' | 'locale'> {
   theme?: Omit<ThemeConfig, 'components'> & {
     components?: ThemeConfig['components'] & ComponentsConfig;

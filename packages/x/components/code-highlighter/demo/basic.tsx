@@ -1,0 +1,55 @@
+import { CodeHighlighter } from '@ant-design/x';
+import React from 'react';
+
+const App: React.FC = () => {
+  const code = `import React from 'react';
+import { Button } from 'antd';
+
+const App = () => (
+  <div>
+    <Button type="primary">Primary Button</Button>
+  </div>
+);
+
+export default App;`;
+
+  return (
+    <div>
+      <h3 style={{ marginBottom: 8 }}>JavaScript Code</h3>
+      <CodeHighlighter lang="javascript">{code}</CodeHighlighter>
+
+      <h3 style={{ margin: '8px 0' }}>CSS Code</h3>
+      <CodeHighlighter lang="css">
+        {`.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}`}
+      </CodeHighlighter>
+
+      <h3 style={{ margin: '8px 0' }}>HTML Code</h3>
+      <CodeHighlighter lang="html">
+        {`<!DOCTYPE html>
+<html>
+<head>
+  <title>My Page</title>
+</head>
+<body>
+  <h1>Hello World</h1>
+</body>
+</html>`}
+      </CodeHighlighter>
+
+      <h3 style={{ margin: '8px 0' }}>Prism Light Mode</h3>
+      <p style={{ marginBottom: 8, color: '#666' }}>
+        使用 <code>prismLightMode</code> 属性启用轻量模式，按需加载语言支持，可显著减少打包体积。
+      </p>
+      <CodeHighlighter lang="javascript" prismLightMode>
+        {code}
+      </CodeHighlighter>
+    </div>
+  );
+};
+
+export default App;

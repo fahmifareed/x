@@ -1,16 +1,16 @@
 import { unit } from '@ant-design/cssinjs';
-import type { GenerateStyle } from '../../theme/cssinjs-utils';
+import type { GenerateStyle } from '../../theme/interface';
 import type { BubbleToken } from './bubble';
 
 export const genSystemBubbleStyle: GenerateStyle<BubbleToken> = (token) => {
   const { componentCls, paddingSM, paddingXS, lineHeight, fontSize, fontSizeSM, calc } = token;
   return {
     [componentCls]: {
-      '&-system': {
+      [`&${componentCls}-system`]: {
         width: '100%',
         justifyContent: 'center',
 
-        [`& ${componentCls}-content`]: {
+        [`${componentCls}-content`]: {
           display: 'flex',
           gap: `${unit(fontSizeSM)}`,
           alignItems: 'center',
@@ -20,9 +20,9 @@ export const genSystemBubbleStyle: GenerateStyle<BubbleToken> = (token) => {
           paddingBlock: `${unit(paddingXS)}`,
         },
 
-        [`& ${componentCls}-system-content`]: {},
+        [`${componentCls}-system-content`]: {},
 
-        [`& ${componentCls}-system-extra`]: {},
+        [`${componentCls}-system-extra`]: {},
       },
     },
   };

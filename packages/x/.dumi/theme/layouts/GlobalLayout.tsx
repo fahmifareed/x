@@ -104,7 +104,7 @@ const GlobalLayout: React.FC = () => {
     }
   }, [theme.length, isIndexPage]);
 
-  const [alertVisible, setAlertVisible] = useState(!pathname?.includes?.('~demos'));
+  const [alertVisible, setAlertVisible] = useState(false);
 
   useEffect(() => {
     const _theme = searchParams.getAll('theme') as ThemeName[];
@@ -144,7 +144,6 @@ const GlobalLayout: React.FC = () => {
       // index page should always use dark theme
       algorithm: isIndexPage ? getAlgorithm(['dark']) : getAlgorithm(theme),
       token: { motion: !theme.includes('motion-off') },
-      hashed: false,
     }),
     [theme, pathname, isIndexPage],
   );
@@ -193,7 +192,7 @@ const GlobalLayout: React.FC = () => {
       >
         <SiteContext value={siteContextValue}>
           <SiteThemeProvider theme={themeConfig}>
-            {alertVisible && (
+            {alertVisible && !pathname?.includes?.('~demos') && (
               <Alert
                 onClose={() => {
                   setAlertVisible(false);

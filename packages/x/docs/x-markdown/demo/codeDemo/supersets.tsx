@@ -1,9 +1,8 @@
+import { CodeHighlighter, Mermaid } from '@ant-design/x';
 import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
-import HighlightCode from '@ant-design/x-markdown/plugins/HighlightCode';
 import Latex from '@ant-design/x-markdown/plugins/Latex';
-import Mermaid from '@ant-design/x-markdown/plugins/Mermaid';
+import { theme } from 'antd';
 import React from 'react';
-import { useMarkdownTheme } from '../_utils';
 import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
 
@@ -31,11 +30,12 @@ const Code: React.FC<ComponentProps> = (props) => {
   if (lang === 'mermaid') {
     return <Mermaid>{children}</Mermaid>;
   }
-  return <HighlightCode lang={lang}>{children}</HighlightCode>;
+  return <CodeHighlighter lang={lang}>{children}</CodeHighlighter>;
 };
 
 const App: React.FC = () => {
-  const [className] = useMarkdownTheme();
+  const { theme: antdTheme } = theme.useToken();
+  const className = antdTheme.id === 0 ? 'x-markdown-light' : 'x-markdown-dark';
 
   return (
     <XMarkdown

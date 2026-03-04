@@ -1,12 +1,9 @@
 import { Bubble } from '@ant-design/x';
 import XMarkdown from '@ant-design/x-markdown';
-import { Button, Flex, Space, Switch, Typography } from 'antd';
+import { Button, Flex, Space, Switch, Typography, theme } from 'antd';
 import React from 'react';
-import { useMarkdownTheme } from '../_utils';
 import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
-
-const { Text } = Typography;
 
 const text = `
 # Ant Design X: The Ultimate AI Conversation UI Framework
@@ -61,63 +58,93 @@ Based on the RICH interaction paradigm, we provide many atomic components for di
 > Ant Design X is more than just a component library—it's a complete solution for building the next generation of AI-powered applications. Start building today and create experiences that delight your users.
 `;
 
+const { Text } = Typography;
+
 const App = () => {
   const [enableAnimation, setEnableAnimation] = React.useState(true);
-  const [hasNextChunk, setHasNextChunk] = React.useState(false);
-  const [className] = useMarkdownTheme();
+  const [enableDebug, setEnableDebug] = React.useState(true);
+  const [hasNextChunk, setHasNextChunk] = React.useState(true);
+  const { theme: antdTheme } = theme.useToken();
+  const className = antdTheme.id === 0 ? 'x-markdown-light' : 'x-markdown-dark';
   const [index, setIndex] = React.useState(0);
-  const timer = React.useRef<any>(-1);
+  const timer = React.useRef<NodeJS.Timeout | null>(null);
+  const contentRef = React.useRef<HTMLDivElement>(null);
 
-  const renderStream = () => {
+  React.useEffect(() => {
     if (index >= text.length) {
-      clearTimeout(timer.current);
       setHasNextChunk(false);
       return;
     }
+
     timer.current = setTimeout(() => {
-      setIndex((prev) => prev + 2);
-      renderStream();
-    }, 30);
-  };
+      setIndex(Math.min(index + 5, text.length));
+    }, 20);
 
-  React.useEffect(() => {
-    if (index === text.length) return;
-
-    setHasNextChunk(true);
-    renderStream();
     return () => {
-      clearTimeout(timer.current);
+      if (timer.current) {
+        clearTimeout(timer.current);
+        timer.current = null;
+      }
     };
   }, [index]);
 
+  React.useEffect(() => {
+    if (contentRef.current && index > 0 && index < text.length) {
+      const { scrollHeight, clientHeight } = contentRef.current;
+      if (scrollHeight > clientHeight) {
+        contentRef.current.scrollTo({
+          top: scrollHeight,
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, [index]);
+
   return (
-    <Flex style={{ width: '100%' }} vertical gap="small">
-      <Space align="center" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+    <div style={{ height: 400, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Space
+        align="center"
+        style={{ display: 'flex', justifyContent: 'flex-end', flexShrink: 0, marginBottom: 8 }}
+        wrap
+      >
         <Space>
           <Text>Animation</Text>
           <Switch checked={enableAnimation} onChange={setEnableAnimation} />
         </Space>
-
-        <Button onClick={() => setIndex(0)}>Re-Render</Button>
+        <Space>
+          <Text>Debug panel</Text>
+          <Switch checked={enableDebug} onChange={setEnableDebug} />
+        </Space>
+        <Button
+          onClick={() => {
+            setIndex(0);
+            setHasNextChunk(true);
+          }}
+        >
+          Re-Render
+        </Button>
       </Space>
 
-      <Bubble
-        style={{ width: '100%' }}
-        styles={{
-          body: { width: '100%' },
-        }}
-        variant="borderless"
-        content={text.slice(0, index)}
-        className={className}
-        contentRender={(content) => (
-          <XMarkdown
-            streaming={{ enableAnimation, hasNextChunk, animationConfig: { fadeDuration: 400 } }}
-          >
-            {content}
-          </XMarkdown>
-        )}
-      />
-    </Flex>
+      <Flex vertical style={{ flex: 1, minHeight: 0, overflow: 'auto' }} ref={contentRef}>
+        <Bubble
+          style={{ width: '100%' }}
+          styles={{
+            body: { width: '100%' },
+          }}
+          variant="borderless"
+          content={text.slice(0, index)}
+          className={className}
+          contentRender={(content) => (
+            <XMarkdown
+              debug={enableDebug}
+              streaming={{ enableAnimation, hasNextChunk, animationConfig: { fadeDuration: 400 } }}
+            >
+              {content}
+            </XMarkdown>
+          )}
+        />
+      </Flex>
+    </div>
   );
 };
 

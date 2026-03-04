@@ -7,8 +7,6 @@ title: Bubble
 description: A bubble component for chat.
 cover: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*rHIYQIL1X-QAAAAAAAAAAAAADgCCAQ/original
 coverDark: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*uaGhTY1-LL0AAAAAAAAAAAAADgCCAQ/original
-demo:
-  cols: 1
 ---
 
 ## When To Use
@@ -55,19 +53,20 @@ Common Props Reference: [Common Props](/docs/react/common-props)
 | loadingRender | Custom loading content renderer | () => React.ReactNode | - | - |
 | content | Bubble content | [ContentType](#contenttype) | - | - |
 | contentRender | Custom content renderer | (content: ContentType, info: InfoType ) => React.ReactNode | - | - |
-| editable | Editable | boolean \| [EditableBubbleOption](#editablebubbleoption) | `false` | - |
+| editable | Editable | boolean \| [EditableBubbleOption](#editablebubbleoption) | `false` | 2.0.0 |
 | typing | Typing animation effect | boolean \| [BubbleAnimationOption](#bubbleanimationoption) \| ((content: ContentType, info: InfoType) => boolean \| [BubbleAnimationOption](#bubbleanimationoption)) | `false` | - |
 | streaming | Streaming mode | boolean | `false` | - |
 | variant | Bubble style variant | `filled` \| `outlined` \| `shadow` \| `borderless` | `filled` | - |
 | shape | Bubble shape | `default` \| `round` \| `corner` | `default` | - |
-| footerPlacement | Footer slot position | `outer-start` \| `outer-end` \| `inner-start` \| `inner-end` | `outer-start` | - |
+| footerPlacement | Footer slot position | `outer-start` \| `outer-end` \| `inner-start` \| `inner-end` | `outer-start` | 2.0.0 |
 | header | Header slot | [BubbleSlot](#bubbleslot) | - | - |
 | footer | Footer slot | [BubbleSlot](#bubbleslot) | - | - |
 | avatar | Avatar slot | [BubbleSlot](#bubbleslot) | - | - |
 | extra | Extra slot | [BubbleSlot](#bubbleslot) | - | - |
-| onTyping | Typing animation callback | (rendererContent: string, currentContent: string) => void | - | - |
+| onTyping | Typing animation callback | (rendererContent: string, currentContent: string) => void | - | 2.0.0 |
 | onTypingComplete | Typing animation complete callback | (content: string) => void | - | - |
-| onEditing | Callback when content changes in editing mode | (content: string) => void | - | - |
+| onEditConfirm | Edit confirm callback | (content: string) => void | - | 2.0.0 |
+| onEditCancel | Edit cancel callback | () => void | - | 2.0.0 |
 
 #### ContentType
 
@@ -236,6 +235,10 @@ If you do not want to use flex layout, you can set `max-height` for **Bubble.Lis
 #### Bubble.List role and Custom Bubble
 
 Both the `role` and `items` attributes of **Bubble.List** can be configured for bubbles, where the `role` configuration is used as the default and can be omitted. `item.role` is used to specify the bubble role for the data item, which will be matched with `Bubble.List.role`. The `items` itself can also be configured with bubble attributes, with higher priority than the `role` configuration. The final bubble configuration is: `{ ...role[item.role], ...item }`.
+
+Note that [semantic configuration](#semantic-dom) in **Bubble.List** can also style the bubbles, but it has the lowest priority and will be overridden by role or items.
+
+The final configuration priority is: `items` > `role` > `Bubble.List.styles` = `Bubble.List.classNames`.
 
 Special note: We provide four default fields for `role`, `ai`, `user`, `system`, `divider`. Among these, `system` and `divider` are reserved fields. If `item.role` is assigned either of them, **Bubble.List** will render this bubble data as **Bubble.System (role = 'system')** or **Bubble.Divider (role = 'divider')**.
 

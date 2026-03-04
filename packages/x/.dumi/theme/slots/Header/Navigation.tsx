@@ -1,5 +1,5 @@
 import { createStyles, css } from 'antd-style';
-import classnames from 'classnames';
+import { clsx } from 'clsx';
 import { useFullSidebarData, useLocation } from 'dumi';
 import React from 'react';
 
@@ -9,14 +9,18 @@ import { getLocalizedPathname } from '../../utils';
 
 import type { SharedProps } from './interface';
 
+const zhHrefOrigin = 'https://ant-design-x.antgroup.com';
+
 const locales = {
   cn: {
     design: '设计',
     development: '研发',
     components: '组件',
     playground: '演示',
+    zhUrl: '国内镜像',
     blog: '博客',
     sdk: 'X SDK',
+    skill: 'X Skill',
     markdown: 'X Markdown',
     resources: '资源',
   },
@@ -25,8 +29,10 @@ const locales = {
     development: 'Development',
     components: 'Components',
     playground: 'Playground',
+    zhUrl: '',
     blog: 'Blog',
     sdk: 'X SDK',
+    skill: 'X Skill',
     markdown: 'X Markdown',
     resources: 'Resources',
   },
@@ -57,6 +63,11 @@ const defaultItems = [
     path: '/x-sdks/introduce',
     basePath: '/x-sdk',
     key: 'sdk',
+  },
+  {
+    path: '/x-skills/introduce',
+    basePath: '/x-skill',
+    key: 'skill',
   },
   {
     path: '/docs/playground/ultramodern',
@@ -140,6 +151,8 @@ const HeaderNavigation: React.FC<HeaderNavigationProps> = (props) => {
 
   const blogList = sidebarData['/docs/blog']?.[0]?.children || [];
 
+  const origin = typeof location !== 'undefined' ? location.origin : '';
+
   const items = React.useMemo(() => {
     const navItems = [...defaultItems];
 
@@ -157,7 +170,7 @@ const HeaderNavigation: React.FC<HeaderNavigationProps> = (props) => {
   React.useEffect(() => {
     if (!items.length || !pathname) return;
 
-    const activeIndex = items.findIndex((item) => pathname.includes(item.basePath));
+    const activeIndex = items.findIndex((item) => pathname.includes(item.basePath!));
 
     if (activeIndex === -1) {
       setActiveKey(undefined);
@@ -170,7 +183,7 @@ const HeaderNavigation: React.FC<HeaderNavigationProps> = (props) => {
 
   return (
     <nav
-      className={classnames(
+      className={clsx(
         styles.nav,
         isMobile || isMini ? styles.mobile : styles.pc,
         isMini && styles.mini,
@@ -188,6 +201,7 @@ const HeaderNavigation: React.FC<HeaderNavigationProps> = (props) => {
           {locale[item.key as keyof typeof locale]}
         </Link>
       ))}
+      {isZhCN && origin !== zhHrefOrigin && <a href={`${zhHrefOrigin}/index-cn`}>{locale.zhUrl}</a>}
     </nav>
   );
 };

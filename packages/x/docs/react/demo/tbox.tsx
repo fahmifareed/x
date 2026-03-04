@@ -109,7 +109,10 @@ class TboxProvider<
   Input extends TboxInput = TboxInput,
   Output extends TboxOutput = TboxOutput,
 > extends AbstractChatProvider<ChatMessage, Input, Output> {
-  transformParams(requestParams: Partial<Input>, options: XRequestOptions<Input, Output>): Input {
+  transformParams(
+    requestParams: Partial<Input>,
+    options: XRequestOptions<Input, Output, ChatMessage>,
+  ): Input {
     if (typeof requestParams !== 'object') {
       throw new Error('requestParams must be an object');
     }
@@ -146,7 +149,7 @@ const role: BubbleListProps['role'] = {
   assistant: {
     placement: 'start',
     contentRender(content: string) {
-      const newContent = content.replace('/\n\n/g', '<br/><br/>');
+      const newContent = content.replace(/\n\n/g, '<br/><br/>');
       return <XMarkdown content={newContent} />;
     },
   },

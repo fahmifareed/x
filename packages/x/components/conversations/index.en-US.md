@@ -7,8 +7,6 @@ title: Conversations
 description: Used to switch between multiple agents, update conversation turns, and manage conversation history
 cover: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*Oj-bTbVXtpQAAAAAAAAAAAAADgCCAQ/original
 coverDark: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*qwdtSKWXeikAAAAAAAAAAAAADgCCAQ/original
-demo:
-  cols: 1
 ---
 
 ## When To Use
@@ -44,11 +42,11 @@ Common props ref：[Common props](/docs/react/common-props)
 | activeKey | Currently selected value | string | - | - |
 | defaultActiveKey | Default selected value | string | - | - |
 | items | Data source for conversation list | `ItemType`[] | - | - |
-| onActiveChange | Callback for selection change | (value: string) => void | - | - |
-| menu | Operation menu for conversations | ItemMenuProps\| ((value: ConversationItemType) => ItemMenuProps) | - | - |
+| onActiveChange | Callback for selection change | (value: string, item: ItemType) => void | - | - |
+| menu | Operation menu for conversations | ItemMenuProps\| ((conversation: ConversationItemType) => ItemMenuProps) | - | - |
 | groupable | If grouping is supported, it defaults to the `Conversation.group` field | boolean \| GroupableProps | - | - |
-| shortcutKeys | Shortcut key operations | { creation?: ShortcutKeys<number>; items?:ShortcutKeys<'number'> \| ShortcutKeys<number>[];} | - | - |
-| creation | New conversation configuration | CreationProps | - | - |
+| shortcutKeys | Shortcut key operations | { creation?: ShortcutKeys<number>; items?:ShortcutKeys<'number'> \| ShortcutKeys<number>[];} | - | 2.0.0 |
+| creation | New conversation configuration | CreationProps | - | 2.0.0 |
 | styles | Semantic structure styles | styles?: {creation?: React.CSSProperties;item?: React.CSSProperties;} | - | - |
 | classNames | Semantic structure class names | classNames?: { creation?: string; item?:string;} | - | - |
 | rootClassName | Root node className | string | - | - |
@@ -102,10 +100,10 @@ MenuProps & {
   };
 ```
 
+## Semantic DOM
+
+<code src="./demo/_semantic.tsx" simplify="true"></code>
+
 ## Design Token
 
 <ComponentTokenTable component="Conversations"></ComponentTokenTable>
-
-```
-
-```

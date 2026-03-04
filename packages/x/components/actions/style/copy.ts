@@ -1,19 +1,18 @@
-import type { GenerateStyle } from '../../theme/cssinjs-utils';
+import type { GenerateStyle } from '../../theme/interface';
 import type { ActionsToken } from '.';
 
 const genActionsCopyStyle: GenerateStyle<ActionsToken> = (token) => {
   const { componentCls } = token;
 
   const copyCls = `${componentCls}-copy`;
-
   return {
-    [copyCls]: {
-      '&-rtl': {
+    [componentCls]: {
+      [`&${copyCls}-rtl`]: {
         direction: 'rtl',
       },
-      '&-copy': {
+      [`${copyCls}-copy`]: {
         fontSize: 'inherit',
-        [`&:not(${copyCls}-copy-success)`]: {
+        [`&:not(${componentCls}-copy-success)`]: {
           color: 'inherit!important',
         },
       },

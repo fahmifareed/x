@@ -1,16 +1,16 @@
-import type { ButtonProps, GetProps, InputProps } from 'antd';
+import type { ButtonProps, GetProps, InputProps, TooltipProps } from 'antd';
 import type React from 'react';
-import type { SlotTextAreaRef } from './SlotTextArea';
-import type { TextAreaRef } from './TextArea';
-import type { AllowSpeech } from './useSpeech';
+import type { SlotTextAreaRef } from './components/SlotTextArea';
+import type { TextAreaRef } from './components/TextArea';
+import type { AllowSpeech } from './hooks/use-speech';
 
 type TextareaProps = GetProps<typeof import('antd').Input.TextArea>;
 
-export type SubmitType = 'enter' | 'shiftEnter' | false;
+type SubmitType = 'enter' | 'shiftEnter';
 
 type SemanticType = 'root' | 'prefix' | 'input' | 'suffix' | 'footer' | 'switch' | 'content';
 
-export type insertPosition = 'start' | 'end' | 'cursor';
+export type InsertPosition = 'start' | 'end' | 'cursor';
 export interface SenderComponents {
   input?: React.ComponentType<TextareaProps>;
 }
@@ -30,15 +30,38 @@ export type NodeRender = (
   },
 ) => BaseNode;
 
-interface SlotConfigBaseType {
-  type: 'text' | 'input' | 'select' | 'tag' | 'custom';
+export interface SlotConfigBaseType {
+  type: 'text' | 'input' | 'select' | 'tag' | 'custom' | 'content' | 'skill';
   formatResult?: (value: any) => string;
 }
 
 interface SlotConfigTextType extends SlotConfigBaseType {
   type: 'text';
-  value: string;
+  value?: string;
+  editable?: boolean;
+  placeholder?: string;
   key?: string;
+}
+
+interface SlotConfigContentType extends SlotConfigBaseType {
+  type: 'content';
+  key: string;
+  props?: {
+    defaultValue?: any;
+    placeholder?: string;
+  };
+}
+export interface SkillType {
+  title?: React.ReactNode;
+  value: string;
+  toolTip?: TooltipProps;
+  closable?:
+    | boolean
+    | {
+        closeIcon?: React.ReactNode;
+        onClose?: React.MouseEventHandler<HTMLDivElement>;
+        disabled?: boolean;
+      };
 }
 
 interface SlotConfigInputType extends SlotConfigBaseType {
@@ -46,7 +69,7 @@ interface SlotConfigInputType extends SlotConfigBaseType {
   key: string;
   props?: {
     defaultValue?: InputProps['defaultValue'];
-    placeholder?: string | undefined;
+    placeholder?: string;
   };
 }
 
@@ -56,7 +79,7 @@ interface SlotConfigSelectType extends SlotConfigBaseType {
   props?: {
     defaultValue?: string;
     options: string[];
-    placeholder?: string | undefined;
+    placeholder?: string;
   };
 }
 
@@ -92,13 +115,14 @@ export type SlotConfigType =
   | SlotConfigInputType
   | SlotConfigSelectType
   | SlotConfigTagType
-  | SlotConfigCustomType;
+  | SlotConfigCustomType
+  | SlotConfigContentType;
 
 export type EventType =
   | React.FormEvent<HTMLTextAreaElement>
   | React.ChangeEvent<HTMLTextAreaElement>;
 export interface SenderProps
-  extends Pick<TextareaProps, 'placeholder' | 'onKeyUp' | 'onFocus' | 'onBlur'> {
+  extends Partial<Pick<TextareaProps, 'placeholder' | 'onKeyUp' | 'onFocus' | 'onBlur'>> {
   prefixCls?: string;
   defaultValue?: string;
   value?: string;
@@ -107,10 +131,15 @@ export interface SenderProps
   submitType?: SubmitType;
   disabled?: boolean;
   slotConfig?: Readonly<SlotConfigType[]>;
-  onSubmit?: (message: string, slotConfig?: SlotConfigType[]) => void;
-  onChange?: (value: string, event?: EventType, slotConfig?: SlotConfigType[]) => void;
+  onSubmit?: (message: string, slotConfig?: SlotConfigType[], skill?: SkillType) => void;
+  onChange?: (
+    value: string,
+    event?: EventType,
+    slotConfig?: SlotConfigType[],
+    skill?: SkillType,
+  ) => void;
   onCancel?: VoidFunction;
-  onKeyDown?: React.KeyboardEventHandler<any>;
+  onKeyDown?: (event: React.KeyboardEvent) => void | false;
   onPaste?: React.ClipboardEventHandler<HTMLElement>;
   onPasteFile?: (files: FileList) => void;
   components?: SenderComponents;
@@ -125,6 +154,7 @@ export interface SenderProps
   suffix?: BaseNode | NodeRender;
   header?: BaseNode | NodeRender;
   autoSize?: boolean | { minRows?: number; maxRows?: number };
+  skill?: SkillType;
 }
 
 export type SenderRef = Omit<TextAreaRef, 'nativeElement'> &

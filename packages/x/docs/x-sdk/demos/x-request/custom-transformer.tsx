@@ -39,11 +39,24 @@ async function mockFetch() {
   return response;
 }
 
+const useLocale = () => {
+  const isCN = typeof location !== 'undefined' ? location.pathname.endsWith('-cn') : false;
+  return {
+    request: isCN ? '请求' : 'Request',
+    mockCustomProtocolLog: isCN ? '模拟自定义协议 - 日志' : 'Mock Custom Protocol - Log',
+    sendRequest: isCN
+      ? '发送请求：使用自定义转换器和模拟数据'
+      : 'Send request: use custom transformer and mock data',
+    customStreamTransformer: isCN ? '自定义流转换器' : 'Custom stream transformer',
+  };
+};
+
 const App = () => {
   const [status, setStatus] = React.useState<ThoughtChainItemType['status']>();
   const [lines, setLines] = React.useState<string[]>([]);
+  const locale = useLocale();
 
-  function request() {
+  const request = () => {
     setStatus('loading');
 
     XRequest(BASE_URL + PATH, {
@@ -67,20 +80,26 @@ const App = () => {
           console.log('onUpdate', msg);
         },
       },
-      transformStream: new TransformStream<string, string>({
-        transform(chunk, controller) {
-          controller.enqueue(chunk);
-        },
-      }),
+      // 自定义流转换器 / Custom stream transformer
+      // ReadableStream 只能被一个 reader 锁定，需要注意 Provider 或 XRequest 实例不要被持久化，导致流对象被复用，重复使用会有锁定报错。
+      // A ReadableStream can only be locked by one reader. Note that Provider or XRequest instances should not be persisted to avoid stream object reuse, as repeated use will cause locking errors.
+      transformStream: () =>
+        new TransformStream({
+          transform(chunk, controller) {
+            // 你的自定义处理逻辑
+            // Your custom processing logic
+            controller.enqueue(chunk);
+          },
+        }),
       fetch: mockFetch,
     });
-  }
+  };
 
   return (
     <Splitter>
       <Splitter.Panel>
         <Button type="primary" disabled={status === 'loading'} onClick={request}>
-          Request - {BASE_URL}
+          {locale.request} - {BASE_URL}
           {PATH}
         </Button>
       </Splitter.Panel>
@@ -88,7 +107,7 @@ const App = () => {
         <ThoughtChain
           items={[
             {
-              title: 'Mock Custom Protocol - Log',
+              title: locale.mockCustomProtocolLog,
               status: status,
               icon: <TagsOutlined />,
               content: (

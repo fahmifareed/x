@@ -1,8 +1,7 @@
 import { Bubble } from '@ant-design/x';
 import XMarkdown from '@ant-design/x-markdown';
-import { Button, Flex, Skeleton, Space, Switch, Typography } from 'antd';
+import { Button, Flex, Skeleton, Space, Switch, Typography, theme } from 'antd';
 import React, { useState } from 'react';
-import { useMarkdownTheme } from '../_utils';
 import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
 
@@ -11,7 +10,7 @@ const { Text } = Typography;
 // 简化的示例文本
 const text = `# Ant Design X
 
-Ant Design X 是一款AI应用复合工具集，融合了 UI 组件库、流式 Markdown 渲染引擎和 AI SDK，为开发者提供构建下一代 AI 驱动应用的完整工具链。
+Ant Design X 是一款 AI 应用复合工具集，融合了 UI 组件库、流式 Markdown 渲染引擎和 AI SDK，为开发者提供构建下一代 AI 驱动应用的完整工具链。
 
 ![Ant Design X](https://mdn.alipayobjects.com/huamei_yz9z7c/afts/img/0lMhRYbo0-8AAAAAQDAAAAgADlJoAQFr/original)
 
@@ -32,7 +31,8 @@ const App: React.FC = () => {
   const [enableCache, setEnableCache] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
   const [index, setIndex] = useState(0);
-  const [className] = useMarkdownTheme();
+  const { theme: antdTheme } = theme.useToken();
+  const className = antdTheme.id === 0 ? 'x-markdown-light' : 'x-markdown-dark';
   const timer = React.useRef<any>(-1);
 
   const renderStream = () => {
@@ -57,9 +57,19 @@ const App: React.FC = () => {
   }, [index]);
 
   return (
-    <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
-      <Flex vertical gap="middle">
-        <Flex gap="small" justify="end">
+    <div
+      style={{
+        padding: 24,
+        maxWidth: 800,
+        margin: '0 auto',
+        height: 360,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      <Flex vertical gap="middle" style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <Flex gap="small" justify="end" style={{ flexShrink: 0 }}>
           <Space>
             <Text>动画</Text>
             <Switch
@@ -83,25 +93,27 @@ const App: React.FC = () => {
           </Button>
         </Flex>
 
-        <Bubble
-          content={text.slice(0, index)}
-          contentRender={(content) => (
-            <XMarkdown
-              className={className}
-              content={content as string}
-              paragraphTag="div"
-              streaming={{
-                hasNextChunk: isStreaming && enableCache,
-                enableAnimation,
-                incompleteMarkdownComponentMap: {
-                  link: 'loading-link',
-                  image: 'loading-image',
-                },
-              }}
-              components={LoadingComponents}
-            />
-          )}
-        />
+        <Flex style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+          <Bubble
+            content={text.slice(0, index)}
+            contentRender={(content) => (
+              <XMarkdown
+                className={className}
+                content={content as string}
+                paragraphTag="div"
+                streaming={{
+                  hasNextChunk: isStreaming && enableCache,
+                  enableAnimation,
+                  incompleteMarkdownComponentMap: {
+                    link: 'loading-link',
+                    image: 'loading-image',
+                  },
+                }}
+                components={LoadingComponents}
+              />
+            )}
+          />
+        </Flex>
       </Flex>
     </div>
   );

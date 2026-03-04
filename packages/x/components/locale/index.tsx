@@ -1,4 +1,4 @@
-import type { Locale as antdLocale } from 'antd/es/locale';
+import type { Locale as antdLocale } from 'antd/lib/locale';
 import * as React from 'react';
 import { devUseWarning } from '../_util/warning';
 import type { LocaleContextProps } from './context';
@@ -29,12 +29,7 @@ export interface xLocale {
     editableOk: string;
     editableCancel: string;
   };
-}
-
-export interface xMarkdownLocale {
   Mermaid?: {
-    copySuccess: string;
-    copy: string;
     zoomIn: string;
     zoomOut: string;
     zoomReset: string;
@@ -42,12 +37,9 @@ export interface xMarkdownLocale {
     code: string;
     image: string;
   };
-  HighlightCode?: {
-    copySuccess: string;
-    copy: string;
-  };
 }
-export type Locale = xLocale & antdLocale & xMarkdownLocale;
+
+export type Locale = xLocale & antdLocale;
 
 export interface LocaleProviderProps {
   locale: Locale;

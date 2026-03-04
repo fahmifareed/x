@@ -1,12 +1,11 @@
-import type { SpinProps } from 'antd';
 import { Flex, Skeleton, Spin } from 'antd';
-import classnames from 'classnames';
+import { clsx } from 'clsx';
 import React from 'react';
 import { FileCardProps } from '../FileCard';
 import ImageIcon from './ImageIcon';
 import usePercent from './usePercent';
 
-export type ImageLoadingProps = SpinProps & {
+export type ImageLoadingProps = {
   prefixCls?: string;
   style?: React.CSSProperties;
   className?: string;
@@ -14,8 +13,11 @@ export type ImageLoadingProps = SpinProps & {
 };
 
 const ImageLoading: React.FC<ImageLoadingProps> = (props) => {
-  const { style, className, prefixCls, percent = 'auto', spinProps } = props;
-  const [mergedPercent, percentText] = usePercent(true, percent);
+  const { style, className, prefixCls, spinProps } = props;
+  const [mergedPercent, percentText] = usePercent(
+    true,
+    typeof spinProps?.percent === 'undefined' ? 'auto' : spinProps?.percent,
+  );
   const mergeSinkProps = {
     size: 'default',
     showText: true,
@@ -23,16 +25,29 @@ const ImageLoading: React.FC<ImageLoadingProps> = (props) => {
     ...spinProps,
   };
   return (
-    <div className={classnames(`${prefixCls}-image-loading`, className)} style={style}>
-      <Skeleton.Node rootClassName={classnames(`${prefixCls}-image-skeleton`)} active>
+    <div className={clsx(`${prefixCls}-image-loading`, className)} style={style}>
+      <Skeleton.Node
+        styles={{
+          root: {
+            width: '100%',
+            height: '100%',
+          },
+          content: {
+            width: '100%',
+            height: '100%',
+          },
+        }}
+        rootClassName={clsx(`${prefixCls}-image-skeleton`)}
+        active
+      >
         <Flex
-          className={classnames(`${prefixCls}-image-spin`, {
+          className={clsx(`${prefixCls}-image-spin`, {
             [`${prefixCls}-image-spin-${mergeSinkProps.size}`]: mergeSinkProps.size,
           })}
           align="center"
           gap="small"
         >
-          <Spin percent={mergedPercent} {...(spinProps as SpinProps)} />
+          <Spin percent={mergedPercent} {...spinProps} />
           {mergeSinkProps.showText && (
             <div className={`${prefixCls}-image-spin-text`}>{percentText}</div>
           )}

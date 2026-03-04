@@ -8,8 +8,6 @@ subtitle: 对话气泡
 description: 用于聊天的气泡组件。
 cover: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*rHIYQIL1X-QAAAAAAAAAAAAADgCCAQ/original
 coverDark: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*uaGhTY1-LL0AAAAAAAAAAAAADgCCAQ/original
-demo:
-  cols: 1
 ---
 
 ## 何时使用
@@ -19,19 +17,19 @@ demo:
 ## 代码演示
 
 <!-- prettier-ignore -->
-<code src="./demo/basic.tsx">基本</code>
-<code src="./demo/variant-and-shape.tsx">变体与形状</code>
-<code src="./demo/sider-and-placement.tsx">边栏与位置</code>
-<code src="./demo/system.tsx">系统信息气泡</code>
-<code src="./demo/divider.tsx">分割线气泡</code>
-<code src="./demo/header.tsx">气泡头</code>
-<code src="./demo/footer.tsx">气泡尾</code>
-<code src="./demo/loading.tsx">加载中</code>
-<code src="./demo/animation.tsx">动画</code>
-<code src="./demo/stream.tsx">流式传输</code>
-<code src="./demo/custom-content.tsx">自定义渲染内容</code>
-<code src="./demo/markdown.tsx">渲染markdown内容</code>
-<code src="./demo/gpt-vis.tsx">使用 GPT-Vis 渲染图表</code>
+<code src="./demo/basic.tsx">基本</code> 
+<code src="./demo/variant-and-shape.tsx">变体与形状</code> 
+<code src="./demo/sider-and-placement.tsx">边栏与位置</code> 
+<code src="./demo/system.tsx">系统信息气泡</code> 
+<code src="./demo/divider.tsx">分割线气泡</code> 
+<code src="./demo/header.tsx">气泡头</code> 
+<code src="./demo/footer.tsx">气泡尾</code> 
+<code src="./demo/loading.tsx">加载中</code> 
+<code src="./demo/animation.tsx">动画</code> 
+<code src="./demo/stream.tsx">流式传输</code> 
+<code src="./demo/custom-content.tsx">自定义渲染内容</code> 
+<code src="./demo/markdown.tsx">渲染markdown内容</code> 
+<code src="./demo/gpt-vis.tsx">使用 GPT-Vis 渲染图表</code> 
 <code src="./demo/editable.tsx">可编辑气泡</code>
 
 ## 列表演示
@@ -56,19 +54,20 @@ demo:
 | loadingRender | 自定义加载内容渲染 | () => React.ReactNode | - | - | 
 | content | 气泡内容 | [ContentType](#contenttype) | - | - | 
 | contentRender | 自定义内容渲染 | (content: ContentType, info: InfoType ) => React.ReactNode | - | - | 
-| editable | 是否可编辑 | boolean \| [EditableBubbleOption](#editablebubbleoption) | `false` | - | 
+| editable | 是否可编辑 | boolean \| [EditableBubbleOption](#editablebubbleoption) | `false` | 2.0.0 | 
 | typing | 打字动画效果 |  boolean \| [BubbleAnimationOption](#bubbleanimationoption) \| ((content: ContentType, info: InfoType) => boolean \| [BubbleAnimationOption](#bubbleanimationoption)) | `false` | - | 
 | streaming | 是否为流式传输 | boolean | `false` | - | 
 | variant | 气泡样式变体 | `filled` \| `outlined` \| `shadow` \| `borderless` | `filled` | - | 
 | shape | 气泡形状 | `default` \| `round` \| `corner` | `default` | - | 
-| footerPlacement | 底部插槽位置 | `outer-start` \| `outer-end` \| `inner-start` \| `inner-end` | `outer-start` | - | 
+| footerPlacement | 底部插槽位置 | `outer-start` \| `outer-end` \| `inner-start` \| `inner-end` | `outer-start` | 2.0.0 | 
 | header | 头部插槽 | [BubbleSlot](#bubbleslot) | - | - |
 | footer | 底部插槽 | [BubbleSlot](#bubbleslot) | - | - |
 | avatar | 头像插槽 | [BubbleSlot](#bubbleslot) | - | - |
 | extra | 额外插槽 | [BubbleSlot](#bubbleslot) | - | - |
-| onTyping | 动画执行回调 | (rendererContent: string, currentContent: string) => void | - | - | 
+| onTyping | 动画执行回调 | (rendererContent: string, currentContent: string) => void | - | 2.0.0 | 
 | onTypingComplete | 动画结束回调 | (content: string) => void | - | - |
-| onEditing | 编辑态下内容变化时回调 | (content: string) => void | - | - |
+| onEditConfirm | 编辑确认回调 | (content: string) => void | - | 2.0.0 |
+| onEditCancel | 编辑取消回调 | () => void | - | 2.0.0 |
 
 #### ContentType
 
@@ -155,7 +154,7 @@ interface BubbleAnimationOption {
 
 | 属性 | 说明 | 类型 | 默认值 | 版本 |
 | --- | --- | --- | --- | --- |
-| items | 气泡数据列表，`key`，`role` 必填 ，当结合X SDK [`useXChat`](/x-sdks/use-x-chat-cn) 使用时可传入`status` 帮助 Bubble 对配置进行管理 | (([BubbleProps](#bubble) & [DividerBubbleProps](#bubbledivider)) & { key: string \| number, role: string , status: MessageStatus, extraInfo?: AnyObject})[] | - | - |
+| items | 气泡数据列表，`key`，`role` 必填。`styles`、`classNames` 会覆盖 Bubble.List 对应配置。当结合X SDK [`useXChat`](/x-sdks/use-x-chat-cn) 使用时可传入`status` 帮助 Bubble 对配置进行管理 | (([BubbleProps](#bubble) & [DividerBubbleProps](#bubbledivider)) & { key: string \| number, role: string , status: MessageStatus, extraInfo?: AnyObject})[] | - | - |
 | autoScroll | 是否自动滚动 | boolean | `true` | - |
 | role | 气泡角色默认配置 | [RoleType](#roletype) | - | - |
 
@@ -220,15 +219,23 @@ export type RoleType = Partial<
 
 #### Bubble.List autoScroll
 
-**Bubble.List** 滚动托管需要设置 `height`，否则无法滚动。
+**Bubble.List** 滚动托管需要自身或父容器设置明确的 `height`，否则无法滚动。
 
 ```tsx
 <Bubble.List items={items} style={{ height: 500 }} autoScroll />
+// or
+<div style={{ height: 500 }}>
+  <Bubble.List items={items} autoScroll />
+</div>
 ```
 
 #### Bubble.List role 与自定义 Bubble
 
 **Bubble.List** 的 `role` 和 `items` 两个属性都可以配置气泡，其中 `role` 的配置作为默认配置使用，可缺省。`item.role` 用于指明该条数据的气泡角色，会与 `Bubble.List.role` 进行匹配。`items` 本身也可配置气泡属性，优先级高于 `role` 的配置，最终的气泡配置为：`{ ...role[item.role], ...item }`。
+
+注意， **Bubble.List** 中的[语义化配置](#semantic-dom)也可以为气泡配置样式，但它的优先级最低，会被 `role` 或 `items` 覆盖。
+
+最终配置的优先级为： `items` > `role` > `Bubble.List.styles` = `Bubble.List.classNames`。
 
 特别说明，我们为 `role` 提供了四个默认字段，`ai`、`user`、`system`、`divider`。其中，`system`、`divider` 是保留字段，如果 `item.role` 赋值为它们俩之一，**Bubble.List** 会把这条气泡数据渲染为 **Bubble.System (role = 'system')** 或 **Bubble.Divider (role = 'divider')**。
 

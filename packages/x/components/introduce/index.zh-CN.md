@@ -13,7 +13,7 @@ showImport: false
 
 - 🌈 **源自企业级 AI 产品的最佳实践**：基于 RICH 交互范式，提供卓越的 AI 交互体验
 - 🧩 **灵活多样的原子组件**：覆盖绝大部分 AI 对话场景，助力快速构建个性化 AI 交互页面
-- ⚡ **开箱即用的模型对接能力**：配合[X SDK](/x-sdks/introduce-cn) 轻松对接模型和智能体服务
+- ⚡ **开箱即用的模型对接能力**：配合 [X SDK](/x-sdks/introduce-cn) 轻松对接模型和智能体服务
 - 📦 **丰富的样板间支持**：提供多种模板，快速启动 LUI 应用开发
 - 🛡 **TypeScript 全覆盖**：采用 TypeScript 开发，提供完整类型支持，提升开发体验与可靠性
 - 🎨 **深度主题定制能力**：支持细粒度的样式调整，满足各种场景的个性化需求
@@ -45,8 +45,8 @@ showImport: false
 - 通用: `Bubble` - 消息气泡、`Conversations` - 会话管理、`Notification` - 系统通知
 - 唤醒: `Welcome` - 欢迎、`Prompts` - 提示集
 - 表达: `Sender` - 发送框、`Attachment` - 输入附件、`Suggestion` - 快捷指令
-- 确认: `Think` - 思考过程、 `ThoughtChain` - 思维链、`Sources` - 来源引用
-- 反馈: `Actions` - 操作列表、`FileCard` - 文件卡片
+- 确认: `Think` - 思考过程、`ThoughtChain` - 思维链
+- 反馈: `Actions` - 操作列表、`FileCard` - 文件卡片、`Sources` - 来源引用、`CodeHighlighter` - 代码高亮、`Mermaid` - 图表工具
 - 其他: `XProvider` - 全局配置：主题、国际化等
 
 下面是使用原子组件搭建一个最简单的对话框的代码示例:

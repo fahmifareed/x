@@ -2,8 +2,8 @@ import { unit } from '@ant-design/cssinjs';
 import { mergeToken } from '@ant-design/cssinjs-utils';
 import { FastColor } from '@ant-design/fast-color';
 import { genCollapseMotion } from '../../style';
-import type { FullToken, GenerateStyle, GetDefaultToken } from '../../theme/cssinjs-utils';
 import { genStyleHooks } from '../../theme/genStyleUtils';
+import type { FullToken, GenerateStyle, GetDefaultToken } from '../../theme/interface';
 
 export interface ComponentToken {
   /**
@@ -44,6 +44,9 @@ const genConversationsStyle: GenerateStyle<ConversationsToken> = (token) => {
         margin: 0,
         padding: 0,
         listStyle: 'none',
+      },
+      [`&${componentCls}-rtl`]: {
+        direction: 'rtl',
       },
       [`${componentCls}-creation`]: {
         backgroundColor: token.creationBgColor,
@@ -114,13 +117,11 @@ const genConversationsStyle: GenerateStyle<ConversationsToken> = (token) => {
           },
         },
       },
-      [`& ${componentCls}-rtl`]: {
-        direction: 'rtl',
-      },
-      [`& ${componentCls}-divider`]: {
+
+      [`${componentCls}-divider`]: {
         marginBlock: token.marginXXS,
       },
-      [`& ${componentCls}-item`]: {
+      [`${componentCls}-item`]: {
         display: 'flex',
         height: token.controlHeightLG,
         minHeight: token.controlHeightLG,
@@ -155,32 +156,32 @@ const genConversationsStyle: GenerateStyle<ConversationsToken> = (token) => {
           opacity: 1,
         },
       },
-      [`& ${componentCls}-content-hidden`]: {
+      [`${componentCls}-content-hidden`]: {
         display: 'none',
       },
-      [`& ${componentCls}-label`]: {
+      [`${componentCls}-label`]: {
         flex: 1,
         color: token.colorText,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
       },
-      [`& ${componentCls}-menu-icon`]: {
+      [`${componentCls}-menu-icon`]: {
         opacity: 0,
         fontSize: token.fontSizeXL,
       },
-      [`& ${componentCls}-list`]: {
+      [`${componentCls}-list`]: {
         display: 'flex',
         gap: token.paddingXXS,
         flexDirection: 'column',
       },
-      [`& ${componentCls}-group-collapsible-list`]: {
+      [`${componentCls}-group-collapsible-list`]: {
         paddingBlockStart: token.paddingXXS,
         [`& ${componentCls}-item`]: {
           paddingInlineStart: token.paddingXL,
         },
       },
-      [`& ${componentCls}-group-title`]: {
+      [`${componentCls}-group-title`]: {
         display: 'flex',
         alignItems: 'center',
         color: token.colorTextDescription,
@@ -189,7 +190,7 @@ const genConversationsStyle: GenerateStyle<ConversationsToken> = (token) => {
         padding: `0 ${unit(token.paddingXS)}`,
       },
 
-      [`& ${componentCls}-group-title-collapsible`]: {
+      [`${componentCls}-group-title-collapsible`]: {
         justifyContent: 'space-between',
         cursor: 'pointer',
         color: token.colorText,
@@ -199,15 +200,15 @@ const genConversationsStyle: GenerateStyle<ConversationsToken> = (token) => {
           backgroundColor: token.colorBgTextHover,
         },
       },
-      [`& ${componentCls}-group-collapse-trigger`]: {
+      [`${componentCls}-group-collapse-trigger`]: {
         transition: `all ${token.motionDurationMid} ${token.motionEaseInOut}`,
         transform: 'rotate(0deg)',
         transformOrigin: 'center center',
       },
-      [`& ${componentCls}-group-collapse-trigger-open`]: {
+      [`${componentCls}-group-collapse-trigger-open`]: {
         transform: 'rotate(90deg)',
       },
-      [`& ${componentCls}-group-collapse-trigger-close`]: {
+      [`${componentCls}-group-collapse-trigger-close`]: {
         transform: 'rotate(0deg)',
       },
     },
