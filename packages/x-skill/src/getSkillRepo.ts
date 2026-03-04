@@ -137,17 +137,41 @@ class SkillLoader {
 
   async downloadFile(url: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      https
+      const request = https
         .get(url, (res) => {
+          // 检查状态码
+          if (res.statusCode! < 200 || res.statusCode! >= 300) {
+            reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
+            return;
+          }
+
           if (res.statusCode === 302 || res.statusCode === 301) {
             // Follow redirect
-            https
-              .get(res.headers.location!, (res2) => {
+            if (!res.headers.location) {
+              reject(new Error('Redirect location not provided'));
+              return;
+            }
+
+            const redirectRequest = https
+              .get(res.headers.location, (res2) => {
+                // 检查重定向后的状态码
+                if (res2.statusCode! < 200 || res2.statusCode! >= 300) {
+                  reject(new Error(`HTTP ${res2.statusCode}: ${res2.statusMessage}`));
+                  return;
+                }
+
                 let data = '';
                 res2.on('data', (chunk) => (data += chunk));
                 res2.on('end', () => resolve(data));
               })
               .on('error', reject);
+
+            // 设置重定向请求的超时
+            redirectRequest.setTimeout(30000, () => {
+              redirectRequest.destroy();
+              reject(new Error('Redirect request timeout after 30 seconds'));
+            });
+
             return;
           }
 
@@ -156,6 +180,12 @@ class SkillLoader {
           res.on('end', () => resolve(data));
         })
         .on('error', reject);
+
+      // 设置请求超时
+      request.setTimeout(30000, () => {
+        request.destroy();
+        reject(new Error('Request timeout after 30 seconds'));
+      });
     });
   }
 
@@ -219,11 +249,16 @@ class SkillLoader {
 
       // 使用Promise.race实现超时控制
       const downloadPromise = this.downloadDirectory(apiUrl, skillTempDir);
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Download timeout: 60s')), 60000),
-      );
+      let timeoutId: NodeJS.Timeout;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Download timeout: 60s')), 60000);
+      });
 
-      await Promise.race([downloadPromise, timeoutPromise]);
+      try {
+        await Promise.race([downloadPromise, timeoutPromise]);
+      } finally {
+        clearTimeout(timeoutId!);
+      }
       return skillTempDir;
     } catch (error) {
       console.warn(
@@ -270,7 +305,8 @@ class SkillLoader {
     if (!vA.prerelease && vB.prerelease) return -1;
     if (vA.prerelease && !vB.prerelease) return 1;
     if (vA.prerelease && vB.prerelease) {
-      return vA.prerelease.localeCompare(vB.prerelease);
+      // 使用降序排序，确保最新的预发布版本排在前面
+      return vB.prerelease.localeCompare(vA.prerelease);
     }
 
     return 0;
@@ -337,11 +373,17 @@ class SkillLoader {
       // 使用Promise.race实现列表获取超时控制
       const apiUrl = `https://api.github.com/repos/${this.githubOwner}/${this.githubRepo}/contents/${basePath}?ref=${tag}`;
       const listPromise = this.makeRequest(apiUrl) as Promise<GitHubContent[]>;
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('List skills timeout: 60s')), 60000),
-      );
+      let timeoutId: NodeJS.Timeout;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('List skills timeout: 60s')), 60000);
+      });
 
-      const contents = await Promise.race([listPromise, timeoutPromise]);
+      let contents: GitHubContent[];
+      try {
+        contents = await Promise.race([listPromise, timeoutPromise]);
+      } finally {
+        clearTimeout(timeoutId!);
+      }
       const skillDirs = contents.filter((item) => item.type === 'dir').map((item) => item.name);
 
       const skills: Skill[] = [];
