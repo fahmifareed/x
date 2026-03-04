@@ -1,5 +1,5 @@
 import SkillMeta from '@ant-design/x-skill/bin/skill-meta.json';
-import { Empty, Flex, List, Space, Spin, Tag, Typography } from 'antd';
+import { Empty, Flex, List, Spin, Tag, Typography } from 'antd';
 import { createStyles, css } from 'antd-style';
 import React, { useMemo } from 'react';
 import useLocale from '../../hooks/useLocale';
