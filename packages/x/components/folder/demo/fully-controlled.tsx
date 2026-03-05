@@ -144,7 +144,6 @@ export default () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <h2>完全受控模式</h2>
       <Space style={{ marginBottom: 16 }}>
         <Button type="primary" onClick={handleReset}>
           重置状态
@@ -153,8 +152,7 @@ export default () => {
         <Button onClick={handleCollapseAll}>收起全部</Button>
         <Button onClick={handleSelectPackage}>选择 package.json</Button>
       </Space>
-
-      <Card style={{ marginBottom: 16, height: 700 }}>
+      <Card style={{ marginBottom: 16 }}>
         <Space vertical>
           <div>
             <strong>当前选中文件：</strong>{' '}
@@ -167,6 +165,7 @@ export default () => {
       </Card>
 
       <Folder
+        style={{ height: 600 }}
         treeData={treeData}
         folderTitle="文件浏览器"
         selectedFile={selectedFile}
