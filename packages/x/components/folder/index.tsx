@@ -46,7 +46,7 @@ export interface FolderProps {
   onFolderClick?: (folderPath: string) => void;
 
   // 自定义标题
-  folderTitle?: string | (() => React.ReactNode);
+  folderTitle?: React.ReactNode | (() => React.ReactNode);
   contentTitle?:
     | string
     | (({

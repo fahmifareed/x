@@ -118,9 +118,8 @@ export default () => (
     <Folder
       treeData={treeData}
       folderTitle="自定义文件浏览器"
-      contentTitle={(...arg) => {
-        console.log(arg, 1111);
-        return 'asdsad';
+      contentTitle={({ path }) => {
+        return path.join('/');
       }}
       fileContentService={new CustomFileContentService()}
       defaultSelectedFile={['src', 'App.js']}

@@ -4,6 +4,7 @@
 
 import type { FolderProps } from '@ant-design/x';
 import { Folder } from '@ant-design/x';
+import { Flex } from 'antd';
 import React from 'react';
 
 const treeData: FolderProps['treeData'] = [
@@ -80,7 +81,11 @@ export default () => (
   <div style={{ padding: 24, height: 500 }}>
     <Folder
       treeData={treeData}
-      folderTitle="项目文件浏览器"
+      folderTitle={
+        <Flex style={{ paddingInline: 16 }} align="center">
+          项目文件浏览器
+        </Flex>
+      }
       defaultSelectedFile={['package.json']}
     />
   </div>

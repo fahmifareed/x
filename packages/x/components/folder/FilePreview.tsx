@@ -40,7 +40,7 @@ const customOneLight = {
     borderRadius: 0,
   },
 };
-console.log(customOneLight, 'customOneLight');
+
 const FileView: React.FC<FileViewProps> = (props) => {
   const {
     prefixCls: customizePrefixCls,

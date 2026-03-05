@@ -4,8 +4,8 @@ import type { FullToken, GenerateStyle, GetDefaultToken } from '../../theme/inte
 
 export interface ComponentToken {
   /**
-   * @desc
-   * @descEN
+   * @desc 目录背景色
+   * @descEN Background color of directory
    */
   colorBgDirectory: string;
 }
