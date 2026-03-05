@@ -1,24 +1,13 @@
-import { FileOutlined, FolderOutlined } from '@ant-design/icons';
 import { useControlledState } from '@rc-component/util';
 import type { TreeProps } from 'antd';
-import { Empty, Spin, Tree } from 'antd';
-import type { DataNode } from 'antd/es/tree';
+import { Flex } from 'antd';
 import { clsx } from 'clsx';
 import React, { useCallback, useEffect, useState } from 'react';
 import useXComponentConfig from '../_util/hooks/use-x-component-config';
-import CodeHighlighter from '../code-highlighter/CodeHighlighter';
 import { useXProviderContext } from '../x-provider';
+import DirectoryTree, { type FileTreeNode } from './DirectoryTree';
+import FilePreview from './FilePreview';
 import useStyle from './style';
-
-const { DirectoryTree } = Tree;
-
-// 文件树节点类型
-export interface FileTreeNode extends Omit<TreeProps['treeData'], 'key'> {
-  title: string;
-  path: string;
-  content?: string;
-  children?: FileTreeNode[];
-}
 
 // 文件内容服务接口
 export interface FileContentService {
@@ -36,23 +25,18 @@ export interface FolderProps {
 
   // 数据属性
   treeData: FileTreeNode[];
-  title?: React.ReactNode;
-
-  // 展示模式
-  mode?: 'tree' | 'tree-with-preview';
-  height?: number;
-
   // 选择功能
   selectable?: boolean;
   selectedFile?: string[] | null;
   defaultSelectedFile?: string[];
   onSelectedFileChange?: (filePath: string[] | null, content?: string[]) => void;
   multiple?: boolean;
+  autoExpandFolder?: boolean;
 
   // 展开控制
-  defaultExpandedKeys?: string[];
-  expandedKeys?: string[];
-  onExpand?: (keys: string[]) => void;
+  defaultExpandedPaths?: string[];
+  expandedPaths?: string[];
+  onExpandedPathsChange?: (paths: string[]) => void;
 
   // 文件内容服务
   fileContentService?: FileContentService;
@@ -60,6 +44,20 @@ export interface FolderProps {
   // 事件回调
   onFileClick?: (filePath: string, content?: string) => void;
   onFolderClick?: (folderPath: string) => void;
+
+  // 自定义标题
+  folderTitle?: string | (() => React.ReactNode);
+  contentTitle?:
+    | string
+    | (({
+        title,
+        path,
+        content,
+      }: {
+        title: string;
+        path: string[];
+        content: string;
+      }) => React.ReactNode);
 }
 
 const Folder: React.FC<FolderProps> = (props) => {
@@ -70,17 +68,17 @@ const Folder: React.FC<FolderProps> = (props) => {
     styles,
     style,
     treeData,
-    title,
-    mode = 'tree',
-    height = 400,
-    selectable = false,
+    folderTitle,
+    contentTitle,
+    selectable = true,
     defaultSelectedFile,
     selectedFile: controlledSelectedFile,
     onSelectedFileChange,
     multiple = false,
-    defaultExpandedKeys = [],
-    expandedKeys,
-    onExpand,
+    autoExpandFolder = true,
+    defaultExpandedPaths = [],
+    expandedPaths,
+    onExpandedPathsChange,
     onFileClick,
     onFolderClick,
   } = props;
@@ -90,9 +88,9 @@ const Folder: React.FC<FolderProps> = (props) => {
     defaultSelectedFile || null,
     controlledSelectedFile,
   );
-  const [expandedKeysState, setExpandedKeys] = useControlledState<string[]>(
-    defaultExpandedKeys,
-    expandedKeys,
+  const [expandedPathsState, setExpandedPaths] = useControlledState<string[]>(
+    defaultExpandedPaths,
+    expandedPaths,
   );
   const [fileContent, setFileContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -114,74 +112,39 @@ const Folder: React.FC<FolderProps> = (props) => {
     cssVarCls,
     {
       [`${prefixCls}-rtl`]: direction === 'rtl',
-      [`${prefixCls}-${mode}`]: mode,
       [`${prefixCls}-selectable`]: selectable,
     },
   );
 
-  // ============================ Tree Config ============================
-  const isFolder = (node: FileTreeNode): boolean => {
-    return !!node.children && node.children.length > 0;
-  };
-
-  const getIcon = (node: FileTreeNode) => {
-    if (isFolder(node)) {
-      return <FolderOutlined />;
-    }
-    return <FileOutlined />;
-  };
-
-  const buildPathSegments = (node: FileTreeNode, parentSegments: string[] = []): string[] => {
-    if (node.path === '/' && parentSegments.length === 0) {
-      return ['/'];
-    }
-    return [...parentSegments, node.path].filter((segment) => segment !== '');
-  };
-
-  const convertToTreeData = (nodes: FileTreeNode[], parentSegments: string[] = []): DataNode[] => {
-    return nodes.map((node) => {
-      const pathSegments = buildPathSegments(node, parentSegments);
-      const fullPath = pathSegments.join('/').replace(/^\/+/, '');
-      return {
-        ...node,
-        key: fullPath,
-        path: fullPath,
-        pathSegments,
-        icon: getIcon(node),
-        isLeaf: !isFolder(node),
-        children: node.children ? convertToTreeData(node.children, pathSegments) : undefined,
-      };
-    });
-  };
-
   // ============================ File Content ============================
-  const loadFileContent = useCallback(
-    async (filePath: string) => {
-      if (!filePath) return;
+  const findNodeByPath = useCallback(
+    (nodes: FileTreeNode[], segments: string[], index = 0): FileTreeNode | undefined => {
+      if (index >= segments.length) return undefined;
 
-      // 先从节点中查找预加载的内容
-      const findNodeByPath = (
-        nodes: FileTreeNode[],
-        segments: string[],
-        index = 0,
-      ): FileTreeNode | undefined => {
-        if (index >= segments.length) return undefined;
-
-        const currentSegment = segments[index];
-        for (const node of nodes) {
-          if (node.path === currentSegment) {
-            if (index === segments.length - 1 && !isFolder(node)) {
-              return node;
-            }
-            if (node.children && index < segments.length - 1) {
-              return findNodeByPath(node.children, segments, index + 1);
-            }
+      const currentSegment = segments[index];
+      for (const node of nodes) {
+        if (node.path === currentSegment) {
+          if (index === segments.length - 1 && !node.children) {
+            return node;
+          }
+          if (node.children && index < segments.length - 1) {
+            return findNodeByPath(node.children, segments, index + 1);
           }
         }
-        return undefined;
-      };
+      }
+      return undefined;
+    },
+    [treeData],
+  );
 
-      const segments = filePath.split('/').filter((segment) => segment !== '');
+  const loadFileContent = useCallback(
+    async (filePath: string[]) => {
+      if (!filePath || filePath.length === 0) return;
+
+      // 将数组路径转换为字符串路径
+      const pathString = filePath.join('/');
+
+      const segments = pathString.split('/').filter((segment) => segment !== '');
       const node = findNodeByPath(treeData, segments);
       if (node?.content !== undefined) {
         setFileContent(node.content);
@@ -193,7 +156,7 @@ const Folder: React.FC<FolderProps> = (props) => {
 
       try {
         if (props.fileContentService) {
-          const content = await props.fileContentService.loadFileContent(filePath);
+          const content = await props.fileContentService.loadFileContent(pathString);
           setFileContent(content);
         } else {
           setError('未配置文件内容服务');
@@ -204,7 +167,7 @@ const Folder: React.FC<FolderProps> = (props) => {
         setLoading(false);
       }
     },
-    [treeData, props.fileContentService],
+    [treeData, props.fileContentService, findNodeByPath],
   );
 
   // ============================ Event Handlers ============================
@@ -212,148 +175,117 @@ const Folder: React.FC<FolderProps> = (props) => {
     const keys = _keys as string[];
     const nodes = Array.isArray(info.selectedNodes) ? info.selectedNodes : [info.selectedNodes];
 
-    setSelectedFileState(keys);
+    // 检查是否点击的是文件夹
+    const isFolder = nodes.some((node) => {
+      const fileNode = node as unknown as FileTreeNode;
+      return !!fileNode.children && fileNode.children.length > 0;
+    });
+
+    if (isFolder) {
+      // 点击文件夹：不更新selectedFileState，只触发文件夹点击事件
+      if (nodes.length === 1) {
+        const node = nodes[0] as unknown as FileTreeNode;
+        onFolderClick?.(node.path);
+      }
+      return;
+    }
+
+    // 将完整路径转换为数组格式
+    const pathArray = keys[0]?.split('/').filter(Boolean) || [];
+
+    // 点击文件：更新selectedFileState
+    setSelectedFileState(pathArray);
+
+    // 自动展开文件夹（如果需要）
+    if (autoExpandFolder && pathArray.length > 1) {
+      const parentPaths = pathArray.slice(0, -1).reduce((acc, _, index) => {
+        const path = [...pathArray.slice(0, index + 1)].join('/');
+        if (!expandedPathsState.includes(path)) {
+          acc.push(path);
+        }
+        return acc;
+      }, [] as string[]);
+
+      if (parentPaths.length > 0) {
+        const newExpandedPaths = [...expandedPathsState, ...parentPaths];
+        setExpandedPaths(newExpandedPaths);
+        onExpandedPathsChange?.(newExpandedPaths);
+      }
+    }
 
     // 获取所有选中文件的内容
     const fileContents: string[] = [];
     nodes.forEach((node) => {
       const fileNode = node as unknown as FileTreeNode;
-      if (!isFolder(fileNode) && fileNode.content) {
+      if (fileNode.content) {
         fileContents.push(fileNode.content);
       }
     });
 
-    onSelectedFileChange?.(keys, fileContents);
+    onSelectedFileChange?.(pathArray, fileContents);
 
     // 处理单个文件点击事件
     if (nodes.length === 1) {
       const node = nodes[0] as unknown as FileTreeNode;
-      const isNodeFolder = isFolder(node);
+      onFileClick?.(node.path, node.content);
 
-      if (!isNodeFolder) {
-        onFileClick?.(node.path, node.content);
-
-        if (mode === 'tree-with-preview') {
-          if (node.content !== undefined) {
-            setFileContent(node.content);
-          } else {
-            loadFileContent(node.path);
-          }
-        }
+      if (node.content !== undefined) {
+        setFileContent(node.content);
       } else {
-        onFolderClick?.(node.path);
+        loadFileContent(node.path.split('/').filter(Boolean));
       }
     }
   };
 
   const handleExpand: TreeProps['onExpand'] = (keys) => {
-    const newKeys = keys as string[];
-    setExpandedKeys(newKeys);
-    onExpand?.(newKeys);
+    const newPaths = keys as string[];
+    setExpandedPaths(newPaths);
+    onExpandedPathsChange?.(newPaths);
   };
 
   // ============================ Effects ============================
 
+  // 当非受控模式下 selectedFile 变化时自动展开文件夹
+  const prevSelectedFileRef = React.useRef<string[] | null | undefined>(undefined);
+
   useEffect(() => {
-    if (selectedFileState && selectedFileState.length > 0 && mode === 'tree-with-preview') {
-      // 将路径段数组转换为完整路径
-      const fullPath = selectedFileState.join('/');
-      loadFileContent(fullPath);
+    // 只在非受控模式下且 selectedFile 真正变化时触发
+    const isNonControlledMode = expandedPaths === undefined;
+    const hasChanged =
+      JSON.stringify(prevSelectedFileRef.current) !== JSON.stringify(selectedFileState);
+
+    if (
+      isNonControlledMode &&
+      hasChanged &&
+      selectedFileState &&
+      selectedFileState.length > 1 &&
+      autoExpandFolder
+    ) {
+      const pathArray = selectedFileState;
+      const parentPaths = pathArray
+        .slice(0, -1)
+        .map((_, index) => pathArray.slice(0, index + 1).join('/'));
+
+      const newExpandedPaths = Array.from(new Set([...expandedPathsState, ...parentPaths]));
+      setExpandedPaths(newExpandedPaths);
+      onExpandedPathsChange?.(newExpandedPaths);
     }
-  }, [selectedFileState, mode, loadFileContent]);
 
-  // ============================ Preview Helpers ============================
-  const getFileExtension = (path = '') => {
-    const parts = path.split('.');
-    return parts[parts.length - 1] || '';
-  };
+    prevSelectedFileRef.current = selectedFileState;
+  }, [
+    selectedFileState,
+    autoExpandFolder,
+    expandedPaths,
+    expandedPathsState,
+    setExpandedPaths,
+    onExpandedPathsChange,
+  ]);
 
-  const getLanguageFromExtension = (ext: string) => {
-    const languageMap: Record<string, string> = {
-      js: 'javascript',
-      jsx: 'jsx',
-      ts: 'typescript',
-      tsx: 'tsx',
-      json: 'json',
-      css: 'css',
-      less: 'less',
-      scss: 'scss',
-      sass: 'sass',
-      html: 'html',
-      xml: 'xml',
-      md: 'markdown',
-      py: 'python',
-      java: 'java',
-      c: 'c',
-      cpp: 'cpp',
-      cs: 'csharp',
-      php: 'php',
-      rb: 'ruby',
-      go: 'go',
-      rs: 'rust',
-      sh: 'bash',
-      yml: 'yaml',
-      yaml: 'yaml',
-    };
-    return languageMap[ext.toLowerCase()] || 'text';
-  };
-
-  const renderPreview = () => {
-    if (mode !== 'tree-with-preview') return null;
-
-    const renderContent = () => {
-      if (loading) {
-        return (
-          <div className={clsx(`${prefixCls}-loading-container`, classNames?.preview)}>
-            <Spin size="large" />
-          </div>
-        );
-      }
-
-      if (error) {
-        return (
-          <div className={clsx(`${prefixCls}-error-container`, classNames?.preview)}>
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={error} />
-          </div>
-        );
-      }
-
-      if (!selectedFileState || selectedFileState.length === 0) {
-        return (
-          <div className={clsx(`${prefixCls}-empty-container`, classNames?.preview)}>
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="请选择一个文件" />
-          </div>
-        );
-      }
-
-      const fullPath = selectedFileState.join('/');
-      const extension = getFileExtension(fullPath);
-      const language = getLanguageFromExtension(extension);
-
-      return (
-        <div className={clsx(`${prefixCls}-content`, classNames?.content)}>
-          <div
-            className={clsx(`${prefixCls}-header`, classNames?.header)}
-            style={{ ...contextConfig.styles?.header, ...styles?.header }}
-          >
-            <span className={`${prefixCls}-filename`}>{fullPath}</span>
-          </div>
-          <div className={clsx(`${prefixCls}-code`, classNames?.content)}>
-            <CodeHighlighter lang={language}>{fileContent}</CodeHighlighter>
-          </div>
-        </div>
-      );
-    };
-
-    return (
-      <div
-        className={clsx(`${prefixCls}-preview`, classNames?.preview)}
-        style={{ ...contextConfig.styles?.preview, ...styles?.preview }}
-      >
-        {renderContent()}
-      </div>
-    );
-  };
+  useEffect(() => {
+    if (selectedFileState && selectedFileState.length > 0) {
+      loadFileContent(selectedFileState);
+    }
+  }, [selectedFileState, loadFileContent]);
 
   // ============================ Style ============================
   const mergedStyle = {
@@ -362,71 +294,46 @@ const Folder: React.FC<FolderProps> = (props) => {
     ...style,
   };
 
-  // ============================ Render ============================
-  const treeDataConverted = convertToTreeData(treeData);
-
-  if (mode === 'tree-with-preview') {
-    return (
-      <div className={mergedCls} style={mergedStyle}>
-        {title && (
-          <div
-            className={clsx(`${prefixCls}-header`, classNames?.header)}
-            style={{ ...contextConfig.styles?.header, ...styles?.header }}
-          >
-            {title}
-          </div>
-        )}
-        <div className={`${prefixCls}-container`}>
-          <div
-            className={clsx(`${prefixCls}-tree`, classNames?.tree)}
-            style={{ width: '50%', ...contextConfig.styles?.tree, ...styles?.tree }}
-          >
-            <DirectoryTree
-              treeData={treeDataConverted}
-              height={height}
-              selectedKeys={selectable && selectedFileState ? selectedFileState : undefined}
-              expandedKeys={expandedKeysState}
-              onSelect={handleSelect}
-              onExpand={handleExpand}
-              multiple={multiple}
-              blockNode
-              showLine
-              defaultExpandAll
-            />
-          </div>
-          {renderPreview()}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={mergedCls} style={mergedStyle}>
-      {title && (
+      <Flex className={`${prefixCls}-container`}>
         <div
-          className={clsx(`${prefixCls}-header`, classNames?.header)}
-          style={{ ...contextConfig.styles?.header, ...styles?.header }}
+          className={clsx(`${prefixCls}-tree`, classNames?.tree)}
+          style={{ width: 378, ...contextConfig.styles?.tree, ...styles?.tree }}
         >
-          {title}
+          <DirectoryTree
+            prefixCls={customizePrefixCls}
+            treeData={treeData}
+            selectedKeys={
+              selectable && selectedFileState ? [selectedFileState.join('/')] : undefined
+            }
+            expandedKeys={expandedPathsState}
+            onSelect={handleSelect}
+            onExpand={handleExpand}
+            multiple={multiple}
+            blockNode
+            defaultExpandAll
+            folderTitle={folderTitle}
+          />
         </div>
-      )}
-      <div
-        className={clsx(`${prefixCls}-tree`, classNames?.tree)}
-        style={{ ...contextConfig.styles?.tree, ...styles?.tree }}
-      >
-        <DirectoryTree
-          treeData={treeDataConverted}
-          height={height}
-          selectedKeys={selectable && selectedFileState ? selectedFileState : undefined}
-          expandedKeys={expandedKeysState}
-          onSelect={handleSelect}
-          onExpand={handleExpand}
-          multiple={multiple}
-          blockNode
-          showLine
-          defaultExpandAll
+        <FilePreview
+          prefixCls={customizePrefixCls}
+          classNames={classNames}
+          styles={styles}
+          selectedFile={selectedFileState}
+          fileContent={fileContent}
+          loading={loading}
+          error={error}
+          contentTitle={contentTitle}
+          getFileNode={(path) => {
+            if (!path || path.length === 0) return undefined;
+            const pathString = path.join('/');
+            const segments = pathString.split('/').filter((segment) => segment !== '');
+            const node = findNodeByPath(treeData, segments);
+            return node ? { title: node.title, path: node.path, content: node.content } : undefined;
+          }}
         />
-      </div>
+      </Flex>
     </div>
   );
 };

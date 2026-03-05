@@ -133,8 +133,7 @@ export default () => {
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>受控文件选择模式</h2>
+    <div style={{ padding: 24, height: 700 }}>
       <Space style={{ marginBottom: 16 }}>
         <Button type="primary" onClick={handleSelectButton}>
           选择 Button.tsx
@@ -153,9 +152,7 @@ export default () => {
       </div>
       <Folder
         treeData={treeData}
-        title="文件浏览器"
-        mode="tree-with-preview"
-        height={400}
+        folderTitle="文件浏览器"
         selectedFile={selectedFile}
         onSelectedFileChange={setSelectedFile}
       />

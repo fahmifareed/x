@@ -122,23 +122,24 @@ export default () => {
     'components',
     'Button.tsx',
   ]);
-  const [expandedKeys, setExpandedKeys] = useState<string[]>(['src']);
+  const [expandedPaths, setExpandedPaths] = useState<string[]>(['src']);
 
   const handleReset = () => {
     setSelectedFile(['src', 'components', 'Button.tsx']);
-    setExpandedKeys(['src']);
+    setExpandedPaths(['src']);
   };
 
   const handleExpandAll = () => {
-    setExpandedKeys(['src', 'src/components', 'src/utils']);
+    setExpandedPaths(['src', 'src/components', 'src/utils']);
   };
 
   const handleCollapseAll = () => {
-    setExpandedKeys([]);
+    setExpandedPaths([]);
   };
 
   const handleSelectPackage = () => {
     setSelectedFile(['package.json']);
+    setExpandedPaths([]);
   };
 
   return (
@@ -153,28 +154,25 @@ export default () => {
         <Button onClick={handleSelectPackage}>选择 package.json</Button>
       </Space>
 
-      <Card style={{ marginBottom: 16 }}>
-        <Space direction="vertical">
+      <Card style={{ marginBottom: 16, height: 700 }}>
+        <Space vertical>
           <div>
             <strong>当前选中文件：</strong>{' '}
             {selectedFile && selectedFile.length > 0 ? selectedFile.join('/') : '无'}
           </div>
           <div>
-            <strong>展开节点：</strong> {expandedKeys.join(', ') || '无'}
+            <strong>展开节点：</strong> {expandedPaths.join(', ') || '无'}
           </div>
         </Space>
       </Card>
 
       <Folder
         treeData={treeData}
-        title="文件浏览器"
-        mode="tree-with-preview"
-        height={400}
-        selectable
+        folderTitle="文件浏览器"
         selectedFile={selectedFile}
         onSelectedFileChange={setSelectedFile}
-        expandedKeys={expandedKeys}
-        onExpand={setExpandedKeys}
+        expandedPaths={expandedPaths}
+        onExpandedPathsChange={setExpandedPaths}
       />
     </div>
   );

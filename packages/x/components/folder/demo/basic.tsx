@@ -77,14 +77,10 @@ export default Input;`,
 ];
 
 export default () => (
-  <div style={{ padding: 24 }}>
-    <h2>基础用法 - 树形结构带预览</h2>
+  <div style={{ padding: 24, height: 500 }}>
     <Folder
       treeData={treeData}
-      title="项目文件浏览器"
-      mode="tree-with-preview"
-      height={500}
-      selectable
+      folderTitle="项目文件浏览器"
       defaultSelectedFile={['package.json']}
     />
   </div>

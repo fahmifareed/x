@@ -114,13 +114,14 @@ export default App;`,
 }
 
 export default () => (
-  <div style={{ padding: 24 }}>
-    <h2>自定义文件服务 - 模拟加载</h2>
+  <div style={{ padding: 24, height: 500 }}>
     <Folder
       treeData={treeData}
-      title="自定义文件浏览器"
-      mode="tree-with-preview"
-      height={450}
+      folderTitle="自定义文件浏览器"
+      contentTitle={(...arg) => {
+        console.log(arg, 1111);
+        return 'asdsad';
+      }}
       fileContentService={new CustomFileContentService()}
       defaultSelectedFile={['src', 'App.js']}
     />
