@@ -1,7 +1,3 @@
-/**
- * iframe: 600
- */
-
 import type { FolderProps } from '@ant-design/x';
 import { Folder } from '@ant-design/x';
 import { Button, Flex, Space } from 'antd';
