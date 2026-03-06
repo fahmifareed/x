@@ -4,7 +4,6 @@
 
 import type { FolderProps } from '@ant-design/x';
 import { Folder } from '@ant-design/x';
-import { Flex } from 'antd';
 import React from 'react';
 
 const treeData: FolderProps['treeData'] = [
