@@ -121,6 +121,21 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
         onExpand={onExpand}
         multiple={multiple}
         blockNode={blockNode}
+        styles={
+          {
+            // root:{
+            //  display: "flex",
+            // },
+            // itemTitle: {
+            //   display: "flex",
+            //   whiteSpace: "nowrap",
+            //   paddingInlineEnd: 20
+            // }
+          }
+        }
+        classNames={{
+          itemTitle: `${prefixCls}-directory-tree-item-title`,
+        }}
         showLine={showLine}
         defaultExpandAll={defaultExpandAll}
         className={clsx(`${prefixCls}-directory-tree-content`)}

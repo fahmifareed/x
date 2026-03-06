@@ -1,4 +1,5 @@
 import { mergeToken } from '@ant-design/cssinjs-utils';
+import { FastColor } from '@ant-design/fast-color';
 import { genStyleHooks } from '../../theme/genStyleUtils';
 import type { FullToken, GenerateStyle, GetDefaultToken } from '../../theme/interface';
 
@@ -8,22 +9,45 @@ export interface ComponentToken {
    * @descEN Background color of directory
    */
   colorBgDirectory: string;
+  colorBgDirectorySelected: string;
 }
 
 export interface FolderToken extends FullToken<'Folder'> {}
 
 const genFolderStyle: GenerateStyle<FolderToken> = (token) => {
-  const { componentCls } = token;
+  const { componentCls, antCls } = token;
 
   return {
     [componentCls]: {
       height: '100%',
+      background: token.colorBgDirectory,
+      [`${antCls}-tree-node-content-wrapper`]: {
+        display: 'flex',
+      },
+      [`${antCls}-tree-node-content-wrapper-open,${antCls}-tree-node-content-wrapper-close`]: {
+        display: 'flex',
+      },
+      [`${antCls}-tree-node-content-wrapper-normal`]: {
+        display: 'flex',
+      },
+      [`${antCls}-tree-list`]: {
+        width: '100%',
+      },
+      [`${antCls}-tree-switcher`]: {
+        width: '10px',
+        '&:before': {
+          width: '10px',
+          height: '10px',
+        },
+      },
+      [`${antCls}-tree-node-content-wrapper`]: {
+        paddingInline: 0,
+      },
       [`${componentCls}-container`]: {
         height: '100%',
       },
       [`${componentCls}-directory-tree`]: {
         height: '100%',
-        background: token.colorBgDirectory,
       },
       [`${componentCls}-directory-tree-title`]: {
         width: '100%',
@@ -36,6 +60,7 @@ const genFolderStyle: GenerateStyle<FolderToken> = (token) => {
         borderRadius: 'unset',
         paddingInline: token.padding,
         paddingBlock: token.paddingXS,
+        display: 'flex',
       },
       [`&${componentCls}-rtl`]: {
         direction: 'rtl',
@@ -77,6 +102,11 @@ const genFilePreviewStyle: GenerateStyle<FolderToken> = (token) => {
       [`${componentCls}-preview-empty-container`]: {
         marginBlockStart: token.calc(token.marginLG).mul(3).equal(),
       },
+      [`${componentCls}-directory-tree-item-title`]: {
+        display: 'flex',
+        whiteSpace: 'nowrap',
+        paddingInlineEnd: token.padding,
+      },
     },
   };
 };
@@ -84,6 +114,7 @@ const genFilePreviewStyle: GenerateStyle<FolderToken> = (token) => {
 export const prepareComponentToken: GetDefaultToken<'Folder'> = (token) => {
   return {
     colorBgDirectory: token.colorFillTertiary,
+    colorBgDirectorySelected: new FastColor(token.colorPrimary).setA(0.45).toString(),
   };
 };
 
