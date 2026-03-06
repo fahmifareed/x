@@ -683,22 +683,6 @@ export default ChatWithRegenerate;
 
 export default () => (
   <div style={{ padding: 24, height: 500 }}>
-    <Folder
-      treeData={treeData}
-      directoryTitle={
-        <Flex
-          style={{
-            paddingInline: 16,
-            width: '100%',
-            paddingBlock: 8,
-            borderBottom: '1px solid #f0f0f0',
-          }}
-          align="center"
-        >
-          项目文件浏览器
-        </Flex>
-      }
-      defaultSelectedFile={['use-x-chat', 'SKILL.md']}
-    />
+    <Folder treeData={treeData} defaultSelectedFile={['use-x-chat', 'SKILL.md']} />
   </div>
 );
