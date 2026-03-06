@@ -87,7 +87,7 @@ const Folder: React.FC<FolderProps> = (props) => {
     defaultExpandAll = true,
     selectedFile,
     onSelectedFileChange,
-    directoryTreeWith = 378,
+    directoryTreeWith = 278,
     empty,
     multiple = false,
     defaultExpandedPaths,
