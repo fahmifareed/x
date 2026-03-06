@@ -306,7 +306,7 @@ export default () => (
   <div style={{ padding: 24, height: 500 }}>
     <Folder
       treeData={treeData}
-      folderTitle={
+      directoryTitle={
         <Flex
           style={{
             paddingInline: 16,
@@ -319,7 +319,7 @@ export default () => (
           自定义文件浏览器
         </Flex>
       }
-      contentTitle={({ path }) => {
+      previewTitle={({ path }) => {
         return path.join('/');
       }}
       fileContentService={new CustomFileContentService()}

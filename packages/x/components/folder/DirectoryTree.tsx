@@ -5,6 +5,7 @@ import type { DataNode } from 'antd/es/tree';
 import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import { useXProviderContext } from '../x-provider';
+import type { SemanticType } from '.';
 // 文件树节点类型
 export interface FileTreeNode {
   title: string;
@@ -26,6 +27,8 @@ export interface DirectoryTreeProps {
   defaultExpandAll?: boolean;
   blockNode?: boolean;
   className?: string;
+  classNames?: Partial<Record<SemanticType, string>>;
+  styles?: Partial<Record<SemanticType, React.CSSProperties>>;
   style?: React.CSSProperties;
   directoryTitle?: React.ReactNode | (() => React.ReactNode);
   prefixCls?: string;
@@ -42,6 +45,8 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   defaultExpandAll = true,
   blockNode = true,
   className,
+  classNames,
+  styles,
   style,
   directoryTitle,
   prefixCls: customizePrefixCls,
@@ -95,7 +100,19 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const prefixCls = getPrefixCls('folder', customizePrefixCls);
   return (
     <>
-      {titleNode ? <div className={clsx(`${prefixCls}-tree-title`)}> {titleNode}</div> : null}
+      {titleNode ? (
+        <div
+          style={{ ...styles?.directoryTitle, ...style }}
+          className={clsx(
+            `${prefixCls}-directory-tree-title`,
+            className,
+            classNames?.directoryTitle,
+          )}
+        >
+          {' '}
+          {titleNode}
+        </div>
+      ) : null}
       <AntDirectoryTree
         treeData={treeDataConverted}
         selectedKeys={selectedKeys}
@@ -106,8 +123,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
         blockNode={blockNode}
         showLine={showLine}
         defaultExpandAll={defaultExpandAll}
-        className={clsx(`${prefixCls}-tree-content`, className)}
-        style={style}
+        className={clsx(`${prefixCls}-directory-tree-content`)}
       />
     </>
   );

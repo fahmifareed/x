@@ -179,7 +179,7 @@ export default () => {
       </div>
       <Folder
         treeData={treeData}
-        folderTitle={
+        directoryTitle={
           <Flex
             style={{
               paddingInline: 16,

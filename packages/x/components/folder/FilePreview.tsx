@@ -8,13 +8,14 @@ import ActionsCopy from '../actions/ActionsCopy';
 import { useLocale } from '../locale';
 import enUS from '../locale/en_US';
 import { useXProviderContext } from '../x-provider';
+import type { SemanticType } from '.';
 import useStyle from './style';
 
 export interface FileViewProps {
   prefixCls?: string;
   style?: React.CSSProperties;
-  classNames?: Partial<Record<'preview' | 'header' | 'content', string>>;
-  styles?: Partial<Record<'preview' | 'header' | 'content', React.CSSProperties>>;
+  classNames?: Partial<Record<SemanticType, string>>;
+  styles?: Partial<Record<SemanticType, React.CSSProperties>>;
   selectedFile?: string[] | null;
   fileContent?: string;
   loading?: boolean;
@@ -82,7 +83,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
   const renderContent = () => {
     if (loading) {
       return (
-        <div className={clsx(`${previewCls}-loading-container`, classNames?.preview)}>
+        <div className={clsx(`${previewCls}-loading-container`, classNames?.previewContent)}>
           <Spin />
         </div>
       );
@@ -90,7 +91,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
 
     if (error) {
       return (
-        <div className={clsx(`${previewCls}-error-container`, classNames?.preview)}>
+        <div className={clsx(`${previewCls}-error-container`, classNames?.previewContent)}>
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={contextLocale.loadError} />
         </div>
       );
@@ -105,7 +106,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
             );
 
       return (
-        <div className={clsx(`${previewCls}-empty-container`, classNames?.preview)}>
+        <div className={clsx(`${previewCls}-empty-container`, classNames?.previewContent)}>
           {emptyNode}
         </div>
       );
@@ -137,9 +138,11 @@ const FileView: React.FC<FileViewProps> = (props) => {
     }
 
     return (
-      <div className={clsx(`${previewCls}-content`, classNames?.content)}>
-        {headerNode}
-        <div className={`${previewCls}-code`}>
+      <>
+        <div className={clsx(`${previewCls}-title-wrapper`, classNames?.previewTitle)}>
+          {headerNode}
+        </div>
+        <div className={clsx(`${previewCls}-content`, classNames?.previewContent)}>
           <SyntaxHighlighter
             language={language}
             wrapLines={true}
@@ -149,14 +152,14 @@ const FileView: React.FC<FileViewProps> = (props) => {
             {fileContent.replace(/\n$/, '')}
           </SyntaxHighlighter>
         </div>
-      </div>
+      </>
     );
   };
 
   return (
     <div
-      className={clsx(`${prefixCls}-preview`, classNames?.preview, hashId, cssVarCls)}
-      style={{ ...contextConfig.styles?.preview, ...styles?.preview, ...style }}
+      className={clsx(`${prefixCls}-preview`, classNames?.filePreview, hashId, cssVarCls)}
+      style={{ ...contextConfig.styles?.filePreview, ...styles?.filePreview, ...style }}
     >
       {renderContent()}
     </div>

@@ -17,12 +17,12 @@ export interface FileContentService {
   loadFileContent(filePath: string): Promise<string>;
 }
 
-type SemanticType =
+export type SemanticType =
   | 'root'
   | 'directoryTree'
+  | 'directoryTitle'
   | 'filePreview'
   | 'previewTitle'
-  | 'preview'
   | 'previewContent';
 
 // 文件夹属性
@@ -370,8 +370,12 @@ const Folder: React.FC<FolderProps> = (props) => {
     <div className={mergedCls} style={mergedStyle}>
       <Flex className={`${prefixCls}-container`}>
         <div
-          className={clsx(`${prefixCls}-tree`, classNames?.tree)}
-          style={{ width: menuWith, ...contextConfig.styles?.tree, ...styles?.tree }}
+          className={clsx(`${prefixCls}-directory-tree`, classNames?.directoryTree)}
+          style={{
+            width: menuWith,
+            ...contextConfig.styles?.directoryTree,
+            ...styles?.directoryTree,
+          }}
         >
           <DirectoryTree
             prefixCls={customizePrefixCls}
@@ -379,6 +383,8 @@ const Folder: React.FC<FolderProps> = (props) => {
             selectedKeys={
               selectable && selectedFileState ? [selectedFileState.join('/')] : undefined
             }
+            classNames={classNames}
+            styles={styles}
             expandedKeys={expandedPathsState}
             onSelect={handleSelect}
             onExpand={handleExpand}

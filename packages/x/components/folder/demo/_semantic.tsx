@@ -9,29 +9,19 @@ import useLocale from '../../../.dumi/hooks/useLocale';
 const locales = {
   cn: {
     root: '根节点',
-    tree: '目录树容器',
-    preview: '文件预览容器',
-    header: '标题容器',
-    content: '内容容器',
-    treeTitle: '目录树标题',
-    treeContent: '目录树内容',
+    directoryTree: '目录树容器',
+    directoryTitle: '目录树标题',
+    filePreview: '文件预览容器',
     previewTitle: '预览标题',
     previewContent: '预览内容',
-    filename: '文件名',
-    copy: '复制按钮',
   },
   en: {
     root: 'Root',
-    tree: 'Directory tree container',
-    preview: 'File preview container',
-    header: 'Header container',
-    content: 'Content container',
-    treeTitle: 'Directory tree title',
-    treeContent: 'Directory tree content',
+    directoryTree: 'Directory tree container',
+    directoryTitle: 'Directory tree title',
+    filePreview: 'File preview container',
     previewTitle: 'Preview title',
     previewContent: 'Preview content',
-    filename: 'Filename',
-    copy: 'Copy button',
   },
 };
 
@@ -158,21 +148,16 @@ const App: React.FC = () => {
       componentName="Folder"
       semantics={[
         { name: 'root', desc: locale.root },
-        { name: 'tree', desc: locale.tree },
-        { name: 'preview', desc: locale.preview },
-        { name: 'header', desc: locale.header },
-        { name: 'content', desc: locale.content },
-        { name: 'treeTitle', desc: locale.treeTitle },
-        { name: 'treeContent', desc: locale.treeContent },
+        { name: 'directoryTree', desc: locale.directoryTree },
+        { name: 'directoryTitle', desc: locale.directoryTitle },
+        { name: 'filePreview', desc: locale.filePreview },
         { name: 'previewTitle', desc: locale.previewTitle },
         { name: 'previewContent', desc: locale.previewContent },
-        { name: 'filename', desc: locale.filename },
-        { name: 'copy', desc: locale.copy },
       ]}
     >
       <Folder
         treeData={treeData}
-        folderTitle={
+        directoryTitle={
           <Flex
             style={{
               paddingInline: 16,

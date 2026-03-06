@@ -154,7 +154,7 @@ export default () => {
       <Folder
         style={{ height: 500 }}
         treeData={treeData}
-        folderTitle={
+        directoryTitle={
           <Flex
             style={{
               paddingInline: 16,

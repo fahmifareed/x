@@ -13,32 +13,29 @@ export interface ComponentToken {
 export interface FolderToken extends FullToken<'Folder'> {}
 
 const genFolderStyle: GenerateStyle<FolderToken> = (token) => {
-  const { antCls, componentCls } = token;
+  const { componentCls } = token;
 
   return {
     [componentCls]: {
       height: '100%',
-      [`${antCls}-tree`]: {
-        background: 'transparent',
-        borderRadius: 'unset',
+      [`${componentCls}-container`]: {
+        height: '100%',
       },
-      [`${componentCls}-tree-title`]: {
+      [`${componentCls}-directory-tree`]: {
+        height: '100%',
+        background: token.colorBgDirectory,
+      },
+      [`${componentCls}-directory-tree-title`]: {
         width: '100%',
         display: 'flex',
         alignItems: 'center',
       },
-      [`${componentCls}-tree-content`]: {
+      [`${componentCls}-directory-tree-content`]: {
+        width: '100%',
+        background: 'transparent',
+        borderRadius: 'unset',
         paddingInline: token.padding,
         paddingBlock: token.paddingXS,
-      },
-      [`${componentCls}-container`]: {
-        height: '100%',
-      },
-      [`${componentCls}-tree`]: {
-        background: token.colorBgDirectory,
-      },
-      [`${componentCls}-content`]: {
-        width: '100%',
       },
       [`&${componentCls}-rtl`]: {
         direction: 'rtl',
@@ -55,6 +52,9 @@ const genFilePreviewStyle: GenerateStyle<FolderToken> = (token) => {
       [`${componentCls}-preview`]: {
         background: token.colorBgContainer,
         flex: 1,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
       },
       [`${componentCls}-preview-title`]: {
         background: token.colorBgContainer,
@@ -63,11 +63,6 @@ const genFilePreviewStyle: GenerateStyle<FolderToken> = (token) => {
         borderBottom: `1px solid ${token.colorBorderSecondary}`,
       },
       [`${componentCls}-preview-content`]: {
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      },
-      [`${componentCls}-preview-code`]: {
         overflow: 'auto',
         background: token.colorBgContainer,
         paddingInline: token.padding,
