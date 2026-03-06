@@ -17,7 +17,7 @@ const treeData: FolderProps['treeData'] = [
         path: 'SKILL.md',
         content: `---
 name: x-chat-provider
-version: 2.3.0-beta.1
+version: 2.3.0
 description: Focus on implementing custom Chat Provider, helping to adapt any streaming interface to Ant Design X standard format
 ---
 
@@ -141,18 +141,14 @@ transformMessage(info) {
 ];
 
 export default () => {
-  const [selectedFile, setSelectedFile] = useState<string[]>(['src', 'components', 'Button.tsx']);
+  const [selectedFile, setSelectedFile] = useState<string[]>();
 
-  const handleSelectButton = () => {
-    setSelectedFile(['src', 'components', 'Button.tsx']);
+  const handleSelectSkill = () => {
+    setSelectedFile(['x-chat-provider', 'SKILL.md']);
   };
 
-  const handleSelectInput = () => {
-    setSelectedFile(['src', 'components', 'Input.tsx']);
-  };
-
-  const handleSelectPackage = () => {
-    setSelectedFile(['package.json']);
+  const handleSelectExamples = () => {
+    setSelectedFile(['x-chat-provider', 'reference', 'EXAMPLES.md']);
   };
 
   const handleClearSelection = () => {
@@ -162,19 +158,16 @@ export default () => {
   return (
     <div style={{ padding: 24, height: 450 }}>
       <Space style={{ marginBottom: 16 }}>
-        <Button type="primary" onClick={handleSelectButton}>
-          选择 Button.tsx
+        <Button type="primary" onClick={handleSelectSkill}>
+          选择 SKILL.md
         </Button>
-        <Button type="primary" onClick={handleSelectInput}>
-          选择 Input.tsx
-        </Button>
-        <Button type="primary" onClick={handleSelectPackage}>
-          选择 package.json
+        <Button type="primary" onClick={handleSelectExamples}>
+          选择 EXAMPLES.md
         </Button>
         <Button onClick={handleClearSelection}>清除选择</Button>
       </Space>
       <div style={{ marginBottom: 16 }}>
-        <strong>当前选中文件：</strong>{' '}
+        <strong>当前选中文件：</strong>
         {selectedFile && selectedFile.length > 0 ? selectedFile.join('/') : '无'}
       </div>
       <Folder
@@ -189,12 +182,12 @@ export default () => {
             }}
             align="center"
           >
-            文件浏览器
+            项目文件浏览器
           </Flex>
         }
         selectedFile={selectedFile}
-        onSelectedFileChange={(...props) => {
-          console.log('onSelectedFileChange', ...props);
+        onSelectedFileChange={({ path }) => {
+          setSelectedFile(path);
         }}
       />
     </div>

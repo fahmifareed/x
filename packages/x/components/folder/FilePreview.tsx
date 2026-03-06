@@ -19,7 +19,6 @@ export interface FileViewProps {
   selectedFile?: string[] | null;
   fileContent?: string;
   loading?: boolean;
-  error?: string;
   previewTitle?:
     | string
     | (({
@@ -55,14 +54,12 @@ const FileView: React.FC<FileViewProps> = (props) => {
     selectedFile,
     fileContent = '',
     loading = false,
-    error = '',
     previewTitle,
     getFileNode,
     empty,
   } = props;
 
   const [contextLocale] = useLocale('Folder', enUS.Folder);
-
   // ============================ Prefix ============================
   const { getPrefixCls } = useXProviderContext();
   const prefixCls = getPrefixCls('folder', customizePrefixCls);
@@ -85,14 +82,6 @@ const FileView: React.FC<FileViewProps> = (props) => {
       return (
         <div className={clsx(`${previewCls}-loading-container`, classNames?.previewContent)}>
           <Spin />
-        </div>
-      );
-    }
-
-    if (error) {
-      return (
-        <div className={clsx(`${previewCls}-error-container`, classNames?.previewContent)}>
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={contextLocale.loadError} />
         </div>
       );
     }
