@@ -193,7 +193,9 @@ export default () => {
           </Flex>
         }
         selectedFile={selectedFile}
-        onSelectedFileChange={setSelectedFile}
+        onSelectedFileChange={(...props) => {
+          console.log('onSelectedFileChange', ...props);
+        }}
       />
     </div>
   );

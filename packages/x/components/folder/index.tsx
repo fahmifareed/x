@@ -40,7 +40,7 @@ export interface FolderProps {
   selectable?: boolean;
   selectedFile?: string[];
   defaultSelectedFile?: string[];
-  onSelectedFileChange?: (filePath: string[], content?: string[]) => void;
+  onSelectedFileChange?: (file: { path: string[]; name?: string; content?: string }) => void;
   multiple?: boolean;
   autoExpandFolder?: boolean;
   menuWith?: number | string;
@@ -243,16 +243,12 @@ const Folder: React.FC<FolderProps> = (props) => {
       }
     }
 
-    // 获取所有选中文件的内容
-    const fileContents: string[] = [];
-    nodes.forEach((node) => {
-      const fileNode = node as unknown as FileTreeNode;
-      if (fileNode.content) {
-        fileContents.push(fileNode.content);
-      }
-    });
+    // 获取选中文件的名称和内容（单文件选择时）
+    const selectedNode = nodes[0] as unknown as FileTreeNode | undefined;
+    const fileName = selectedNode?.title as string | undefined;
+    const fileContent = selectedNode?.content as string | undefined;
 
-    onSelectedFileChange?.(pathArray, fileContents);
+    onSelectedFileChange?.({ path: pathArray, name: fileName, content: fileContent });
 
     // 处理单个文件点击事件
     if (nodes.length === 1) {
@@ -322,6 +318,8 @@ const Folder: React.FC<FolderProps> = (props) => {
         );
         // 清空无效的路径，让组件处于没有选择文件的状态
         setSelectedFileState([]);
+        setFileContent('');
+        onSelectedFileChange?.({ path: [], name: undefined, content: undefined });
         return;
       }
       loadFileContent(selectedFileState);

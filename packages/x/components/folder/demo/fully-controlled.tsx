@@ -168,7 +168,7 @@ export default () => {
           </Flex>
         }
         selectedFile={selectedFile}
-        onSelectedFileChange={setSelectedFile}
+        onSelectedFileChange={({ path }) => setSelectedFile(path)}
         expandedPaths={expandedPaths}
         onExpandedPathsChange={setExpandedPaths}
       />
