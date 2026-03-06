@@ -1,6 +1,6 @@
 import { useControlledState } from '@rc-component/util';
 import type { TreeProps } from 'antd';
-import { Flex } from 'antd';
+import { Flex, Splitter } from 'antd';
 import { clsx } from 'clsx';
 import React, { useCallback, useEffect, useState } from 'react';
 import useXComponentConfig from '../_util/hooks/use-x-component-config';
@@ -41,7 +41,7 @@ export interface FolderProps {
   defaultSelectedFile?: string[];
   onSelectedFileChange?: (file: { path: string[]; name?: string; content?: string }) => void;
   multiple?: boolean;
-  menuWith?: number | string;
+  directoryTreeWith?: number | string;
   empty?: React.ReactNode | (() => React.ReactNode);
   // 展开控制
   defaultExpandedPaths?: string[];
@@ -87,7 +87,7 @@ const Folder: React.FC<FolderProps> = (props) => {
     defaultExpandAll = true,
     selectedFile,
     onSelectedFileChange,
-    menuWith = 378,
+    directoryTreeWith = 378,
     empty,
     multiple = false,
     defaultExpandedPaths,
@@ -301,53 +301,58 @@ const Folder: React.FC<FolderProps> = (props) => {
   return (
     <div className={mergedCls} style={mergedStyle}>
       <Flex className={`${prefixCls}-container`}>
-        <div
-          className={clsx(`${prefixCls}-directory-tree`, classNames?.directoryTree)}
-          style={{
-            width: menuWith,
-            overflow: 'auto',
-            ...contextConfig.styles?.directoryTree,
-            ...styles?.directoryTree,
-          }}
-        >
-          <DirectoryTree
-            directoryIcons={directoryIcons}
-            prefixCls={customizePrefixCls}
-            treeData={treeData}
-            selectedKeys={
-              selectable && selectedFileState && validSelectedFile
-                ? [selectedFileState.join('/')]
-                : []
-            }
-            classNames={classNames}
-            styles={styles}
-            expandedKeys={expandedPathsState}
-            onSelect={handleSelect}
-            onExpand={handleExpand}
-            multiple={multiple}
-            blockNode
-            defaultExpandAll={defaultExpandAll}
-            directoryTitle={directoryTitle}
-          />
-        </div>
-        <FilePreview
-          empty={empty}
-          prefixCls={customizePrefixCls}
-          classNames={classNames}
-          styles={styles}
-          style={{
-            width: `calc(100% - ${typeof menuWith === 'number' ? `${menuWith}px` : menuWith})`,
-          }}
-          selectedFile={validSelectedFile ? selectedFileState : []}
-          fileContent={fileContent}
-          loading={loadingContent}
-          previewTitle={previewTitle}
-          getFileNode={(path) => {
-            if (!path || path.length === 0) return undefined;
-            const { node } = findNodeAndValidate(path);
-            return node ? { title: node.title, path: node.path, content: node.content } : undefined;
-          }}
-        />
+        <Splitter>
+          <Splitter.Panel defaultSize={directoryTreeWith}>
+            <div
+              className={clsx(`${prefixCls}-directory-tree`, classNames?.directoryTree)}
+              style={{
+                width: directoryTreeWith,
+                overflow: 'auto',
+                ...contextConfig.styles?.directoryTree,
+                ...styles?.directoryTree,
+              }}
+            >
+              <DirectoryTree
+                directoryIcons={directoryIcons}
+                prefixCls={customizePrefixCls}
+                treeData={treeData}
+                selectedKeys={
+                  selectable && selectedFileState && validSelectedFile
+                    ? [selectedFileState.join('/')]
+                    : []
+                }
+                classNames={classNames}
+                styles={styles}
+                expandedKeys={expandedPathsState}
+                onSelect={handleSelect}
+                onExpand={handleExpand}
+                multiple={multiple}
+                blockNode
+                defaultExpandAll={defaultExpandAll}
+                directoryTitle={directoryTitle}
+              />
+            </div>
+          </Splitter.Panel>
+          <Splitter.Panel>
+            <FilePreview
+              empty={empty}
+              prefixCls={customizePrefixCls}
+              classNames={classNames}
+              styles={styles}
+              selectedFile={validSelectedFile ? selectedFileState : []}
+              fileContent={fileContent}
+              loading={loadingContent}
+              previewTitle={previewTitle}
+              getFileNode={(path) => {
+                if (!path || path.length === 0) return undefined;
+                const { node } = findNodeAndValidate(path);
+                return node
+                  ? { title: node.title, path: node.path, content: node.content }
+                  : undefined;
+              }}
+            />
+          </Splitter.Panel>
+        </Splitter>
       </Flex>
     </div>
   );

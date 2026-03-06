@@ -20,6 +20,7 @@ const genFolderStyle: GenerateStyle<FolderToken> = (token) => {
   return {
     [componentCls]: {
       height: '100%',
+      width: '100%',
       background: token.colorBgDirectory,
       [`${antCls}-tree-node-content-wrapper`]: {
         display: 'flex',
@@ -75,6 +76,7 @@ const genFilePreviewStyle: GenerateStyle<FolderToken> = (token) => {
   return {
     [componentCls]: {
       [`${componentCls}-preview`]: {
+        width: '100%',
         background: token.colorBgContainer,
         flex: 1,
         height: '100%',

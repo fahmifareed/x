@@ -157,6 +157,7 @@ const App: React.FC = () => {
     >
       <Folder
         treeData={treeData}
+        directoryTreeWith={200}
         directoryTitle={
           <Flex
             style={{
