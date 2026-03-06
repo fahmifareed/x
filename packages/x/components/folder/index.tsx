@@ -99,70 +99,52 @@ const Folder: React.FC<FolderProps> = (props) => {
 
   // ============================ State ============================
 
-  const findNodeByPath = useCallback(
+  // 查找节点并验证路径
+  const findNodeAndValidate = useCallback(
     (
-      nodes: FolderTreeNode[],
-      segments: string[],
-      index = 0,
-      depth = 0,
-    ): FolderTreeNode | undefined => {
-      // 防止无限递归，设置最大深度限制
-      if (depth > 50 || index >= segments.length) return undefined;
+      path: string | string[],
+      validateAsFile = false,
+    ): { node: FolderTreeNode | undefined; isValid: boolean } => {
+      if (!path) return { node: undefined, isValid: false };
 
-      const currentSegment = segments[index];
-      for (const node of nodes) {
-        if (node.path === currentSegment) {
-          // 如果已经到达路径末尾，返回当前节点
-          if (index === segments.length - 1) {
-            return node;
-          }
-          // 如果还有路径段需要匹配，继续递归查找
-          if (node.children) {
-            const found = findNodeByPath(node.children, segments, index + 1, depth + 1);
-            if (found) return found;
+      const segments = Array.isArray(path) ? path.filter(Boolean) : path.split('/').filter(Boolean);
+
+      if (segments.length === 0) return { node: undefined, isValid: false };
+
+      const findNode = (nodes: FolderTreeNode[], index = 0): FolderTreeNode | undefined => {
+        if (index >= segments.length) return undefined;
+
+        const currentSegment = segments[index];
+        for (const node of nodes) {
+          if (node.path === currentSegment) {
+            return index === segments.length - 1
+              ? node
+              : node.children
+                ? findNode(node.children, index + 1)
+                : undefined;
           }
         }
-      }
-      return undefined;
-    },
-    [],
-  );
-
-  // 路径验证函数 - 仅判断文件
-  const validatePath = useCallback(
-    (path: string | string[]): boolean => {
-      if (!path) return false;
-
-      let pathString: string;
-      if (Array.isArray(path)) {
-        if (path.length === 0) return false;
-        pathString = path.join('/');
-      } else {
-        pathString = path;
-      }
-
-      const segments = pathString.split('/').filter((segment) => segment !== '');
+        return undefined;
+      };
 
       try {
-        const node = findNodeByPath(treeData, segments);
-        return !!node && (!node.children || node.children.length === 0);
+        const node = findNode(treeData);
+        const isValid = validateAsFile
+          ? !!node && (!node.children || node.children.length === 0)
+          : !!node;
+        return { node, isValid };
       } catch (error) {
         console.warn('Error validating path:', path, error);
-        return false;
+        return { node: undefined, isValid: false };
       }
     },
-    [treeData, findNodeByPath],
+    [treeData],
   );
 
   const [validSelectedFile, setValidSelectedFile] = useState<boolean>(false);
 
-  const isValidSelectedFile = (filePath?: string[]): boolean => {
-    if (!filePath || filePath.length === 0) {
-      return false;
-    }
-
-    return validatePath(filePath);
-  };
+  const isValidSelectedFile = (filePath?: string[]): boolean =>
+    !!(filePath && filePath.length > 0 && findNodeAndValidate(filePath, true).isValid);
 
   const [expandedPathsState, setExpandedPaths] = useControlledState<string[] | undefined>(
     defaultExpandedPaths,
@@ -177,7 +159,7 @@ const Folder: React.FC<FolderProps> = (props) => {
   useEffect(() => {
     const isValid = isValidSelectedFile(selectedFile || defaultSelectedFile || []);
     setValidSelectedFile(isValid);
-  }, [selectedFile, defaultSelectedFile]);
+  }, [selectedFile, treeData, defaultSelectedFile]);
 
   const [fileContent, setFileContent] = useState<string>('');
   const [loadingContent, setLoadingContent] = useState<boolean>(false);
@@ -270,7 +252,7 @@ const Folder: React.FC<FolderProps> = (props) => {
 
       // 首先检查节点是否已经有内容
       const segments = filePath.split('/').filter((segment) => segment !== '');
-      const node = findNodeByPath(treeData, segments);
+      const { node } = findNodeAndValidate(segments);
 
       if (node?.content) {
         // 如果节点已经有内容，直接使用
@@ -301,7 +283,13 @@ const Folder: React.FC<FolderProps> = (props) => {
     };
 
     loadFileContent();
-  }, [validSelectedFile, selectedFileState, treeData, props.fileContentService, findNodeByPath]);
+  }, [
+    validSelectedFile,
+    selectedFileState,
+    treeData,
+    props.fileContentService,
+    findNodeAndValidate,
+  ]);
 
   // ============================ Style ============================
   const mergedStyle = {
@@ -356,9 +344,7 @@ const Folder: React.FC<FolderProps> = (props) => {
           previewTitle={previewTitle}
           getFileNode={(path) => {
             if (!path || path.length === 0) return undefined;
-            const pathString = path.join('/');
-            const segments = pathString.split('/').filter((segment) => segment !== '');
-            const node = findNodeByPath(treeData, segments);
+            const { node } = findNodeAndValidate(path);
             return node ? { title: node.title, path: node.path, content: node.content } : undefined;
           }}
         />

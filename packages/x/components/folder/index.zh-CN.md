@@ -24,6 +24,8 @@ tag: 2.4.0
 <code src="./demo/custom-service.tsx">自定义文件服务</code>
 <code src="./demo/file-controlled.tsx">受控文件选择</code>
 <code src="./demo/fully-controlled.tsx">完全受控模式</code>
+<code src="./demo/searchable.tsx">可搜索的文件树</code>
+<code src="./demo/custom-icons.tsx">自定义图标</code>
 
 ## API
 

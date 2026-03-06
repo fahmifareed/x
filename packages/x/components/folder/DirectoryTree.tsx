@@ -1,17 +1,4 @@
-import {
-  CodeOutlined,
-  FileExcelOutlined,
-  FileImageOutlined,
-  FileMarkdownOutlined,
-  FileOutlined,
-  FilePdfOutlined,
-  FilePptOutlined,
-  FileTextOutlined,
-  FileUnknownOutlined,
-  FileWordOutlined,
-  FileZipOutlined,
-  FolderOutlined,
-} from '@ant-design/icons';
+import { FileOutlined, FolderOutlined } from '@ant-design/icons';
 import type { TreeProps } from 'antd';
 import { Tree } from 'antd';
 import type { DataNode } from 'antd/es/tree';
