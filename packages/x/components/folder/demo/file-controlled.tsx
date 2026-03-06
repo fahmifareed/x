@@ -141,11 +141,7 @@ transformMessage(info) {
 ];
 
 export default () => {
-  const [selectedFile, setSelectedFile] = useState<string[] | null>([
-    'src',
-    'components',
-    'Button.tsx',
-  ]);
+  const [selectedFile, setSelectedFile] = useState<string[]>(['src', 'components', 'Button.tsx']);
 
   const handleSelectButton = () => {
     setSelectedFile(['src', 'components', 'Button.tsx']);
@@ -160,7 +156,7 @@ export default () => {
   };
 
   const handleClearSelection = () => {
-    setSelectedFile(null);
+    setSelectedFile([]);
   };
 
   return (
@@ -185,7 +181,12 @@ export default () => {
         treeData={treeData}
         folderTitle={
           <Flex
-            style={{ paddingInline: 16, paddingBlock: 8, borderBottom: '1px solid #f0f0f0' }}
+            style={{
+              paddingInline: 16,
+              width: '100%',
+              paddingBlock: 8,
+              borderBottom: '1px solid #f0f0f0',
+            }}
             align="center"
           >
             文件浏览器

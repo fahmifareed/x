@@ -27,7 +27,7 @@ export interface DirectoryTreeProps {
   blockNode?: boolean;
   className?: string;
   style?: React.CSSProperties;
-  folderTitle?: React.ReactNode | (() => React.ReactNode);
+  directoryTitle?: React.ReactNode | (() => React.ReactNode);
   prefixCls?: string;
 }
 
@@ -43,7 +43,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   blockNode = true,
   className,
   style,
-  folderTitle,
+  directoryTitle,
   prefixCls: customizePrefixCls,
 }) => {
   // ============================ Tree Config ============================
@@ -85,11 +85,11 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
         };
       });
     },
-    [buildPathSegments, folderTitle],
+    [buildPathSegments, directoryTitle],
   );
 
   const treeDataConverted = convertToTreeData(treeData);
-  const titleNode = typeof folderTitle === 'function' ? folderTitle() : folderTitle;
+  const titleNode = typeof directoryTitle === 'function' ? directoryTitle() : directoryTitle;
   // ============================ Prefix ============================
   const { getPrefixCls } = useXProviderContext();
   const prefixCls = getPrefixCls('folder', customizePrefixCls);

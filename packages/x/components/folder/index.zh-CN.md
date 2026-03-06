@@ -100,7 +100,7 @@ interface FolderStyles {
 
 ## 语义化 DOM
 
-<!-- <code src="./demo/_semantic.tsx" simplify="true"></code> -->
+<code src="./demo/_semantic.tsx" simplify="true"></code>
 
 ## 受控模式
 

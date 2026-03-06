@@ -17,13 +17,21 @@ export interface FileContentService {
   loadFileContent(filePath: string): Promise<string>;
 }
 
+type SemanticType =
+  | 'root'
+  | 'directoryTree'
+  | 'filePreview'
+  | 'previewTitle'
+  | 'preview'
+  | 'previewContent';
+
 // 文件夹属性
 export interface FolderProps {
   // 基础属性
   prefixCls?: string;
   className?: string;
-  classNames?: Partial<Record<'root' | 'tree' | 'preview' | 'header' | 'content', string>>;
-  styles?: Partial<Record<'root' | 'tree' | 'preview' | 'header' | 'content', React.CSSProperties>>;
+  classNames?: Partial<Record<SemanticType, string>>;
+  styles?: Partial<Record<SemanticType, React.CSSProperties>>;
   style?: React.CSSProperties;
 
   // 数据属性
@@ -50,8 +58,8 @@ export interface FolderProps {
   onFolderClick?: (folderPath: string) => void;
 
   // 自定义标题
-  folderTitle?: React.ReactNode | (() => React.ReactNode);
-  contentTitle?:
+  directoryTitle?: React.ReactNode | (() => React.ReactNode);
+  previewTitle?:
     | string
     | (({
         title,
@@ -72,8 +80,8 @@ const Folder: React.FC<FolderProps> = (props) => {
     styles,
     style,
     treeData,
-    folderTitle,
-    contentTitle,
+    directoryTitle,
+    previewTitle,
     selectable = true,
     defaultSelectedFile,
     selectedFile: controlledSelectedFile,
@@ -377,7 +385,7 @@ const Folder: React.FC<FolderProps> = (props) => {
             multiple={multiple}
             blockNode
             defaultExpandAll
-            folderTitle={folderTitle}
+            directoryTitle={directoryTitle}
           />
         </div>
         <FilePreview
@@ -392,7 +400,7 @@ const Folder: React.FC<FolderProps> = (props) => {
           fileContent={fileContent}
           loading={loading}
           error={error}
-          contentTitle={contentTitle}
+          previewTitle={previewTitle}
           getFileNode={(path) => {
             if (!path || path.length === 0) return undefined;
             const pathString = path.join('/');

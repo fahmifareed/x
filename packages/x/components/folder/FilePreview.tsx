@@ -19,7 +19,7 @@ export interface FileViewProps {
   fileContent?: string;
   loading?: boolean;
   error?: string;
-  contentTitle?:
+  previewTitle?:
     | string
     | (({
         title,
@@ -55,7 +55,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
     fileContent = '',
     loading = false,
     error = '',
-    contentTitle,
+    previewTitle,
     getFileNode,
     empty,
   } = props;
@@ -122,11 +122,11 @@ const FileView: React.FC<FileViewProps> = (props) => {
 
     // 处理自定义内容标题
     let headerNode: React.ReactNode;
-    if (contentTitle) {
+    if (previewTitle) {
       headerNode =
-        typeof contentTitle === 'function'
-          ? contentTitle({ title, path, content: fileContent })
-          : contentTitle;
+        typeof previewTitle === 'function'
+          ? previewTitle({ title, path, content: fileContent })
+          : previewTitle;
     } else {
       headerNode = (
         <Flex justify="space-between" align="center" className={`${previewCls}-title`}>
