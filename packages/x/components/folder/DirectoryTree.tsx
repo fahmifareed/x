@@ -1,4 +1,17 @@
-import { FileOutlined, FolderOutlined } from '@ant-design/icons';
+import {
+  CodeOutlined,
+  FileExcelOutlined,
+  FileImageOutlined,
+  FileMarkdownOutlined,
+  FileOutlined,
+  FilePdfOutlined,
+  FilePptOutlined,
+  FileTextOutlined,
+  FileUnknownOutlined,
+  FileWordOutlined,
+  FileZipOutlined,
+  FolderOutlined,
+} from '@ant-design/icons';
 import type { TreeProps } from 'antd';
 import { Tree } from 'antd';
 import type { DataNode } from 'antd/es/tree';
@@ -7,17 +20,18 @@ import React, { useCallback } from 'react';
 import { useXProviderContext } from '../x-provider';
 import type { SemanticType } from '.';
 // 文件树节点类型
-export interface FileTreeNode {
+export interface FolderTreeNode {
   title: string;
   path: string;
   content?: string;
-  children?: FileTreeNode[];
+  children?: FolderTreeNode[];
 }
 
 const { DirectoryTree: AntDirectoryTree } = Tree;
 
 export interface DirectoryTreeProps {
-  treeData: FileTreeNode[];
+  treeData: FolderTreeNode[];
+  directoryIcons?: Record<'directory' | string, React.ReactNode | (() => React.ReactNode)>;
   selectedKeys?: string[];
   expandedKeys?: string[];
   onSelect?: TreeProps['onSelect'];
@@ -46,25 +60,42 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   blockNode = true,
   className,
   classNames,
+  directoryIcons,
   styles,
   style,
   directoryTitle,
   prefixCls: customizePrefixCls,
 }) => {
   // ============================ Tree Config ============================
-  const isFolder = (node: FileTreeNode): boolean => {
+  const isFolder = (node: FolderTreeNode): boolean => {
     return !!node.children && node.children.length > 0;
   };
 
-  const getIcon = (node: FileTreeNode) => {
+  const getIcon = (node: FolderTreeNode) => {
     if (isFolder(node)) {
-      return <FolderOutlined />;
+      return typeof directoryIcons?.['directory'] === 'function'
+        ? directoryIcons?.['directory']?.()
+        : directoryIcons?.['directory'] || <FolderOutlined />;
     }
+
+    // 根据文件后缀名返回对应的图标
+    const fileName = node.title.toLowerCase();
+    const extension = fileName.split('.').pop();
+
+    if (extension) {
+      // 检查是否有自定义图标配置
+      if (directoryIcons?.[extension]) {
+        return typeof directoryIcons[extension] === 'function'
+          ? directoryIcons[extension]()
+          : directoryIcons[extension];
+      }
+    }
+
     return <FileOutlined />;
   };
 
   const buildPathSegments = useCallback(
-    (node: FileTreeNode, parentSegments: string[] = []): string[] => {
+    (node: FolderTreeNode, parentSegments: string[] = []): string[] => {
       if (node.path === '/' && parentSegments.length === 0) {
         return ['/'];
       }
@@ -74,7 +105,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   );
 
   const convertToTreeData = useCallback(
-    (nodes: FileTreeNode[], parentSegments: string[] = []): DataNode[] => {
+    (nodes: FolderTreeNode[], parentSegments: string[] = []): DataNode[] => {
       return nodes.map((node) => {
         const pathSegments = buildPathSegments(node, parentSegments);
         const fullPath = pathSegments.join('/').replace(/^\/+/, '');
@@ -109,7 +140,6 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
             classNames?.directoryTitle,
           )}
         >
-          {' '}
           {titleNode}
         </div>
       ) : null}
@@ -121,18 +151,6 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
         onExpand={onExpand}
         multiple={multiple}
         blockNode={blockNode}
-        styles={
-          {
-            // root:{
-            //  display: "flex",
-            // },
-            // itemTitle: {
-            //   display: "flex",
-            //   whiteSpace: "nowrap",
-            //   paddingInlineEnd: 20
-            // }
-          }
-        }
         classNames={{
           itemTitle: `${prefixCls}-directory-tree-item-title`,
         }}

@@ -7,7 +7,7 @@ import useXComponentConfig from '../_util/hooks/use-x-component-config';
 import { useLocale } from '../locale';
 import enUS from '../locale/en_US';
 import { useXProviderContext } from '../x-provider';
-import DirectoryTree, { type FileTreeNode } from './DirectoryTree';
+import DirectoryTree, { type FolderTreeNode } from './DirectoryTree';
 import FilePreview from './FilePreview';
 import useStyle from './style';
 
@@ -32,9 +32,9 @@ export interface FolderProps {
   classNames?: Partial<Record<SemanticType, string>>;
   styles?: Partial<Record<SemanticType, React.CSSProperties>>;
   style?: React.CSSProperties;
-
+  directoryIcons?: Record<'directory' | string, React.ReactNode | (() => React.ReactNode)>;
   // 数据属性
-  treeData: FileTreeNode[];
+  treeData: FolderTreeNode[];
   // 选择功能
   selectable?: boolean;
   selectedFile?: string[];
@@ -79,6 +79,7 @@ const Folder: React.FC<FolderProps> = (props) => {
     styles,
     style,
     treeData,
+    directoryIcons,
     directoryTitle,
     previewTitle,
     selectable = true,
@@ -99,7 +100,12 @@ const Folder: React.FC<FolderProps> = (props) => {
   // ============================ State ============================
 
   const findNodeByPath = useCallback(
-    (nodes: FileTreeNode[], segments: string[], index = 0, depth = 0): FileTreeNode | undefined => {
+    (
+      nodes: FolderTreeNode[],
+      segments: string[],
+      index = 0,
+      depth = 0,
+    ): FolderTreeNode | undefined => {
       // 防止无限递归，设置最大深度限制
       if (depth > 50 || index >= segments.length) return undefined;
 
@@ -203,14 +209,14 @@ const Folder: React.FC<FolderProps> = (props) => {
 
     // 检查是否点击的是文件夹
     const isFolder = nodes.some((node) => {
-      const fileNode = node as unknown as FileTreeNode;
+      const fileNode = node as unknown as FolderTreeNode;
       return !!fileNode.children && fileNode.children.length > 0;
     });
 
     if (isFolder) {
       // 点击文件夹：不更新selectedFileState，只触发文件夹点击事件
       if (nodes.length === 1) {
-        const node = nodes[0] as unknown as FileTreeNode;
+        const node = nodes[0] as unknown as FolderTreeNode;
         onFolderClick?.(node.path);
       }
       return;
@@ -223,7 +229,7 @@ const Folder: React.FC<FolderProps> = (props) => {
     if (pathArray.length === 0) return;
 
     // 获取选中文件的名称和内容（单文件选择时）
-    const selectedNode = nodes[0] as unknown as FileTreeNode | undefined;
+    const selectedNode = nodes[0] as unknown as FolderTreeNode | undefined;
     const fileName = selectedNode?.title as string | undefined;
     const fileContent = selectedNode?.content as string | undefined;
 
@@ -239,7 +245,7 @@ const Folder: React.FC<FolderProps> = (props) => {
 
     // 处理单个文件点击事件
     if (nodes.length === 1) {
-      const node = nodes[0] as unknown as FileTreeNode;
+      const node = nodes[0] as unknown as FolderTreeNode;
       onFileClick?.(node.path, node.content);
     }
   };
@@ -317,6 +323,7 @@ const Folder: React.FC<FolderProps> = (props) => {
           }}
         >
           <DirectoryTree
+            directoryIcons={directoryIcons}
             prefixCls={customizePrefixCls}
             treeData={treeData}
             selectedKeys={

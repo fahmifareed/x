@@ -8,7 +8,7 @@ subtitle: 文件夹
 description: 以树形结构展示文件和文件夹层级关系。
 cover: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*gEo2RrZtK7EAAAAAAAAAAAAADgCCAQ/original
 coverDark: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*Xq4TR7kYo1EAAAAAAAAAAAAADgCCAQ/original
-tag: 2.0.0
+tag: 2.4.0
 ---
 
 ## 何时使用
@@ -33,68 +33,43 @@ tag: 2.0.0
 
 | 属性 | 说明 | 类型 | 默认值 | 版本 |
 | --- | --- | --- | --- | --- |
-| treeData | 文件树数据 | [FileTreeNode](#filetreenode)[] | `[]` | - |
-| mode | 展示模式 | `tree` \| `tree-with-preview` | `tree-with-preview` | - |
-| height | 组件高度 | number | `400` | - |
-| selectable | 是否开启选择功能 | boolean | `false` | - |
-| selectedFile | 选中的文件路径（受控） | string \| null | - | - |
-| defaultSelectedFile | 默认选中的文件路径 | string | - | - |
-| onSelectedFileChange | 文件选择变化时的回调 | (filePath: string \| null, content?: string) => void | - | - |
+| treeData | 文件树数据 | [FolderTreeNode](#foldertreenode)[] | `[]` | - |
+| selectable | 是否开启选择功能 | boolean | `true` | - |
+| selectedFile | 选中的文件路径（受控） | string[] | - | - |
+| defaultSelectedFile | 默认选中的文件路径 | string[] | `[]` | - |
+| onSelectedFileChange | 文件选择变化时的回调 | (file: { path: string[]; name?: string; content?: string }) => void | - | - |
 | multiple | 是否支持多选 | boolean | `false` | - |
+| menuWith | 目录树宽度 | number \| string | `378` | - |
+| empty | 空状态时的展示内容 | React.ReactNode \| (() => React.ReactNode) | - | - |
 | expandedPaths | 展开的节点路径数组（受控） | string[] | - | - |
-| defaultExpandedPaths | 默认展开的节点路径数组 | string[] | `[]` | - |
+| defaultExpandedPaths | 默认展开的节点路径数组 | string[] | - | - |
+| defaultExpandAll | 是否默认展开所有节点 | boolean | `true` | - |
 | onExpandedPathsChange | 展开/收起变化时的回调 | (paths: string[]) => void | - | - |
 | fileContentService | 文件内容服务 | [FileContentService](#filecontentservice) | - | - |
+| onFileClick | 文件点击事件 | (filePath: string, content?: string) => void | - | - |
+| onFolderClick | 文件夹点击事件 | (folderPath: string) => void | - | - |
+| directoryTitle | 目录树标题 | React.ReactNode \| (() => React.ReactNode) | - | - |
+| previewTitle | 文件预览标题 | string \| (({ title, path, content }: { title: string; path: string[]; content: string }) => React.ReactNode) | - | - |
+| directoryIcons | 自定义图标配置 | Record<'directory' \| string, React.ReactNode \| (() => React.ReactNode)> | - | - |
 | classNames | 语义化结构的自定义类名 | [FolderClassNames](#folderclassnames) | - | - |
 | styles | 语义化结构的自定义样式 | [FolderStyles](#folderstyles) | - | - |
 
-### FolderItem
+### FolderTreeNode
 
-| 属性     | 说明                     | 类型                        | 默认值 | 版本 |
-| -------- | ------------------------ | --------------------------- | ------ | ---- |
-| key      | 唯一标识符               | string                      | -      | -    |
-| title    | 显示名称                 | string                      | -      | -    |
-| type     | 类型                     | 'file' \| 'folder'          | -      | -    |
-| children | 子项（仅文件夹类型有效） | [FolderItem](#folderitem)[] | -      | -    |
-| icon     | 自定义图标               | React.ReactNode             | -      | -    |
+| 属性     | 说明                     | 类型                                | 默认值 | 版本 |
+| -------- | ------------------------ | ----------------------------------- | ------ | ---- |
+| title    | 显示名称                 | string                              | -      | -    |
+| path     | 文件路径                 | string                              | -      | -    |
+| content  | 文件内容（可选）         | string                              | -      | -    |
+| children | 子项（仅文件夹类型有效） | [FolderTreeNode](#foldertreenode)[] | -      | -    |
 
-### FileTreeNode
+### FileContentService
 
-| 属性     | 说明                     | 类型                            | 默认值 | 版本 |
-| -------- | ------------------------ | ------------------------------- | ------ | ---- |
-| key      | 唯一标识符               | string                          | -      | -    |
-| title    | 显示名称                 | string                          | -      | -    |
-| path     | 文件路径                 | string                          | -      | -    |
-| type     | 类型                     | 'file' \| 'folder'              | -      | -    |
-| content  | 文件内容（可选）         | string                          | -      | -    |
-| children | 子项（仅文件夹类型有效） | [FileTreeNode](#filetreenode)[] | -      | -    |
-| icon     | 自定义图标               | React.ReactNode                 | -      | -    |
-
-### Semantic ClassNames
-
-#### FolderClassNames
+文件内容服务接口，用于动态加载文件内容。
 
 ```typescript
-interface FolderClassNames {
-  root?: string;
-  tree?: string;
-  preview?: string;
-  header?: string;
-  content?: string;
-}
-```
-
-### Semantic Styles
-
-#### FolderStyles
-
-```typescript
-interface FolderStyles {
-  root?: React.CSSProperties;
-  tree?: React.CSSProperties;
-  preview?: React.CSSProperties;
-  header?: React.CSSProperties;
-  content?: React.CSSProperties;
+interface FileContentService {
+  loadFileContent(filePath: string): Promise<string>;
 }
 ```
 
