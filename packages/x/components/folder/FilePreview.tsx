@@ -31,6 +31,7 @@ export interface FileViewProps {
         content: string;
       }) => React.ReactNode);
   getFileNode?: (path: string[]) => { title: string; path: string; content?: string } | undefined;
+  empty?: React.ReactNode | (() => React.ReactNode);
 }
 
 const customOneLight = {
@@ -56,6 +57,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
     error = '',
     contentTitle,
     getFileNode,
+    empty,
   } = props;
 
   const [contextLocale] = useLocale('Folder', enUS.Folder);
@@ -95,9 +97,16 @@ const FileView: React.FC<FileViewProps> = (props) => {
     }
 
     if (!selectedFile || selectedFile.length === 0) {
+      const emptyNode =
+        typeof empty === 'function'
+          ? empty()
+          : empty || (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={contextLocale.selectFile} />
+            );
+
       return (
         <div className={clsx(`${previewCls}-empty-container`, classNames?.preview)}>
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={contextLocale.selectFile} />
+          {emptyNode}
         </div>
       );
     }

@@ -36,7 +36,7 @@ export interface FolderProps {
   multiple?: boolean;
   autoExpandFolder?: boolean;
   menuWith?: number | string;
-
+  empty?: React.ReactNode | (() => React.ReactNode);
   // 展开控制
   defaultExpandedPaths?: string[];
   expandedPaths?: string[];
@@ -79,6 +79,7 @@ const Folder: React.FC<FolderProps> = (props) => {
     selectedFile: controlledSelectedFile,
     onSelectedFileChange,
     menuWith = 378,
+    empty,
     multiple = false,
     autoExpandFolder = true,
     defaultExpandedPaths = [],
@@ -380,6 +381,7 @@ const Folder: React.FC<FolderProps> = (props) => {
           />
         </div>
         <FilePreview
+          empty={empty}
           prefixCls={customizePrefixCls}
           classNames={classNames}
           styles={styles}
