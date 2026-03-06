@@ -4,115 +4,106 @@
 
 import type { FolderProps } from '@ant-design/x';
 import { Folder } from '@ant-design/x';
-import { Button, Card, Space } from 'antd';
+import { Button, Card, Flex, Space } from 'antd';
 import React, { useState } from 'react';
 
 const treeData: FolderProps['treeData'] = [
   {
-    title: 'src',
-    path: 'src',
+    title: 'use-x-chat',
+    path: 'use-x-chat',
     children: [
       {
-        title: 'components',
-        path: 'components',
-        children: [
-          {
-            title: 'Button.tsx',
-            path: 'Button.tsx',
-            content: `import React from 'react';
-import { Button as AntButton } from 'antd';
+        title: 'skill.md',
+        path: 'skill.md',
+        content: `---
+name: use-x-chat
+version: 2.3.0-beta.1
+description: Focus on explaining how to use the useXChat Hook, including custom Provider integration, message management, error handling, etc.
+---
 
-interface ButtonProps {
-  children: React.ReactNode;
-  type?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
-  onClick?: () => void;
-}
+# 🎯 Skill Positioning
 
-const Button: React.FC<ButtonProps> = ({ children, ...props }) => {
-  return <AntButton {...props}>{children}</AntButton>;
-};
+> **Core Positioning**: Use the \`useXChat\` Hook to build professional AI conversation applications **Prerequisites**: Already have a custom Chat Provider (refer to [x-chat-provider skill](../x-chat-provider))
 
-export default Button;`,
-          },
-          {
-            title: 'Input.tsx',
-            path: 'Input.tsx',
-            content: `import React from 'react';
-import { Input as AntInput } from 'antd';
+## Table of Contents
 
-interface InputProps {
-  placeholder?: string;
-  value?: string;
-  onChange?: (value: string) => void;
-}
-
-const Input: React.FC<InputProps> = ({ ...props }) => {
-  return <AntInput {...props} />;
-};
-
-export default Input;`,
-          },
-        ],
+- [🚀 Quick Start](#-quick-start)
+  - [Dependency Management](#1-dependency-management)
+  - [Three-step Integration](#2-three-step-integration)
+- [🧩 Core Concepts](#-core-concepts)
+  - [Technology Stack Architecture](#technology-stack-architecture)
+  - [Data Model](#data-model)
+- [🔧 Core Function Details](#-core-function-details)
+  - [Message Management](#1-message-management)
+  - [Request Control](#2-request-control)
+  - [Error Handling](#3-error-handling)
+  - [Complete Example Project](#-complete-example-project)
+- [📋 Prerequisites and Dependencies](#-prerequisites-and-dependencies)
+- [🚨 Development Rules](#-development-rules)
+- [🔗 Reference Resources](#-reference-resources)
+  - [📚 Core Reference Documentation](#-core-reference-documentation)
+  - [🌐 SDK Official Documentation](#-sdk-official-documentation)
+  - [💻 Example Code](#-example-code)`,
       },
       {
-        title: 'utils',
-        path: 'utils',
+        title: 'reference',
+        path: 'reference',
         children: [
           {
-            title: 'helper.ts',
-            path: 'helper.ts',
-            content: `export const formatDate = (date: Date): string => {
-  return date.toLocaleDateString('zh-CN');
-};
+            title: 'API.md',
+            path: 'API.md',
+            content: `### useXChat
 
-export const debounce = <T extends (...args: any[]) => any>(
-  func: T,
-  delay: number
-): ((...args: Parameters<T>) => void) => {
-  let timeoutId: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-};`,
+\`\`\`tsx | pure
+type useXChat<
+  ChatMessage extends SimpleType = object,
+  ParsedMessage extends SimpleType = ChatMessage,
+  Input = RequestParams<ChatMessage>,
+  Output = SSEOutput,
+> = (config: XChatConfig<ChatMessage, ParsedMessage, Input, Output>) => XChatConfigReturnType;
+\`\`\``,
+          },
+          {
+            title: 'CORE.md',
+            path: 'CORE.md',
+            content: `### 1. Message Management
+
+#### Get Message List
+
+\`\`\`ts
+const { messages } = useXChat({ provider });
+// messages structure: MessageInfo<MessageType>[]
+// Actual message data is in msg.message
+\`\`\``,
+          },
+          {
+            title: 'EXAMPLES.md',
+            path: 'EXAMPLES.md',
+            content: `# Complete Example Projects
+
+## Project with Conversation Management
+
+\`\`\`tsx
+import React, { useRef, useState } from 'react';
+import { useXChat } from '@ant-design/x-sdk';
+import { chatProvider } from '../services/chatService';
+import type { ChatMessage } from '../providers/ChatProvider';
+import { Bubble, Sender, Conversations, type ConversationsProps } from '@ant-design/x';
+import { GetRef } from 'antd';
+
+const App: React.FC = () => {
+  const [conversations, setConversations] = useState([{ key: '1', label: 'New Conversation' }]);
+  const [activeKey, setActiveKey] = useState('1');
+  const senderRef = useRef<GetRef<typeof Sender>>(null);
+  
+  // ... rest of the implementation
+};
+export default App;
+\`\`\``,
           },
         ],
       },
     ],
-  },
-  {
-    title: 'package.json',
-    path: 'package.json',
-    content: `{
-  "name": "demo-app",
-  "version": "1.0.0",
-  "description": "A demo application",
-  "main": "index.js",
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "antd": "^5.0.0"
-  }
-}`,
-  },
-  {
-    title: 'README.md',
-    path: 'README.md',
-    content: `# Demo Application
-
-This is a demo application showcasing the Folder component.
-
-## Features
-
-- 📁 File tree navigation
-- 🔍 File preview
-- 🎨 Code syntax highlighting
-- 📱 Responsive design
-`,
   },
 ];
 
@@ -165,9 +156,16 @@ export default () => {
       </Card>
 
       <Folder
-        style={{ height: 600 }}
+        style={{ height: 500 }}
         treeData={treeData}
-        folderTitle="文件浏览器"
+        folderTitle={
+          <Flex
+            style={{ paddingInline: 16, paddingBlock: 8, borderBottom: '1px solid #f0f0f0' }}
+            align="center"
+          >
+            文件浏览器
+          </Flex>
+        }
         selectedFile={selectedFile}
         onSelectedFileChange={setSelectedFile}
         expandedPaths={expandedPaths}

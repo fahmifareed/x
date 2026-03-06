@@ -4,6 +4,9 @@ import { Flex } from 'antd';
 import { clsx } from 'clsx';
 import React, { useCallback, useEffect, useState } from 'react';
 import useXComponentConfig from '../_util/hooks/use-x-component-config';
+import warning from '../_util/warning';
+import { useLocale } from '../locale';
+import enUS from '../locale/en_US';
 import { useXProviderContext } from '../x-provider';
 import DirectoryTree, { type FileTreeNode } from './DirectoryTree';
 import FilePreview from './FilePreview';
@@ -27,11 +30,12 @@ export interface FolderProps {
   treeData: FileTreeNode[];
   // 选择功能
   selectable?: boolean;
-  selectedFile?: string[] | null;
+  selectedFile?: string[];
   defaultSelectedFile?: string[];
-  onSelectedFileChange?: (filePath: string[] | null, content?: string[]) => void;
+  onSelectedFileChange?: (filePath: string[], content?: string[]) => void;
   multiple?: boolean;
   autoExpandFolder?: boolean;
+  menuWith?: number | string;
 
   // 展开控制
   defaultExpandedPaths?: string[];
@@ -74,6 +78,7 @@ const Folder: React.FC<FolderProps> = (props) => {
     defaultSelectedFile,
     selectedFile: controlledSelectedFile,
     onSelectedFileChange,
+    menuWith = 378,
     multiple = false,
     autoExpandFolder = true,
     defaultExpandedPaths = [],
@@ -84,8 +89,8 @@ const Folder: React.FC<FolderProps> = (props) => {
   } = props;
 
   // ============================ State ============================
-  const [selectedFileState, setSelectedFileState] = useControlledState<string[] | null>(
-    defaultSelectedFile || null,
+  const [selectedFileState, setSelectedFileState] = useControlledState<string[]>(
+    defaultSelectedFile || [],
     controlledSelectedFile,
   );
   const [expandedPathsState, setExpandedPaths] = useControlledState<string[]>(
@@ -116,6 +121,9 @@ const Folder: React.FC<FolderProps> = (props) => {
     },
   );
 
+  // ============================ Locale ============================
+  const [locale] = useLocale('Folder', enUS.Folder);
+
   // ============================ File Content ============================
   const findNodeByPath = useCallback(
     (nodes: FileTreeNode[], segments: string[], index = 0): FileTreeNode | undefined => {
@@ -135,6 +143,19 @@ const Folder: React.FC<FolderProps> = (props) => {
       return undefined;
     },
     [treeData],
+  );
+
+  // 验证路径是否存在于 treeData 中
+  const validatePathInTreeData = useCallback(
+    (path: string[]): boolean => {
+      if (!path || path.length === 0) return true;
+
+      const pathString = path.join('/');
+      const segments = pathString.split('/').filter((segment) => segment !== '');
+      const node = findNodeByPath(treeData, segments);
+      return !!node;
+    },
+    [treeData, findNodeByPath],
   );
 
   const loadFileContent = useCallback(
@@ -159,10 +180,10 @@ const Folder: React.FC<FolderProps> = (props) => {
           const content = await props.fileContentService.loadFileContent(pathString);
           setFileContent(content);
         } else {
-          setError('未配置文件内容服务');
+          setError(locale.noService);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : '加载文件失败');
+        setError(err instanceof Error ? err.message : locale.loadFailed);
       } finally {
         setLoading(false);
       }
@@ -246,7 +267,7 @@ const Folder: React.FC<FolderProps> = (props) => {
   // ============================ Effects ============================
 
   // 当非受控模式下 selectedFile 变化时自动展开文件夹
-  const prevSelectedFileRef = React.useRef<string[] | null | undefined>(undefined);
+  const prevSelectedFileRef = React.useRef<string[] | undefined>(undefined);
 
   useEffect(() => {
     // 只在非受控模式下且 selectedFile 真正变化时触发
@@ -283,9 +304,51 @@ const Folder: React.FC<FolderProps> = (props) => {
 
   useEffect(() => {
     if (selectedFileState && selectedFileState.length > 0) {
+      // 验证路径是否存在于 treeData 中
+      if (!validatePathInTreeData(selectedFileState)) {
+        warning(
+          false,
+          'Folder',
+          `Selected file path "${selectedFileState.join('/')}" does not exist in treeData. Please check the path.`,
+        );
+        // 清空无效的路径，让组件处于没有选择文件的状态
+        setSelectedFileState([]);
+        return;
+      }
       loadFileContent(selectedFileState);
     }
-  }, [selectedFileState, loadFileContent]);
+  }, [selectedFileState, loadFileContent, validatePathInTreeData]);
+
+  // 初始化时验证 defaultSelectedFile
+  useEffect(() => {
+    if (defaultSelectedFile && defaultSelectedFile.length > 0) {
+      if (!validatePathInTreeData(defaultSelectedFile)) {
+        warning(
+          false,
+          'Folder',
+          `defaultSelectedFile path "${defaultSelectedFile.join('/')}" does not exist in treeData. Please check the path.`,
+        );
+        // 清空无效的 defaultSelectedFile（只在非受控模式下）
+        if (controlledSelectedFile === undefined) {
+          setSelectedFileState([]);
+        }
+      }
+    }
+  }, []); // 只在初始化时执行一次
+
+  // 验证 controlledSelectedFile 的变化
+  useEffect(() => {
+    if (controlledSelectedFile && controlledSelectedFile.length > 0) {
+      if (!validatePathInTreeData(controlledSelectedFile)) {
+        warning(
+          false,
+          'Folder',
+          `selectedFile path "${controlledSelectedFile.join('/')}" does not exist in treeData. Please check the path.`,
+        );
+        // 对于受控模式，由父组件处理，这里不自动清空
+      }
+    }
+  }, [controlledSelectedFile, validatePathInTreeData]);
 
   // ============================ Style ============================
   const mergedStyle = {
@@ -299,7 +362,7 @@ const Folder: React.FC<FolderProps> = (props) => {
       <Flex className={`${prefixCls}-container`}>
         <div
           className={clsx(`${prefixCls}-tree`, classNames?.tree)}
-          style={{ width: 378, ...contextConfig.styles?.tree, ...styles?.tree }}
+          style={{ width: menuWith, ...contextConfig.styles?.tree, ...styles?.tree }}
         >
           <DirectoryTree
             prefixCls={customizePrefixCls}
@@ -320,6 +383,9 @@ const Folder: React.FC<FolderProps> = (props) => {
           prefixCls={customizePrefixCls}
           classNames={classNames}
           styles={styles}
+          style={{
+            width: `calc(100% - ${typeof menuWith === 'number' ? `${menuWith}px` : menuWith})`,
+          }}
           selectedFile={selectedFileState}
           fileContent={fileContent}
           loading={loading}

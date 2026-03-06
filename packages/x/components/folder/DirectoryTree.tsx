@@ -27,7 +27,7 @@ export interface DirectoryTreeProps {
   blockNode?: boolean;
   className?: string;
   style?: React.CSSProperties;
-  folderTitle?: string | (() => React.ReactNode);
+  folderTitle?: React.ReactNode | (() => React.ReactNode);
   prefixCls?: string;
 }
 

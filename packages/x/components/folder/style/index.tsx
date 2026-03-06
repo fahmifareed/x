@@ -23,6 +23,7 @@ const genFolderStyle: GenerateStyle<FolderToken> = (token) => {
         borderRadius: 'unset',
       },
       [`${componentCls}-tree-title`]: {
+        width: '100%',
         display: 'flex',
         alignItems: 'center',
       },
@@ -53,6 +54,7 @@ const genFilePreviewStyle: GenerateStyle<FolderToken> = (token) => {
     [componentCls]: {
       [`${componentCls}-preview`]: {
         background: token.colorBgContainer,
+        flex: 1,
       },
       [`${componentCls}-preview-title`]: {
         background: token.colorBgContainer,
@@ -60,10 +62,25 @@ const genFilePreviewStyle: GenerateStyle<FolderToken> = (token) => {
         paddingBlock: token.paddingXS,
         borderBottom: `1px solid ${token.colorBorderSecondary}`,
       },
+      [`${componentCls}-preview-content`]: {
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      },
       [`${componentCls}-preview-code`]: {
+        overflow: 'auto',
         background: token.colorBgContainer,
         paddingInline: token.padding,
         paddingBlock: token.paddingXS,
+      },
+      [`${componentCls}-preview-loading-container`]: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBlockStart: token.calc(token.marginLG).mul(3).equal(),
+      },
+      [`${componentCls}-preview-empty-container`]: {
+        marginBlockStart: token.calc(token.marginLG).mul(3).equal(),
       },
     },
   };

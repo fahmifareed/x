@@ -5,11 +5,14 @@ import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import useXComponentConfig from '../_util/hooks/use-x-component-config';
 import ActionsCopy from '../actions/ActionsCopy';
+import { useLocale } from '../locale';
+import enUS from '../locale/en_US';
 import { useXProviderContext } from '../x-provider';
 import useStyle from './style';
 
 export interface FileViewProps {
   prefixCls?: string;
+  style?: React.CSSProperties;
   classNames?: Partial<Record<'preview' | 'header' | 'content', string>>;
   styles?: Partial<Record<'preview' | 'header' | 'content', React.CSSProperties>>;
   selectedFile?: string[] | null;
@@ -46,6 +49,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
     prefixCls: customizePrefixCls,
     classNames,
     styles,
+    style,
     selectedFile,
     fileContent = '',
     loading = false,
@@ -53,6 +57,8 @@ const FileView: React.FC<FileViewProps> = (props) => {
     contentTitle,
     getFileNode,
   } = props;
+
+  const [contextLocale] = useLocale('Folder', enUS.Folder);
 
   // ============================ Prefix ============================
   const { getPrefixCls } = useXProviderContext();
@@ -75,7 +81,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
     if (loading) {
       return (
         <div className={clsx(`${previewCls}-loading-container`, classNames?.preview)}>
-          <Spin size="large" />
+          <Spin />
         </div>
       );
     }
@@ -83,7 +89,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
     if (error) {
       return (
         <div className={clsx(`${previewCls}-error-container`, classNames?.preview)}>
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={error} />
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={contextLocale.loadError} />
         </div>
       );
     }
@@ -91,7 +97,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
     if (!selectedFile || selectedFile.length === 0) {
       return (
         <div className={clsx(`${previewCls}-empty-container`, classNames?.preview)}>
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="请选择一个文件" />
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={contextLocale.selectFile} />
         </div>
       );
     }
@@ -141,7 +147,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
   return (
     <div
       className={clsx(`${prefixCls}-preview`, classNames?.preview, hashId, cssVarCls)}
-      style={{ ...contextConfig.styles?.preview, ...styles?.preview }}
+      style={{ ...contextConfig.styles?.preview, ...styles?.preview, ...style }}
     >
       {renderContent()}
     </div>
