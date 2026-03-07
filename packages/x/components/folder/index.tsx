@@ -139,16 +139,11 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
         return undefined;
       };
 
-      try {
-        const node = findNode(treeData);
-        const isValid = validateAsFile
-          ? !!node && (!node.children || node.children.length === 0)
-          : !!node;
-        return { node, isValid };
-      } catch (error) {
-        console.warn('Error validating path:', path, error);
-        return { node: undefined, isValid: false };
-      }
+      const node = findNode(treeData);
+      const isValid = validateAsFile
+        ? !!node && (!node?.children || node.children.length === 0)
+        : !!node;
+      return { node, isValid };
     },
     [treeData],
   );
@@ -266,13 +261,6 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
       const segments = filePath.split('/').filter((segment) => segment !== '');
       const { node } = findNodeAndValidate(segments);
 
-      if (node?.content) {
-        // 如果节点已经有内容，直接使用
-        setFileContent(node.content);
-        setLoadingContent(false);
-        return;
-      }
-
       // 如果有文件内容服务，使用服务加载内容
       if (props.fileContentService) {
         setLoadingContent(true);
@@ -280,13 +268,17 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
           const content = await props.fileContentService.loadFileContent(filePath);
           setFileContent(content);
         } catch (error) {
-          console.error('Failed to load file content:', error);
           setFileContent(
             `// ${locale?.loadError}: ${error instanceof Error ? error.message : 'Unknown error'}`,
           );
         } finally {
           setLoadingContent(false);
         }
+      } else if (node?.content) {
+        // 如果节点已经有内容，直接使用
+        setFileContent(node.content);
+        setLoadingContent(false);
+        return;
       } else {
         // 没有文件内容服务，显示提示信息
         setFileContent(`// ${locale.noService}`);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '../../../tests/utils';
+import { fireEvent, render, waitFor } from '../../../tests/utils';
 import Folder, { type FolderRef } from '../index';
 
 const mockTreeData = [
@@ -24,6 +24,25 @@ const mockTreeData = [
     title: 'package.json',
     path: 'package.json',
     content: '{ "name": "test-app" }',
+  },
+];
+
+const mockNoContentTreeData = [
+  {
+    title: '/',
+    path: '/',
+    children: [
+      {
+        title: 'components',
+        path: 'components',
+        children: [
+          {
+            title: 'Button.tsx',
+            path: 'Button.tsx',
+          },
+        ],
+      },
+    ],
   },
 ];
 
@@ -59,17 +78,6 @@ describe('Folder Component', () => {
     expect(container.querySelector('.ant-folder')).toBeTruthy();
   });
 
-  it('handles file content service', () => {
-    const fileContentService = {
-      loadFileContent: jest.fn().mockResolvedValue('// Mock content'),
-    };
-
-    const { container } = render(
-      <Folder treeData={mockTreeData} fileContentService={fileContentService} />,
-    );
-    expect(container.querySelector('.ant-folder')).toBeTruthy();
-  });
-
   it('handles custom empty state', () => {
     const { container } = render(
       <Folder treeData={mockTreeData} empty={<div>Custom Empty</div>} />,
@@ -96,6 +104,12 @@ describe('Folder Component', () => {
   it('handles selectedFile prop', () => {
     const { container } = render(
       <Folder treeData={mockTreeData} selectable selectedFile={['package.json']} />,
+    );
+    expect(container.querySelector('.ant-folder')).toBeTruthy();
+  });
+  it('handles not validate selectedFile prop', () => {
+    const { container } = render(
+      <Folder treeData={mockTreeData} selectable selectedFile={['a.json']} />,
     );
     expect(container.querySelector('.ant-folder')).toBeTruthy();
   });
@@ -128,7 +142,7 @@ describe('Folder Component', () => {
     const onFolderClick = jest.fn();
     const onExpandedPathsChange = jest.fn();
 
-    const { container } = render(
+    const { container, getByText } = render(
       <Folder
         treeData={mockTreeData}
         selectable
@@ -138,6 +152,60 @@ describe('Folder Component', () => {
         onExpandedPathsChange={onExpandedPathsChange}
       />,
     );
+    expect(getByText('Button.tsx')).toBeTruthy();
+    getByText('Button.tsx').click();
+    expect(getByText('components')).toBeTruthy();
+    getByText('components').click();
     expect(container.querySelector('.ant-folder')).toBeTruthy();
+  });
+
+  it('handles file content service', () => {
+    const fileContentService = {
+      loadFileContent: jest.fn().mockResolvedValue('// Mock content'),
+    };
+
+    const { container, getByText } = render(
+      <Folder treeData={mockTreeData} fileContentService={fileContentService} />,
+    );
+
+    expect(container.querySelector('.ant-folder')).toBeTruthy();
+    expect(getByText('Button.tsx')).toBeTruthy();
+    getByText('Button.tsx').click();
+  });
+  it('handles file content finally', () => {
+    const { container, getByText } = render(
+      <Folder
+        directoryTitle={() => 'Directory Title'}
+        previewTitle={() => 'Preview Title'}
+        treeData={mockNoContentTreeData}
+      />,
+    );
+
+    expect(container.querySelector('.ant-folder')).toBeTruthy();
+    expect(getByText('Button.tsx')).toBeTruthy();
+    getByText('Button.tsx').click();
+  });
+
+  it('should display formatted error message when file content service fails', async () => {
+    const fileContentService = {
+      loadFileContent: jest.fn().mockRejectedValue(new Error('Network error')),
+    };
+
+    const { getByText } = render(
+      <Folder treeData={mockNoContentTreeData} fileContentService={fileContentService} />,
+    );
+
+    fireEvent.click(getByText('Button.tsx'));
+  });
+  it('should display formatted error message when file content service fails', async () => {
+    const fileContentService = {
+      loadFileContent: jest.fn().mockRejectedValue(''),
+    };
+
+    const { getByText } = render(
+      <Folder treeData={mockNoContentTreeData} fileContentService={fileContentService} />,
+    );
+
+    fireEvent.click(getByText('Button.tsx'));
   });
 });
