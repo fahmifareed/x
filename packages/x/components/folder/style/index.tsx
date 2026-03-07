@@ -9,7 +9,6 @@ export interface ComponentToken {
    * @descEN Background color of directory
    */
   colorBgDirectory: string;
-  colorBgDirectorySelected: string;
 }
 
 export interface FolderToken extends FullToken<'Folder'> {}
@@ -49,6 +48,8 @@ const genFolderStyle: GenerateStyle<FolderToken> = (token) => {
       },
       [`${componentCls}-directory-tree`]: {
         height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
       },
       [`${componentCls}-directory-tree-title`]: {
         width: '100%',
@@ -62,6 +63,7 @@ const genFolderStyle: GenerateStyle<FolderToken> = (token) => {
         paddingInline: token.padding,
         paddingBlock: token.paddingXS,
         display: 'flex',
+        overflow: 'auto',
       },
       [`&${componentCls}-rtl`]: {
         direction: 'rtl',
@@ -116,7 +118,6 @@ const genFilePreviewStyle: GenerateStyle<FolderToken> = (token) => {
 export const prepareComponentToken: GetDefaultToken<'Folder'> = (token) => {
   return {
     colorBgDirectory: token.colorFillTertiary,
-    colorBgDirectorySelected: new FastColor(token.colorPrimary).setA(0.45).toString(),
   };
 };
 

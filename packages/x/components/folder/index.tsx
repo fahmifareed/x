@@ -306,8 +306,6 @@ const Folder: React.FC<FolderProps> = (props) => {
             <div
               className={clsx(`${prefixCls}-directory-tree`, classNames?.directoryTree)}
               style={{
-                width: directoryTreeWith,
-                overflow: 'auto',
                 ...contextConfig.styles?.directoryTree,
                 ...styles?.directoryTree,
               }}
