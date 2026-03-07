@@ -52,8 +52,6 @@ tag: 2.4.0
 | directoryTitle | 目录树标题 | React.ReactNode \| (() => React.ReactNode) | - | - |
 | previewTitle | 文件预览标题 | string \| (({ title, path, content }: { title: string; path: string[]; content: string }) => React.ReactNode) | - | - |
 | directoryIcons | 自定义图标配置 | Record<'directory' \| string, React.ReactNode \| (() => React.ReactNode)> | - | - |
-| classNames | 语义化结构的自定义类名 | [FolderClassNames](#folderclassnames) | - | - |
-| styles | 语义化结构的自定义样式 | [FolderStyles](#folderstyles) | - | - |
 
 ### FolderTreeNode
 
