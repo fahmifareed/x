@@ -40,7 +40,6 @@ tag: 2.4.0
 | selectedFile | 选中的文件路径（受控） | string[] | - | - |
 | defaultSelectedFile | 默认选中的文件路径 | string[] | `[]` | - |
 | onSelectedFileChange | 文件选择变化时的回调 | (file: { path: string[]; name?: string; content?: string }) => void | - | - |
-| multiple | 是否支持多选 | boolean | `false` | - |
 | menuWith | 目录树宽度 | number \| string | `378` | - |
 | empty | 空状态时的展示内容 | React.ReactNode \| (() => React.ReactNode) | - | - |
 | expandedPaths | 展开的节点路径数组（受控） | string[] | - | - |

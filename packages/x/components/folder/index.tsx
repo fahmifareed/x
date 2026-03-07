@@ -3,6 +3,7 @@ import type { TreeProps } from 'antd';
 import { Flex, Splitter } from 'antd';
 import { clsx } from 'clsx';
 import React, { useCallback, useEffect, useState } from 'react';
+import useProxyImperativeHandle from '../_util/hooks/use-proxy-imperative-handle';
 import useXComponentConfig from '../_util/hooks/use-x-component-config';
 import { useLocale } from '../locale';
 import enUS from '../locale/en_US';
@@ -40,7 +41,6 @@ export interface FolderProps {
   selectedFile?: string[];
   defaultSelectedFile?: string[];
   onSelectedFileChange?: (file: { path: string[]; name?: string; content?: string }) => void;
-  multiple?: boolean;
   directoryTreeWith?: number | string;
   empty?: React.ReactNode | (() => React.ReactNode);
   // 展开控制
@@ -71,7 +71,12 @@ export interface FolderProps {
       }) => React.ReactNode);
 }
 
-const Folder: React.FC<FolderProps> = (props) => {
+// ref接口类型
+export type FolderRef = {
+  nativeElement: HTMLDivElement;
+};
+
+const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
   const {
     prefixCls: customizePrefixCls,
     className,
@@ -89,13 +94,20 @@ const Folder: React.FC<FolderProps> = (props) => {
     onSelectedFileChange,
     directoryTreeWith = 278,
     empty,
-    multiple = false,
     defaultExpandedPaths,
     expandedPaths,
     onExpandedPathsChange,
     onFileClick,
     onFolderClick,
   } = props;
+
+  // ============================= Refs =============================
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  useProxyImperativeHandle(ref, () => {
+    return {
+      nativeElement: containerRef.current!,
+    };
+  });
 
   // ============================ State ============================
 
@@ -299,7 +311,7 @@ const Folder: React.FC<FolderProps> = (props) => {
   };
 
   return (
-    <div className={mergedCls} style={mergedStyle}>
+    <div ref={containerRef} className={mergedCls} style={mergedStyle}>
       <Flex className={`${prefixCls}-container`}>
         <Splitter>
           <Splitter.Panel defaultSize={directoryTreeWith}>
@@ -324,7 +336,7 @@ const Folder: React.FC<FolderProps> = (props) => {
                 expandedKeys={expandedPathsState}
                 onSelect={handleSelect}
                 onExpand={handleExpand}
-                multiple={multiple}
+                multiple={false}
                 blockNode
                 defaultExpandAll={defaultExpandAll}
                 directoryTitle={directoryTitle}
@@ -354,6 +366,12 @@ const Folder: React.FC<FolderProps> = (props) => {
       </Flex>
     </div>
   );
-};
+});
+
+const Folder = ForwardFolder;
+
+if (process.env.NODE_ENV !== 'production') {
+  Folder.displayName = 'Folder';
+}
 
 export default Folder;

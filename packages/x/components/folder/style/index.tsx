@@ -1,5 +1,4 @@
 import { mergeToken } from '@ant-design/cssinjs-utils';
-import { FastColor } from '@ant-design/fast-color';
 import { genStyleHooks } from '../../theme/genStyleUtils';
 import type { FullToken, GenerateStyle, GetDefaultToken } from '../../theme/interface';
 
