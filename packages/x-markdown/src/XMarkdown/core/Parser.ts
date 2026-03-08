@@ -131,7 +131,7 @@ class Parser {
   private configureTextRenderer() {
     const self = this;
     const renderer = {
-      text(token: Tokens.Text | Tokens.Escape) {
+      text(this: Renderer, token: Tokens.Text | Tokens.Escape) {
         const text =
           'tokens' in token && token.tokens
             ? this.parser.parseInline(token.tokens)
@@ -325,26 +325,27 @@ class Parser {
     // Reset lastTextToken for each parse
     this.lastTextToken = null;
 
-    // Find and mark the last text token if injectTail is enabled
-    if (options?.injectTail) {
-      const tokens = this.markdownInstance.lexer(content);
-      this.lastTextToken = this.findLastTextToken(tokens);
-
-      if (this.options.protectCustomTagNewlines) {
-        const { protected: protectedContent, placeholders } = this.protectCustomTags(content);
-        const parsed = this.markdownInstance.parser(tokens) as string;
-        return this.restorePlaceholders(parsed, placeholders);
-      }
-
-      return this.markdownInstance.parser(tokens) as string;
+    // Protect custom tags if needed
+    let processedContent = content;
+    let placeholders: Map<string, string> | undefined;
+    if (this.options.protectCustomTagNewlines) {
+      const result = this.protectCustomTags(content);
+      processedContent = result.protected;
+      placeholders = result.placeholders;
     }
 
-    if (this.options.protectCustomTagNewlines) {
-      const { protected: protectedContent, placeholders } = this.protectCustomTags(content);
-      const parsed = this.markdownInstance.parse(protectedContent) as string;
+    // Parse and inject tail if needed
+    if (options?.injectTail) {
+      const tokens = this.markdownInstance.lexer(processedContent);
+      this.lastTextToken = this.findLastTextToken(tokens);
+    }
+    const parsed = this.markdownInstance.parse(processedContent) as string;
+
+    // Restore placeholders if needed
+    if (placeholders) {
       return this.restorePlaceholders(parsed, placeholders);
     }
-    return this.markdownInstance.parse(content) as string;
+    return parsed;
   }
 }
 

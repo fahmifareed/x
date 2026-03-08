@@ -1,7 +1,7 @@
 import { SettingOutlined } from '@ant-design/icons';
 import { Bubble } from '@ant-design/x';
 import XMarkdown from '@ant-design/x-markdown';
-import { Button, Flex, Input, Popover, Skeleton, Space, Switch, Typography, theme } from 'antd';
+import { Button, Flex, Input, Popover, Skeleton, Switch, Typography, theme } from 'antd';
 import React, { useState } from 'react';
 import '@ant-design/x-markdown/themes/light.css';
 import '@ant-design/x-markdown/themes/dark.css';
