@@ -110,7 +110,7 @@ const filterTreeData = (
   if (!searchValue) return data;
 
   return data.reduce((acc: FolderProps['treeData'], item) => {
-    const titleMatch = item.title.toLowerCase().includes(searchValue.toLowerCase());
+    const titleMatch = item.path.toLowerCase().includes(searchValue.toLowerCase());
 
     let filteredChildren: FolderProps['treeData'] = [];
     if (item.children) {

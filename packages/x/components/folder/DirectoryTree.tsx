@@ -5,10 +5,10 @@ import type { DataNode } from 'antd/es/tree';
 import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import { useXProviderContext } from '../x-provider';
-import type { SemanticType } from '.';
+import type { FolderProps } from '.';
 // File tree node type
 export interface FolderTreeData {
-  title: string;
+  title: React.ReactNode;
   path: string;
   content?: string;
   children?: FolderTreeData[];
@@ -28,10 +28,10 @@ export interface DirectoryTreeProps {
   defaultExpandAll?: boolean;
   blockNode?: boolean;
   className?: string;
-  classNames?: Partial<Record<SemanticType, string>>;
-  styles?: Partial<Record<SemanticType, React.CSSProperties>>;
+  classNames?: FolderProps['classNames'];
+  styles?: FolderProps['styles'];
   style?: React.CSSProperties;
-  directoryTitle?: React.ReactNode | (() => React.ReactNode);
+  directoryTitle?: FolderProps['directoryTitle'];
   prefixCls?: string;
 }
 
@@ -66,8 +66,8 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     }
 
     // Return corresponding icon based on file extension
-    const fileName = node.title.toLowerCase();
-    const extension = fileName.split('.').pop();
+    const filePath = node.path.toLowerCase();
+    const extension = filePath.split('.').pop();
 
     if (extension) {
       // Check if custom icon configuration exists

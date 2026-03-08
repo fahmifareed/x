@@ -8,30 +8,24 @@ import ActionsCopy from '../actions/ActionsCopy';
 import { useLocale } from '../locale';
 import enUS from '../locale/en_US';
 import { useXProviderContext } from '../x-provider';
-import type { SemanticType } from '.';
+import type { FolderProps } from '.';
+import type { FolderTreeData } from './DirectoryTree';
 import useStyle from './style';
 
 export interface FileViewProps {
   prefixCls?: string;
   style?: React.CSSProperties;
-  classNames?: Partial<Record<SemanticType, string>>;
-  styles?: Partial<Record<SemanticType, React.CSSProperties>>;
+  classNames?: FolderProps['classNames'];
+  styles?: FolderProps['styles'];
   selectedFile?: string[] | null;
+  previewContent?: FolderProps['previewContent'];
   fileContent?: string;
   loading?: boolean;
-  previewTitle?:
-    | string
-    | (({
-        title,
-        path,
-        content,
-      }: {
-        title: string;
-        path: string[];
-        content: string;
-      }) => React.ReactNode);
-  getFileNode?: (path: string[]) => { title: string; path: string; content?: string } | undefined;
-  empty?: React.ReactNode | (() => React.ReactNode);
+  previewTitle?: FolderProps['previewTitle'];
+  getFileNode?: (
+    path: string[],
+  ) => { title: FolderTreeData['title']; path: string; content?: string } | undefined;
+  empty?: FolderProps['empty'];
 }
 
 const customOneLight = {
@@ -57,6 +51,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
     previewTitle,
     getFileNode,
     empty,
+    previewContent,
   } = props;
 
   const [contextLocale] = useLocale('Folder', enUS.Folder);
@@ -126,20 +121,39 @@ const FileView: React.FC<FileViewProps> = (props) => {
       );
     }
 
+    // Handle custom preview content
+    let contentNode: React.ReactNode;
+    if (previewContent) {
+      if (typeof previewContent === 'function') {
+        contentNode = previewContent({
+          content: fileContent,
+          path: selectedFile,
+          title: fileNode?.title,
+          language,
+        });
+      } else {
+        contentNode = previewContent;
+      }
+    } else {
+      contentNode = (
+        <SyntaxHighlighter
+          language={language}
+          wrapLines={true}
+          style={customOneLight}
+          codeTagProps={{ style: { background: 'transparent' } }}
+        >
+          {fileContent.replace(/\n$/, '')}
+        </SyntaxHighlighter>
+      );
+    }
+
     return (
       <>
         <div className={clsx(`${previewCls}-title-wrapper`, classNames?.previewTitle)}>
           {headerNode}
         </div>
         <div className={clsx(`${previewCls}-content`, classNames?.previewContent)}>
-          <SyntaxHighlighter
-            language={language}
-            wrapLines={true}
-            style={customOneLight}
-            codeTagProps={{ style: { background: 'transparent' } }}
-          >
-            {fileContent.replace(/\n$/, '')}
-          </SyntaxHighlighter>
+          {contentNode}
         </div>
       </>
     );

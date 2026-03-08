@@ -40,9 +40,21 @@ export interface FolderProps {
   selectable?: boolean;
   selectedFile?: string[];
   defaultSelectedFile?: string[];
-  onSelectedFileChange?: (file: { path: string[]; name?: string; content?: string }) => void;
+  onSelectedFileChange?: (file: {
+    path: string[];
+    title?: FolderTreeData['title'];
+    content?: string;
+  }) => void;
   directoryTreeWith?: number | string;
   empty?: React.ReactNode | (() => React.ReactNode);
+  previewContent?:
+    | React.ReactNode
+    | ((file: {
+        content?: string;
+        path: string[];
+        title?: FolderTreeData['title'];
+        language: string;
+      }) => React.ReactNode);
   // Expansion control
   defaultExpandedPaths?: string[];
   expandedPaths?: string[];
@@ -59,13 +71,13 @@ export interface FolderProps {
   // Custom titles
   directoryTitle?: React.ReactNode | (() => React.ReactNode);
   previewTitle?:
-    | string
+    | React.ReactNode
     | (({
         title,
         path,
         content,
       }: {
-        title: string;
+        title: React.ReactNode;
         path: string[];
         content: string;
       }) => React.ReactNode);
@@ -85,6 +97,7 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
     style,
     treeData,
     directoryIcons,
+    previewContent,
     directoryTitle,
     previewTitle,
     selectable = true,
@@ -223,7 +236,7 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
     const fileContent = selectedNode?.content as string | undefined;
 
     // Trigger selection change callback (main interaction method)
-    onSelectedFileChange?.({ path: pathArray, name: fileName, content: fileContent });
+    onSelectedFileChange?.({ path: pathArray, title: fileName, content: fileContent });
 
     // // Update internal state in uncontrolled mode
     const isControlled = selectedFile !== undefined;
@@ -345,6 +358,7 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
               fileContent={fileContent}
               loading={loadingContent}
               previewTitle={previewTitle}
+              previewContent={previewContent}
               getFileNode={(path) => {
                 if (!path || path.length === 0) return undefined;
                 const { node } = findNodeAndValidate(path);
