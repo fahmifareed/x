@@ -208,4 +208,41 @@ describe('Folder Component', () => {
 
     fireEvent.click(getByText('Button.tsx'));
   });
+  it('should render file content using previewContent function', async () => {
+    const { getByText, findByText } = render(
+      <Folder
+        treeData={mockTreeData}
+        previewContent={({ content }) => <div>Custom: {content}</div>}
+      />,
+    );
+
+    fireEvent.click(getByText('Button.tsx'));
+
+    // 验证自定义预览内容是否正确渲染
+    expect(
+      await findByText('Custom: export const Button = () => <button>Click</button>;'),
+    ).toBeTruthy();
+  });
+
+  it('should render static previewContent string', async () => {
+    const { getByText, findByText } = render(
+      <Folder treeData={mockTreeData} previewContent="Static Preview Content" />,
+    );
+
+    fireEvent.click(getByText('Button.tsx'));
+
+    // 验证静态预览内容是否正确渲染
+    expect(await findByText('Static Preview Content')).toBeTruthy();
+  });
+
+  it('should render default file content when previewContent is null', async () => {
+    const { getByText, findByText } = render(
+      <Folder treeData={mockTreeData} previewContent={null} />,
+    );
+
+    fireEvent.click(getByText('Button.tsx'));
+
+    // 验证默认文件内容是否正确渲染
+    expect(await findByText('export const Button = () => <button>Click</button>;')).toBeTruthy();
+  });
 });
