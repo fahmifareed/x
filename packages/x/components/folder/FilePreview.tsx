@@ -105,12 +105,12 @@ const FileView: React.FC<FileViewProps> = (props) => {
     const title = fileNode?.title || selectedFile[selectedFile.length - 1];
     const path = selectedFile;
 
-    // 从文件名获取扩展名
+    // Get file extension from filename
     const fileName = selectedFile[selectedFile.length - 1];
     const extension = getFileExtension(fileName);
     const language = getLanguageFromExtension(extension);
 
-    // 处理自定义内容标题
+    // Handle custom content title
     let headerNode: React.ReactNode;
     if (previewTitle) {
       headerNode =

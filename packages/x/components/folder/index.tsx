@@ -8,11 +8,11 @@ import useXComponentConfig from '../_util/hooks/use-x-component-config';
 import { useLocale } from '../locale';
 import enUS from '../locale/en_US';
 import { useXProviderContext } from '../x-provider';
-import DirectoryTree, { type FolderTreeNode } from './DirectoryTree';
+import DirectoryTree, { type FolderTreeData } from './DirectoryTree';
 import FilePreview from './FilePreview';
 import useStyle from './style';
 
-// 文件内容服务接口
+// File content service interface
 export interface FileContentService {
   loadFileContent(filePath: string): Promise<string>;
 }
@@ -25,38 +25,38 @@ export type SemanticType =
   | 'previewTitle'
   | 'previewContent';
 
-// 文件夹属性
+// Folder properties
 export interface FolderProps {
-  // 基础属性
+  // Basic properties
   prefixCls?: string;
   className?: string;
   classNames?: Partial<Record<SemanticType, string>>;
   styles?: Partial<Record<SemanticType, React.CSSProperties>>;
   style?: React.CSSProperties;
   directoryIcons?: Record<'directory' | string, React.ReactNode | (() => React.ReactNode)>;
-  // 数据属性
-  treeData: FolderTreeNode[];
-  // 选择功能
+  // Data properties
+  treeData: FolderTreeData[];
+  // Selection functionality
   selectable?: boolean;
   selectedFile?: string[];
   defaultSelectedFile?: string[];
   onSelectedFileChange?: (file: { path: string[]; name?: string; content?: string }) => void;
   directoryTreeWith?: number | string;
   empty?: React.ReactNode | (() => React.ReactNode);
-  // 展开控制
+  // Expansion control
   defaultExpandedPaths?: string[];
   expandedPaths?: string[];
   defaultExpandAll?: boolean;
   onExpandedPathsChange?: (paths: string[]) => void;
 
-  // 文件内容服务
+  // File content service
   fileContentService?: FileContentService;
 
-  // 事件回调
+  // Event callbacks
   onFileClick?: (filePath: string, content?: string) => void;
   onFolderClick?: (folderPath: string) => void;
 
-  // 自定义标题
+  // Custom titles
   directoryTitle?: React.ReactNode | (() => React.ReactNode);
   previewTitle?:
     | string
@@ -71,7 +71,7 @@ export interface FolderProps {
       }) => React.ReactNode);
 }
 
-// ref接口类型
+// Ref interface type
 export type FolderRef = {
   nativeElement: HTMLDivElement;
 };
@@ -111,19 +111,19 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
 
   // ============================ State ============================
 
-  // 查找节点并验证路径
+  // Find node and validate path
   const findNodeAndValidate = useCallback(
     (
       path: string | string[],
       validateAsFile = false,
-    ): { node: FolderTreeNode | undefined; isValid: boolean } => {
+    ): { node: FolderTreeData | undefined; isValid: boolean } => {
       if (!path) return { node: undefined, isValid: false };
 
       const segments = Array.isArray(path) ? path.filter(Boolean) : path.split('/').filter(Boolean);
 
       if (segments.length === 0) return { node: undefined, isValid: false };
 
-      const findNode = (nodes: FolderTreeNode[], index = 0): FolderTreeNode | undefined => {
+      const findNode = (nodes: FolderTreeData[], index = 0): FolderTreeData | undefined => {
         if (index >= segments.length) return undefined;
 
         const currentSegment = segments[index];
@@ -196,45 +196,45 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
     const keys = _keys as string[];
     const nodes = Array.isArray(info.selectedNodes) ? info.selectedNodes : [info.selectedNodes];
 
-    // 检查是否点击的是文件夹
+    // Check if a folder was clicked
     const isFolder = nodes.some((node) => {
-      const fileNode = node as unknown as FolderTreeNode;
+      const fileNode = node as unknown as FolderTreeData;
       return !!fileNode.children && fileNode.children.length > 0;
     });
 
     if (isFolder) {
-      // 点击文件夹：不更新selectedFileState，只触发文件夹点击事件
+      // Click folder: don't update selectedFileState, only trigger folder click event
       if (nodes.length === 1) {
-        const node = nodes[0] as unknown as FolderTreeNode;
+        const node = nodes[0] as unknown as FolderTreeData;
         onFolderClick?.(node.path);
       }
       return;
     }
 
-    // 将完整路径转换为数组格式
+    // Convert full path to array format
     const pathArray = keys[0]?.split('/').filter(Boolean) || [];
 
-    // 避免空路径或无效路径
+    // Avoid empty or invalid paths
     if (pathArray.length === 0) return;
 
-    // 获取选中文件的名称和内容（单文件选择时）
-    const selectedNode = nodes[0] as unknown as FolderTreeNode | undefined;
+    // Get selected file name and content (single file selection)
+    const selectedNode = nodes[0] as unknown as FolderTreeData | undefined;
     const fileName = selectedNode?.title as string | undefined;
     const fileContent = selectedNode?.content as string | undefined;
 
-    // 触发选择变更回调（这是主要的交互方式）
+    // Trigger selection change callback (main interaction method)
     onSelectedFileChange?.({ path: pathArray, name: fileName, content: fileContent });
 
-    // // 在非受控模式下更新内部状态
+    // // Update internal state in uncontrolled mode
     const isControlled = selectedFile !== undefined;
     if (!isControlled) {
       setValidSelectedFile(true);
       setSelectedFileState(pathArray);
     }
 
-    // 处理单个文件点击事件
+    // Handle single file click event
     if (nodes.length === 1) {
-      const node = nodes[0] as unknown as FolderTreeNode;
+      const node = nodes[0] as unknown as FolderTreeData;
       onFileClick?.(node.path, node.content);
     }
   };
@@ -257,11 +257,11 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
 
       const filePath = selectedFileState.join('/');
 
-      // 首先检查节点是否已经有内容
+      // First check if the node already has content
       const segments = filePath.split('/').filter((segment) => segment !== '');
       const { node } = findNodeAndValidate(segments);
 
-      // 如果有文件内容服务，使用服务加载内容
+      // If file content service is available, use it to load content
       if (props.fileContentService) {
         setLoadingContent(true);
         try {
@@ -275,12 +275,12 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
           setLoadingContent(false);
         }
       } else if (node?.content) {
-        // 如果节点已经有内容，直接使用
+        // If node already has content, use it directly
         setFileContent(node.content);
         setLoadingContent(false);
         return;
       } else {
-        // 没有文件内容服务，显示提示信息
+        // No file content service, show prompt message
         setFileContent(`// ${locale.noService}`);
         setLoadingContent(false);
       }

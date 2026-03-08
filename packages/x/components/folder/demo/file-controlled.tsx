@@ -155,16 +155,16 @@ export default () => {
     <div style={{ padding: 24, height: 450 }}>
       <Space style={{ marginBottom: 16 }}>
         <Button type="primary" onClick={handleSelectSkill}>
-          选择 SKILL.md
+          Select SKILL.md
         </Button>
         <Button type="primary" onClick={handleSelectExamples}>
-          选择 EXAMPLES.md
+          Select EXAMPLES.md
         </Button>
-        <Button onClick={handleClearSelection}>清除选择</Button>
+        <Button onClick={handleClearSelection}>Clear Selection</Button>
       </Space>
       <div style={{ marginBottom: 16 }}>
-        <strong>当前选中文件：</strong>
-        {selectedFile && selectedFile.length > 0 ? selectedFile.join('/') : '无'}
+        <strong>Current Selected File:</strong>
+        {selectedFile && selectedFile.length > 0 ? selectedFile.join('/') : 'None'}
       </div>
       <Folder
         treeData={treeData}
@@ -173,12 +173,13 @@ export default () => {
             style={{
               paddingInline: 16,
               width: '100%',
+              whiteSpace: 'nowrap',
               paddingBlock: 8,
               borderBottom: '1px solid #f0f0f0',
             }}
             align="center"
           >
-            项目文件浏览器
+            Project File Browser
           </Flex>
         }
         selectedFile={selectedFile}

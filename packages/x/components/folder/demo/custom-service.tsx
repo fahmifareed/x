@@ -33,7 +33,7 @@ const treeData: FolderProps['treeData'] = [
   },
 ];
 
-// 自定义文件内容服务
+// Custom file content service
 class CustomFileContentService {
   private mockFiles: Record<string, string> = {
     'x-request/SKILL.md': `---
@@ -293,7 +293,7 @@ export default App;`,
       return content;
     }
 
-    throw new Error(`文件 ${filePath} 不存在`);
+    throw new Error(`File ${filePath} does not exist`);
   }
 }
 

@@ -6,18 +6,18 @@ import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import { useXProviderContext } from '../x-provider';
 import type { SemanticType } from '.';
-// 文件树节点类型
-export interface FolderTreeNode {
+// File tree node type
+export interface FolderTreeData {
   title: string;
   path: string;
   content?: string;
-  children?: FolderTreeNode[];
+  children?: FolderTreeData[];
 }
 
 const { DirectoryTree: AntDirectoryTree } = Tree;
 
 export interface DirectoryTreeProps {
-  treeData: FolderTreeNode[];
+  treeData: FolderTreeData[];
   directoryIcons?: Record<'directory' | string, React.ReactNode | (() => React.ReactNode)>;
   selectedKeys?: string[];
   expandedKeys?: string[];
@@ -54,23 +54,23 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   prefixCls: customizePrefixCls,
 }) => {
   // ============================ Tree Config ============================
-  const isFolder = (node: FolderTreeNode): boolean => {
+  const isFolder = (node: FolderTreeData): boolean => {
     return !!node.children && node.children.length > 0;
   };
 
-  const getIcon = (node: FolderTreeNode) => {
+  const getIcon = (node: FolderTreeData) => {
     if (isFolder(node)) {
       return typeof directoryIcons?.['directory'] === 'function'
         ? directoryIcons?.['directory']?.()
         : directoryIcons?.['directory'] || <FolderOutlined />;
     }
 
-    // 根据文件后缀名返回对应的图标
+    // Return corresponding icon based on file extension
     const fileName = node.title.toLowerCase();
     const extension = fileName.split('.').pop();
 
     if (extension) {
-      // 检查是否有自定义图标配置
+      // Check if custom icon configuration exists
       if (directoryIcons?.[extension]) {
         return typeof directoryIcons[extension] === 'function'
           ? directoryIcons[extension]()
@@ -82,7 +82,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   };
 
   const buildPathSegments = useCallback(
-    (node: FolderTreeNode, parentSegments: string[] = []): string[] => {
+    (node: FolderTreeData, parentSegments: string[] = []): string[] => {
       if (node.path === '/' && parentSegments.length === 0) {
         return ['/'];
       }
@@ -92,7 +92,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   );
 
   const convertToTreeData = useCallback(
-    (nodes: FolderTreeNode[], parentSegments: string[] = []): DataNode[] => {
+    (nodes: FolderTreeData[], parentSegments: string[] = []): DataNode[] => {
       return nodes.map((node) => {
         const pathSegments = buildPathSegments(node, parentSegments);
         const fullPath = pathSegments.join('/').replace(/^\/+/, '');

@@ -5,17 +5,16 @@ group:
   order: 4
 title: Folder
 subtitle: 文件夹
-description: 以树形结构展示文件和文件夹层级关系。
-cover: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*gEo2RrZtK7EAAAAAAAAAAAAADgCCAQ/original
-coverDark: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*Xq4TR7kYo1EAAAAAAAAAAAAADgCCAQ/original
+description: 文件树组件，用于展示层级文件结构。
+cover: https://mdn.alipayobjects.com/huamei_lkxviz/afts/img/uWJQS7CnYE0AAAAAQCAAAAgADtFMAQFr/original
+coverDark: https://mdn.alipayobjects.com/huamei_lkxviz/afts/img/iUnnR43iHu8AAAAAQCAAAAgADtFMAQFr/original
 tag: 2.4.0
 ---
 
 ## 何时使用
 
-- 用于展示文件系统的层级结构。
-- 需要支持文件夹的展开/收起交互。
-- 需要支持文件和文件夹的选择操作。
+- 展示文件/文件夹层级结构
+- 需要文件选择、展开收起功能
 
 ## 代码演示
 
@@ -35,7 +34,7 @@ tag: 2.4.0
 
 | 属性 | 说明 | 类型 | 默认值 | 版本 |
 | --- | --- | --- | --- | --- |
-| treeData | 文件树数据 | [FolderTreeNode](#foldertreenode)[] | `[]` | - |
+| treeData | 文件树数据 | [FolderTreeData](#foldertreenode)[] | `[]` | - |
 | selectable | 是否开启选择功能 | boolean | `true` | - |
 | selectedFile | 选中的文件路径（受控） | string[] | - | - |
 | defaultSelectedFile | 默认选中的文件路径 | string[] | `[]` | - |
@@ -53,14 +52,14 @@ tag: 2.4.0
 | previewTitle | 文件预览标题 | string \| (({ title, path, content }: { title: string; path: string[]; content: string }) => React.ReactNode) | - | - |
 | directoryIcons | 自定义图标配置 | Record<'directory' \| string, React.ReactNode \| (() => React.ReactNode)> | - | - |
 
-### FolderTreeNode
+### FolderTreeData
 
 | 属性     | 说明                     | 类型                                | 默认值 | 版本 |
 | -------- | ------------------------ | ----------------------------------- | ------ | ---- |
 | title    | 显示名称                 | string                              | -      | -    |
 | path     | 文件路径                 | string                              | -      | -    |
 | content  | 文件内容（可选）         | string                              | -      | -    |
-| children | 子项（仅文件夹类型有效） | [FolderTreeNode](#foldertreenode)[] | -      | -    |
+| children | 子项（仅文件夹类型有效） | [FolderTreeData](#foldertreenode)[] | -      | -    |
 
 ### FileContentService
 

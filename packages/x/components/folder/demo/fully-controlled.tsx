@@ -702,20 +702,20 @@ export default () => {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <Button type="primary" onClick={handleReset}>
-          重置状态
+          Reset State
         </Button>
-        <Button onClick={handleExpandAll}>展开全部</Button>
-        <Button onClick={handleCollapseAll}>收起全部</Button>
-        <Button onClick={handleSelectPackage}>选择 API.md</Button>
+        <Button onClick={handleExpandAll}>Expand All</Button>
+        <Button onClick={handleCollapseAll}>Collapse All</Button>
+        <Button onClick={handleSelectPackage}>Select API.md</Button>
       </Space>
       <Card style={{ marginBottom: 16 }}>
         <Space vertical>
           <div>
-            <strong>当前选中文件：</strong>{' '}
-            {selectedFile && selectedFile.length > 0 ? selectedFile.join('/') : '无'}
+            <strong>Current Selected File:</strong>{' '}
+            {selectedFile && selectedFile.length > 0 ? selectedFile.join('/') : 'None'}
           </div>
           <div>
-            <strong>展开节点：</strong> {expandedPaths.join(', ') || '无'}
+            <strong>Expanded Nodes:</strong> {expandedPaths.join(', ') || 'None'}
           </div>
         </Space>
       </Card>
@@ -726,6 +726,7 @@ export default () => {
         directoryTitle={
           <Flex
             style={{
+              whiteSpace: 'nowrap',
               paddingInline: 16,
               width: '100%',
               paddingBlock: 8,
@@ -733,7 +734,7 @@ export default () => {
             }}
             align="center"
           >
-            文件浏览器
+            File Browser
           </Flex>
         }
         selectedFile={selectedFile}

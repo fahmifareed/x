@@ -5,17 +5,16 @@ group:
   order: 4
 title: Folder
 subtitle: File Tree
-description: Display hierarchical relationships of files and folders in a tree structure.
-cover: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*gEo2RrZtK7EAAAAAAAAAAAAADgCCAQ/original
-coverDark: https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*Xq4TR7kYo1EAAAAAAAAAAAAADgCCAQ/original
+description: File tree component for displaying hierarchical file structure.
+cover: https://mdn.alipayobjects.com/huamei_lkxviz/afts/img/uWJQS7CnYE0AAAAAQCAAAAgADtFMAQFr/original
+coverDark: https://mdn.alipayobjects.com/huamei_lkxviz/afts/img/iUnnR43iHu8AAAAAQCAAAAgADtFMAQFr/original
 tag: 2.4.0
 ---
 
 ## When to use
 
-- Used to display hierarchical structure of file systems.
-- Need to support expand/collapse interactions for folders.
-- Need to support selection operations for files and folders.
+- Display hierarchical file/folder structure
+- File selection and expand/collapse features needed
 
 ## Code examples
 
@@ -35,7 +34,7 @@ Common props ref: [Common props](/docs/react/common-props)
 
 | Property | Description | Type | Default | Version |
 | --- | --- | --- | --- | --- |
-| treeData | File tree data | [FolderTreeNode](#foldertreenode)[] | `[]` | - |
+| treeData | File tree data | [FolderTreeData](#foldertreenode)[] | `[]` | - |
 | selectable | Whether to enable selection functionality | boolean | `true` | - |
 | selectedFile | Selected file paths (controlled) | string[] | - | - |
 | defaultSelectedFile | Default selected file paths | string[] | `[]` | - |
@@ -53,14 +52,14 @@ Common props ref: [Common props](/docs/react/common-props)
 | previewTitle | File preview title | string \| (({ title, path, content }: { title: string; path: string[]; content: string }) => React.ReactNode) | - | - |
 | directoryIcons | Custom icon configuration | Record<'directory' \| string, React.ReactNode \| (() => React.ReactNode)> | - | - |
 
-### FolderTreeNode
+### FolderTreeData
 
 | Property | Description | Type | Default | Version |
 | --- | --- | --- | --- | --- |
 | title | Display name | string | - | - |
 | path | File path | string | - | - |
 | content | File content (optional) | string | - | - |
-| children | Sub-items (valid only for folder type) | [FolderTreeNode](#foldertreenode)[] | - | - |
+| children | Sub-items (valid only for folder type) | [FolderTreeData](#foldertreenode)[] | - | - |
 
 ### FileContentService
 

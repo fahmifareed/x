@@ -30,7 +30,8 @@ const genFolderStyle: GenerateStyle<FolderToken> = (token) => {
         display: 'flex',
       },
       [`${antCls}-tree-list`]: {
-        width: '100%',
+        paddingInline: token.padding,
+        paddingBlock: token.paddingXS,
       },
       [`${antCls}-tree-switcher`]: {
         width: '10px',
@@ -58,9 +59,8 @@ const genFolderStyle: GenerateStyle<FolderToken> = (token) => {
       [`${componentCls}-directory-tree-content`]: {
         width: '100%',
         background: 'transparent',
+        height: '100%',
         borderRadius: 'unset',
-        paddingInline: token.padding,
-        paddingBlock: token.paddingXS,
         display: 'flex',
         overflow: 'auto',
       },

@@ -120,10 +120,10 @@ export default () => {
         treeData={treeData}
         defaultSelectedFile={['my-project', 'package.json']}
         directoryTitle={
-          <div style={{ padding: 12, borderBottom: '1px solid #f0f0f0' }}>
-            <strong>自定义图标文件浏览器</strong>
+          <div style={{ padding: 12, whiteSpace: 'nowrap', borderBottom: '1px solid #f0f0f0' }}>
+            <strong>Custom Icon File Browser</strong>
             <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-              根据文件类型显示不同图标
+              Display different icons based on file type
             </div>
           </div>
         }

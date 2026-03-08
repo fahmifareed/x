@@ -162,6 +162,7 @@ const App: React.FC = () => {
           <Flex
             style={{
               paddingInline: 16,
+              whiteSpace: 'nowrap',
               width: '100%',
               paddingBlock: 8,
               borderBottom: '1px solid #f0f0f0',

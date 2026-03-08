@@ -145,14 +145,14 @@ export default () => {
     <div style={{ padding: 24, height: 600 }}>
       <Space vertical style={{ width: '100%', marginBottom: 16 }}>
         <Input.Search
-          placeholder="搜索文件或文件夹..."
+          placeholder="Search files or folders..."
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           allowClear
         />
         <Space>
-          <Tag color="blue">总文件数: {countFiles(treeData)}</Tag>
-          <Tag color="green">匹配结果: {countFiles(filteredTreeData)}</Tag>
+          <Tag color="blue">Total Files: {countFiles(treeData)}</Tag>
+          <Tag color="green">Matching Results: {countFiles(filteredTreeData)}</Tag>
         </Space>
       </Space>
       <Folder
@@ -160,10 +160,12 @@ export default () => {
         selectedFile={selectedFile}
         onSelectedFileChange={({ path }) => setSelectedFile(path)}
         directoryTitle={
-          <div style={{ padding: 12, borderBottom: '1px solid #f0f0f0' }}>
-            <strong>项目文件浏览器</strong>
+          <div style={{ whiteSpace: 'nowrap', padding: 12, borderBottom: '1px solid #f0f0f0' }}>
+            <strong>Project File Browser</strong>
             {searchValue && (
-              <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>搜索: "{searchValue}"</div>
+              <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+                Search: "{searchValue}"
+              </div>
             )}
           </div>
         }
