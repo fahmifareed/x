@@ -4,12 +4,16 @@ import { Parser, Renderer } from './core';
 import DebugPanel from './DebugPanel';
 import { useStreaming } from './hooks';
 import { XMarkdownProps } from './interface';
+import { resolveTailContent } from './utils/tail';
 import './index.css';
+
+const DEFAULT_TAIL_CONTENT = '▋';
 
 const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
   const {
     streaming,
     config,
+    components,
     paragraphTag,
     content,
     children,
@@ -21,31 +25,41 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
     protectCustomTagNewlines,
     escapeRawHtml,
     debug,
-    footer,
   } = props;
-
-  const components = useMemo(() => {
-    return Object.assign(
-      {
-        'xmd-footer': footer,
-      },
-      props?.components ?? {},
-    );
-  }, [footer, props?.components]);
+  const tailContent = useMemo(() => resolveTailContent(streaming?.tail), [streaming?.tail]);
+  const hasNextChunk = !!streaming?.hasNextChunk;
+  const tailConfig = typeof streaming?.tail === 'object' ? streaming.tail : undefined;
+  const TailComponent = tailConfig?.component;
 
   // ============================ style ============================
   const mergedCls = clsx('x-markdown', rootClassName, className);
 
   // ============================ Streaming ============================
-
   const output = useStreaming(content || children || '', { streaming, components });
-  const displayContent = useMemo(() => {
-    if (streaming?.hasNextChunk) {
-      return output + '<xmd-footer></xmd-footer>';
+
+  // ============================ Merge components with xmd-tail ============================
+  const mergedComponents = useMemo(() => {
+    // Only add xmd-tail if streaming is active
+    if (!hasNextChunk || !streaming?.tail) {
+      return components;
     }
 
-    return !footer ? output : output.replace(/<xmd-footer><\/xmd-footer>/g, '') || '';
-  }, [streaming?.hasNextChunk, output, footer]);
+    // Default tail component
+    const DefaultTail: React.FC = () => (
+      <span className="xmd-tail">{tailContent || DEFAULT_TAIL_CONTENT}</span>
+    );
+
+    // Use custom component or default
+    const TailElement = TailComponent
+      ? React.createElement(TailComponent, { content: tailContent || DEFAULT_TAIL_CONTENT })
+      : React.createElement(DefaultTail);
+
+    return {
+      ...components,
+      'xmd-tail': () => TailElement,
+    };
+  }, [hasNextChunk, streaming?.tail, components, TailComponent, tailContent]);
+
   // ============================ Render ============================
   const parser = useMemo(
     () =>
@@ -53,46 +67,53 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
         markedConfig: config,
         paragraphTag,
         openLinksInNewTab,
-        components,
+        components: mergedComponents,
         protectCustomTagNewlines,
         escapeRawHtml,
-        configureRenderCleaner: (code: string, type) => {
-          if (type === 'code') {
-            return !footer ? code : code.replace(/<xmd-footer><\/xmd-footer>/g, '') || '';
-          }
-
-          return code;
-        },
       }),
-    [config, paragraphTag, openLinksInNewTab, components, protectCustomTagNewlines, escapeRawHtml],
+    [
+      config,
+      paragraphTag,
+      openLinksInNewTab,
+      mergedComponents,
+      protectCustomTagNewlines,
+      escapeRawHtml,
+    ],
   );
 
   const renderer = useMemo(
     () =>
       new Renderer({
-        components: components,
+        components: mergedComponents,
         dompurifyConfig,
         streaming,
       }),
-    [components, dompurifyConfig, streaming],
+    [mergedComponents, dompurifyConfig, streaming],
   );
 
   const htmlString = useMemo(() => {
-    if (!displayContent) {
+    if (!output) {
       return '';
     }
 
-    return parser.parse(displayContent);
-  }, [displayContent, parser]);
+    // Inject tail only when streaming and tail is enabled
+    const shouldInjectTail = hasNextChunk && !!streaming?.tail;
+    return parser.parse(output, { injectTail: shouldInjectTail });
+  }, [output, parser, hasNextChunk, streaming?.tail]);
 
-  if (!displayContent) {
+  const renderedContent = useMemo(
+    () => (htmlString ? renderer.render(htmlString) : null),
+    [htmlString, renderer],
+  );
+
+  if (!output) {
     return null;
   }
 
   return (
     <>
-      <div className={mergedCls} style={style}>
-        {renderer.render(htmlString)}
+      <div className={mergedCls} style={style} data-streaming={hasNextChunk ? 'true' : 'false'}>
+        {renderedContent}
       </div>
       {debug ? <DebugPanel /> : null}
     </>

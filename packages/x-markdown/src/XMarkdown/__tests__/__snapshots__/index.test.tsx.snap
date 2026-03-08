@@ -4,6 +4,7 @@ exports[`XMarkdown animation parent is custom components 1`] = `
 <div>
   <div
     class="x-markdown"
+    data-streaming="false"
   >
     <p>
       This is Text.
@@ -16,6 +17,7 @@ exports[`XMarkdown animation parent is not custom components 1`] = `
 <div>
   <div
     class="x-markdown"
+    data-streaming="false"
   >
     <p>
       <span
@@ -32,6 +34,7 @@ exports[`XMarkdown support checkbox is checked 1`] = `
 <div>
   <div
     class="x-markdown"
+    data-streaming="false"
   >
     <ul>
       <li>
@@ -51,6 +54,7 @@ exports[`XMarkdown support checkbox not checked 1`] = `
 <div>
   <div
     class="x-markdown"
+    data-streaming="false"
   >
     <ul>
       <li>

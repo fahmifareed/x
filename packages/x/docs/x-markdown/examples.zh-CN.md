@@ -14,12 +14,11 @@ packageName: x-markdown
 ## 代码演示
 
 <!-- prettier-ignore -->
-<code src="./demo/codeDemo/basic.tsx" title="基础渲染" description="最小可用示例"></code>
-<code src="./demo/streaming/combined.tsx" title="流式渲染" description="语法修复 + 动画"></code>
+<code src="./demo/codeDemo/basic.tsx" title="基础渲染"></code>
+<code src="./demo/streaming/combined.tsx" title="流式渲染" description="语法补全和缓存、动画以及尾缀"></code>
 <code src="./demo/components/codeHighlighter.tsx" title="组件扩展" description="将 code 块映射为 CodeHighlighter"></code>
 <code src="./demo/codeDemo/supersets.tsx" title="插件扩展" description="扩展 Markdown 语法"></code>
-<code src="./demo/codeDemo/escape-raw-html.tsx" title="安全与链接" description="原始 HTML 转义与新标签链接；HTML 净化配置见 Streaming 的 format 示例"></code>
-<code src="./demo/codeDemo/md-footer.tsx"  title="流式渲染 Footer"></code>
+<code src="./demo/codeDemo/escape-raw-html.tsx" title="安全与链接" description="原始 HTML 转义与新标签链接"></code>
 
 ## API
 
@@ -40,7 +39,6 @@ packageName: x-markdown
 | protectCustomTagNewlines | 是否保留自定义标签内部的换行 | `boolean` | `false` |
 | escapeRawHtml | 是否将 Markdown 中的原始 HTML 转义为纯文本展示（不解析为真实 HTML），用于防 XSS 同时保留内容 | `boolean` | `false` |
 | debug | 是否开启调试模式（显示性能监控浮层） | `boolean` | `false` |
-| footer | 用于在流式渲染过程中自定义渲染尾部内容的 React 组件 | `React.ComponentType<ComponentProps> \| keyof JSX.IntrinsicElements` | - |
 
 ### StreamingOption
 
@@ -49,4 +47,19 @@ packageName: x-markdown
 | hasNextChunk | 是否还有后续内容块。为 `false` 时会刷新缓存并完成渲染 | `boolean` | `false` |
 | enableAnimation | 是否为块级元素启用文字淡入动画 | `boolean` | `false` |
 | animationConfig | 动画配置（如淡入时长、缓动函数） | `AnimationConfig` | - |
+| tail | 是否启用尾部指示器 | `boolean \| TailConfig` | `false` |
 | incompleteMarkdownComponentMap | 将未闭合 Markdown 片段映射到自定义 loading 组件 | `Partial<Record<'link' \| 'image' \| 'html' \| 'emphasis' \| 'list' \| 'table' \| 'inline-code', string>>` | `{ link: 'incomplete-link', image: 'incomplete-image' }` |
+
+### TailConfig
+
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| content | 尾部显示的内容 | `string` | `'▋'` |
+| component | 自定义尾部组件，优先级高于 content | `React.ComponentType<{ content?: string }>` | - |
+
+### AnimationConfig
+
+| 属性         | 说明             | 类型     | 默认值          |
+| ------------ | ---------------- | -------- | --------------- |
+| fadeDuration | 动画时长（毫秒） | `number` | `200`           |
+| easing       | 缓动函数         | `string` | `'ease-in-out'` |

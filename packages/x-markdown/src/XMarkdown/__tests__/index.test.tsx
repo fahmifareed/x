@@ -549,31 +549,159 @@ console.log(1);
 });
 
 describe('streaming', () => {
-  it('should append footer tag when hasNextChunk is true', () => {
-    const { container } = render(
+  it('should mark streaming state and keep default tail disabled', () => {
+    const { container, rerender } = render(
       <XMarkdown content="# Title\n\nContent" streaming={{ hasNextChunk: true }} />,
     );
 
-    expect(container.innerHTML).toContain('<xmd-footer></xmd-footer>');
-  });
-
-  it('should not append footer tag when hasNextChunk is false', () => {
-    const { container } = render(
-      <XMarkdown content="# Title\n\nContent" streaming={{ hasNextChunk: false }} />,
-    );
-
-    expect(container.innerHTML).not.toContain('<xmd-footer></xmd-footer>');
-  });
-
-  it('should remove footer tag when hasNextChunk changes from true to false', () => {
-    const { rerender, container } = render(
-      <XMarkdown content="# Title\n\nContent" streaming={{ hasNextChunk: true }} />,
-    );
-
-    expect(container.innerHTML).toContain('<xmd-footer></xmd-footer>');
+    const root = container.querySelector('.x-markdown');
+    expect(root).toHaveAttribute('data-streaming', 'true');
+    // No tail element when tail is not enabled
+    expect(container.querySelector('.xmd-tail')).not.toBeInTheDocument();
 
     rerender(<XMarkdown content="# Title\n\nContent" streaming={{ hasNextChunk: false }} />);
+    expect(container.querySelector('.x-markdown')).toHaveAttribute('data-streaming', 'false');
+  });
 
-    expect(container.innerHTML).not.toContain('<xmd-footer></xmd-footer>');
+  it('should enable default tail when `tail` is true', () => {
+    const { container, rerender } = render(
+      <XMarkdown content="# Title\n\nContent" streaming={{ hasNextChunk: true, tail: true }} />,
+    );
+
+    // Tail component should be rendered
+    const tailElement = container.querySelector('.xmd-tail');
+    expect(tailElement).toBeInTheDocument();
+    expect(tailElement).toHaveTextContent('▋');
+
+    rerender(
+      <XMarkdown content="# Title\n\nContent" streaming={{ hasNextChunk: false, tail: true }} />,
+    );
+
+    // Tail should be removed when hasNextChunk is false
+    expect(container.querySelector('.xmd-tail')).not.toBeInTheDocument();
+  });
+
+  it('should support custom tail content', () => {
+    const { container } = render(
+      <XMarkdown
+        content="# Title\n\nContent"
+        streaming={{ hasNextChunk: true, tail: { content: '●' } }}
+      />,
+    );
+
+    const tailElement = container.querySelector('.xmd-tail');
+    expect(tailElement).toBeInTheDocument();
+    expect(tailElement).toHaveTextContent('●');
+  });
+
+  it('should support default tail content when tail is empty object', () => {
+    const { container } = render(
+      <XMarkdown content="# Title\n\nContent" streaming={{ hasNextChunk: true, tail: {} }} />,
+    );
+
+    const tailElement = container.querySelector('.xmd-tail');
+    expect(tailElement).toBeInTheDocument();
+    expect(tailElement).toHaveTextContent('▋');
+  });
+
+  it('should support custom tail component', () => {
+    const CustomTail: React.FC<{ content?: string }> = ({ content }) => (
+      <span className="custom-tail">{content}</span>
+    );
+
+    const { container } = render(
+      <XMarkdown
+        content="# Title\n\nContent"
+        streaming={{ hasNextChunk: true, tail: { content: '...', component: CustomTail } }}
+      />,
+    );
+
+    const tailElement = container.querySelector('.custom-tail');
+    expect(tailElement).toBeInTheDocument();
+    expect(tailElement).toHaveTextContent('...');
+  });
+
+  it('should render tail after the last text in paragraph', () => {
+    const { container } = render(
+      <XMarkdown
+        content="First paragraph.\n\nSecond paragraph."
+        streaming={{ hasNextChunk: true, tail: true }}
+      />,
+    );
+
+    const paragraphs = container.querySelectorAll('p');
+    // Tail should be inside the last paragraph
+    const lastParagraph = paragraphs[paragraphs.length - 1];
+    const tailElement = lastParagraph.querySelector('.xmd-tail');
+    expect(tailElement).toBeInTheDocument();
+  });
+
+  it('should render tail after the last text in list item', () => {
+    const { container } = render(
+      <XMarkdown
+        content="- Item 1\n- Item 2\n- Item 3"
+        streaming={{ hasNextChunk: true, tail: true }}
+      />,
+    );
+
+    const tailElement = container.querySelector('.xmd-tail');
+    expect(tailElement).toBeInTheDocument();
+
+    // Tail should be inside the last list item
+    const listItems = container.querySelectorAll('li');
+    const lastListItem = listItems[listItems.length - 1];
+    expect(lastListItem.contains(tailElement)).toBe(true);
+  });
+
+  it('should not render tail when last token is HTML (incomplete component)', () => {
+    // When there's an incomplete component at the end (like incomplete-link),
+    // the tail should not appear before it
+    const { container } = render(
+      <XMarkdown
+        content="Some text [incomplete"
+        streaming={{
+          hasNextChunk: true,
+          tail: true,
+          incompleteMarkdownComponentMap: {
+            link: 'incomplete-link',
+          },
+        }}
+        components={{
+          'incomplete-link': () => <span className="incomplete-link">loading...</span>,
+        }}
+      />,
+    );
+
+    // The incomplete-link component should be rendered
+    const incompleteLink = container.querySelector('.incomplete-link');
+    expect(incompleteLink).toBeInTheDocument();
+
+    // Tail should NOT be rendered before incomplete component
+    const tailElement = container.querySelector('.xmd-tail');
+    expect(tailElement).not.toBeInTheDocument();
+  });
+
+  it('should render tail after text when incomplete component is not last', () => {
+    // When the incomplete component is in the middle, tail should appear after last text
+    const { container } = render(
+      <XMarkdown
+        content="Start [incomplete](url end"
+        streaming={{
+          hasNextChunk: true,
+          tail: true,
+          incompleteMarkdownComponentMap: {
+            link: 'incomplete-link',
+          },
+        }}
+        components={{
+          'incomplete-link': () => <span className="incomplete-link">loading...</span>,
+        }}
+      />,
+    );
+
+    // With "Start [incomplete](url end", the parser doesn't see it as incomplete link
+    // because there's text after the link syntax. Tail should be at the end.
+    const tailElement = container.querySelector('.xmd-tail');
+    expect(tailElement).toBeInTheDocument();
   });
 });

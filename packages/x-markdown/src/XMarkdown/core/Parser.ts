@@ -1,14 +1,17 @@
-import { Marked, Renderer, RendererObject, Tokens } from 'marked';
+import { Marked, Renderer, Token, Tokens } from 'marked';
 import { XMarkdownProps } from '../interface';
 
 type ParserOptions = {
   markedConfig?: XMarkdownProps['config'];
   paragraphTag?: string;
   openLinksInNewTab?: boolean;
-  configureRenderCleaner?: (content: string, type: keyof RendererObject) => string;
   components?: XMarkdownProps['components'];
   protectCustomTagNewlines?: boolean;
   escapeRawHtml?: boolean;
+};
+
+type ParseOptions = {
+  injectTail?: boolean;
 };
 
 export const other = {
@@ -48,6 +51,7 @@ export function escapeHtml(html: string, encode?: boolean) {
 class Parser {
   options: ParserOptions;
   markdownInstance: Marked;
+  private lastTextToken: Token | null = null;
 
   constructor(options: ParserOptions = {}) {
     const { markedConfig = {} } = options;
@@ -55,9 +59,10 @@ class Parser {
     this.markdownInstance = new Marked();
 
     this.configureLinkRenderer();
-    this.configureParagraphRenderer(options.configureRenderCleaner);
-    this.configureCodeRenderer(options.configureRenderCleaner);
+    this.configureParagraphRenderer();
+    this.configureCodeRenderer();
     this.configureHtmlEscapeRenderer();
+    this.configureTextRenderer();
     // user config at last
     this.markdownInstance.use(markedConfig);
   }
@@ -87,24 +92,19 @@ class Parser {
     this.markdownInstance.use({ renderer });
   }
 
-  public configureParagraphRenderer(
-    configureRenderCleaner: ParserOptions['configureRenderCleaner'] = (s) => s,
-  ) {
+  public configureParagraphRenderer() {
     const { paragraphTag } = this.options;
     if (!paragraphTag) return;
 
     const renderer = {
       paragraph(this: Renderer, { tokens }: Tokens.Paragraph) {
-        const code = `<${paragraphTag}>${this.parser.parseInline(tokens)}</${paragraphTag}>\n`;
-        return configureRenderCleaner(code, 'paragraph');
+        return `<${paragraphTag}>${this.parser.parseInline(tokens)}</${paragraphTag}>\n`;
       },
     };
     this.markdownInstance.use({ renderer });
   }
 
-  public configureCodeRenderer(
-    configureRenderCleaner: ParserOptions['configureRenderCleaner'] = (s) => s,
-  ) {
+  public configureCodeRenderer() {
     const renderer = {
       code({ text, raw, lang, escaped, codeBlockStyle }: Tokens.Code): string {
         const infoString = (lang || '').trim();
@@ -115,8 +115,7 @@ class Parser {
         const streamStatus =
           isIndentedCode || other.completeFencedCode.test(raw) ? 'done' : 'loading';
 
-        const cleanedCode = configureRenderCleaner(code, 'code');
-        const escapedCode = escaped ? cleanedCode : escapeHtml(cleanedCode, true);
+        const escapedCode = escaped ? code : escapeHtml(code, true);
 
         const classAttr = langString ? ` class="language-${escapeHtml(langString)}"` : '';
         const dataAttrs =
@@ -124,6 +123,27 @@ class Parser {
           (infoString ? ` data-lang="${escapeHtml(infoString)}"` : '');
 
         return `<pre><code${dataAttrs}${classAttr}>${escapedCode}</code></pre>\n`;
+      },
+    };
+    this.markdownInstance.use({ renderer });
+  }
+
+  private configureTextRenderer() {
+    const self = this;
+    const renderer = {
+      text(token: Tokens.Text | Tokens.Escape) {
+        const text =
+          'tokens' in token && token.tokens
+            ? this.parser.parseInline(token.tokens)
+            : 'text' in token
+              ? token.text
+              : '';
+
+        // Inject xmd-tail after the last text token
+        if (token === self.lastTextToken) {
+          return `${text}<xmd-tail></xmd-tail>`;
+        }
+        return text;
       },
     };
     this.markdownInstance.use({ renderer });
@@ -243,7 +263,82 @@ class Parser {
     );
   }
 
-  public parse(content: string) {
+  /**
+   * Find the last non-empty token in the token tree (reverse search)
+   */
+  private findLastNonEmptyToken(tokens: Token[]): Token | null {
+    for (let i = tokens.length - 1; i >= 0; i--) {
+      const token = tokens[i];
+
+      // Check for list items (list -> items -> list_item)
+      if (token.type === 'list' && 'items' in token && Array.isArray((token as any).items)) {
+        const items = (token as any).items;
+        for (let j = items.length - 1; j >= 0; j--) {
+          const item = items[j];
+          // list_item has tokens property
+          if ('tokens' in item && item.tokens && item.tokens.length > 0) {
+            const found = this.findLastNonEmptyToken(item.tokens as Token[]);
+            if (found) return found;
+          }
+        }
+      }
+
+      // Depth-first: check nested tokens first
+      if ('tokens' in token && token.tokens && (token.tokens as Token[]).length > 0) {
+        const found = this.findLastNonEmptyToken(token.tokens as Token[]);
+        if (found) return found;
+      }
+
+      // Check if this is a valid token with content
+      if (token.type === 'text') {
+        const textContent = 'text' in token ? token.text : '';
+        // Skip empty text tokens
+        if (textContent.trim()) {
+          return token;
+        }
+      } else if (token.type === 'html' || token.type === 'tag') {
+        // HTML/tag token has content
+        return token;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Find the last text token in the token tree (reverse search)
+   * Returns null if the last non-empty token is not a text type (e.g., HTML/incomplete component)
+   */
+  private findLastTextToken(tokens: Token[]): Token | null {
+    // Find the last non-empty token
+    const lastNonEmptyToken = this.findLastNonEmptyToken(tokens);
+
+    // If the last token is not text type, don't inject tail
+    // This prevents tail from appearing before incomplete components
+    if (!lastNonEmptyToken || lastNonEmptyToken.type !== 'text') {
+      return null;
+    }
+
+    return lastNonEmptyToken;
+  }
+
+  public parse(content: string, options?: ParseOptions) {
+    // Reset lastTextToken for each parse
+    this.lastTextToken = null;
+
+    // Find and mark the last text token if injectTail is enabled
+    if (options?.injectTail) {
+      const tokens = this.markdownInstance.lexer(content);
+      this.lastTextToken = this.findLastTextToken(tokens);
+
+      if (this.options.protectCustomTagNewlines) {
+        const { protected: protectedContent, placeholders } = this.protectCustomTags(content);
+        const parsed = this.markdownInstance.parser(tokens) as string;
+        return this.restorePlaceholders(parsed, placeholders);
+      }
+
+      return this.markdownInstance.parser(tokens) as string;
+    }
+
     if (this.options.protectCustomTagNewlines) {
       const { protected: protectedContent, placeholders } = this.protectCustomTags(content);
       const parsed = this.markdownInstance.parse(protectedContent) as string;
