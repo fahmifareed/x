@@ -4,8 +4,7 @@ exports[`XMarkdown animation parent is custom components 1`] = `
 <div>
   <div
     class="x-markdown"
-    data-streaming="false"
-  >
+    >
     <p>
       This is Text.
     </p>
@@ -17,8 +16,7 @@ exports[`XMarkdown animation parent is not custom components 1`] = `
 <div>
   <div
     class="x-markdown"
-    data-streaming="false"
-  >
+    >
     <p>
       <span
         style="animation: x-markdown-fade-in 200ms ease-in-out forwards; color: inherit;"
@@ -34,8 +32,7 @@ exports[`XMarkdown support checkbox is checked 1`] = `
 <div>
   <div
     class="x-markdown"
-    data-streaming="false"
-  >
+    >
     <ul>
       <li>
         <input
@@ -54,8 +51,7 @@ exports[`XMarkdown support checkbox not checked 1`] = `
 <div>
   <div
     class="x-markdown"
-    data-streaming="false"
-  >
+    >
     <ul>
       <li>
         <input

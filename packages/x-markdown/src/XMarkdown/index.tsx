@@ -7,8 +7,6 @@ import { XMarkdownProps } from './interface';
 import { resolveTailContent } from './utils/tail';
 import './index.css';
 
-const DEFAULT_TAIL_CONTENT = '▋';
-
 const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
   const {
     streaming,
@@ -27,9 +25,8 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
     debug,
   } = props;
   const tailContent = useMemo(() => resolveTailContent(streaming?.tail), [streaming?.tail]);
-  const hasNextChunk = !!streaming?.hasNextChunk;
-  const tailConfig = typeof streaming?.tail === 'object' ? streaming.tail : undefined;
-  const TailComponent = tailConfig?.component;
+  const TailComponent = typeof streaming?.tail === 'object' ? streaming.tail.component : undefined;
+  const shouldShowTail = !!streaming?.hasNextChunk && tailContent;
 
   // ============================ style ============================
   const mergedCls = clsx('x-markdown', rootClassName, className);
@@ -39,26 +36,21 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
 
   // ============================ Merge components with xmd-tail ============================
   const mergedComponents = useMemo(() => {
-    // Only add xmd-tail if streaming is active
-    if (!hasNextChunk || !streaming?.tail) {
+    if (!shouldShowTail) {
       return components;
     }
 
-    // Default tail component
-    const DefaultTail: React.FC = () => (
-      <span className="xmd-tail">{tailContent || DEFAULT_TAIL_CONTENT}</span>
+    const TailElement = TailComponent ? (
+      React.createElement(TailComponent, { content: tailContent })
+    ) : (
+      <span className="xmd-tail">{tailContent}</span>
     );
-
-    // Use custom component or default
-    const TailElement = TailComponent
-      ? React.createElement(TailComponent, { content: tailContent || DEFAULT_TAIL_CONTENT })
-      : React.createElement(DefaultTail);
 
     return {
       ...components,
       'xmd-tail': () => TailElement,
     };
-  }, [hasNextChunk, streaming?.tail, components, TailComponent, tailContent]);
+  }, [shouldShowTail, components, TailComponent, tailContent]);
 
   // ============================ Render ============================
   const parser = useMemo(
@@ -96,10 +88,8 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
       return '';
     }
 
-    // Inject tail only when streaming and tail is enabled
-    const shouldInjectTail = hasNextChunk && !!streaming?.tail;
-    return parser.parse(output, { injectTail: shouldInjectTail });
-  }, [output, parser, hasNextChunk, streaming?.tail]);
+    return parser.parse(output, { injectTail: !!shouldShowTail });
+  }, [output, parser, shouldShowTail]);
 
   const renderedContent = useMemo(
     () => (htmlString ? renderer.render(htmlString) : null),
@@ -112,7 +102,7 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
 
   return (
     <>
-      <div className={mergedCls} style={style} data-streaming={hasNextChunk ? 'true' : 'false'}>
+      <div className={mergedCls} style={style}>
         {renderedContent}
       </div>
       {debug ? <DebugPanel /> : null}

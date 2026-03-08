@@ -19,4 +19,4 @@ const resolveTailContent = (tail?: StreamingOption['tail']): string | null => {
   return tail.content || DEFAULT_TAIL_CONTENT;
 };
 
-export { resolveTailContent };
+export { DEFAULT_TAIL_CONTENT, resolveTailContent };

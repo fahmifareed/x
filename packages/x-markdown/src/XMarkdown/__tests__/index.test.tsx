@@ -549,18 +549,13 @@ console.log(1);
 });
 
 describe('streaming', () => {
-  it('should mark streaming state and keep default tail disabled', () => {
-    const { container, rerender } = render(
+  it('should keep default tail disabled when tail is not enabled', () => {
+    const { container } = render(
       <XMarkdown content="# Title\n\nContent" streaming={{ hasNextChunk: true }} />,
     );
 
-    const root = container.querySelector('.x-markdown');
-    expect(root).toHaveAttribute('data-streaming', 'true');
     // No tail element when tail is not enabled
     expect(container.querySelector('.xmd-tail')).not.toBeInTheDocument();
-
-    rerender(<XMarkdown content="# Title\n\nContent" streaming={{ hasNextChunk: false }} />);
-    expect(container.querySelector('.x-markdown')).toHaveAttribute('data-streaming', 'false');
   });
 
   it('should enable default tail when `tail` is true', () => {
