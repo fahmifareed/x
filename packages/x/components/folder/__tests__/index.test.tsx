@@ -80,7 +80,7 @@ describe('Folder Component', () => {
 
   it('handles custom empty state', () => {
     const { container } = render(
-      <Folder treeData={mockTreeData} empty={<div>Custom Empty</div>} />,
+      <Folder treeData={mockTreeData} emptyRender={<div>Custom Empty</div>} />,
     );
     expect(container.querySelector('.ant-folder')).toBeTruthy();
   });

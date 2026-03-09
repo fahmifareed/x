@@ -40,7 +40,7 @@ Common props ref: [Common props](/docs/react/common-props)
 | defaultSelectedFile | Default selected file paths | string[] | `[]` | - |
 | onSelectedFileChange | Callback when file selection changes | (file: { path: string[]; name?: string; content?: string }) => void | - | - |
 | menuWith | Directory tree width | number \| string | `378` | - |
-| empty | Content to display when empty | React.ReactNode \| (() => React.ReactNode) | - | - |
+| emptyRender | Content to display when empty | React.ReactNode \| (() => React.ReactNode) | - | - |
 | previewRender | Custom file preview content | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }) => React.ReactNode) | - | 2.4.0 |
 | expandedPaths | Array of expanded node paths (controlled) | string[] | - | - |
 | defaultExpandedPaths | Array of default expanded node paths | string[] | - | - |

@@ -25,7 +25,7 @@ export interface FileViewProps {
   getFileNode?: (
     path: string[],
   ) => { title: FolderTreeData['title']; path: string; content?: string } | undefined;
-  empty?: FolderProps['empty'];
+  emptyRender?: FolderProps['emptyRender'];
 }
 
 const customOneLight = {
@@ -50,7 +50,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
     loading = false,
     previewTitle,
     getFileNode,
-    empty,
+    emptyRender,
     previewRender,
   } = props;
 
@@ -83,9 +83,9 @@ const FileView: React.FC<FileViewProps> = (props) => {
 
     if (!selectedFile || selectedFile.length === 0) {
       const emptyNode =
-        typeof empty === 'function'
-          ? empty()
-          : empty || (
+        typeof emptyRender === 'function'
+          ? emptyRender()
+          : emptyRender || (
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={contextLocale.selectFile} />
             );
 

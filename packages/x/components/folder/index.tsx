@@ -46,7 +46,7 @@ export interface FolderProps {
     content?: string;
   }) => void;
   directoryTreeWith?: number | string;
-  empty?: React.ReactNode | (() => React.ReactNode);
+  emptyRender?: React.ReactNode | (() => React.ReactNode);
   previewRender?:
     | React.ReactNode
     | ((file: {
@@ -106,7 +106,7 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
     selectedFile,
     onSelectedFileChange,
     directoryTreeWith = 278,
-    empty,
+    emptyRender,
     defaultExpandedPaths,
     expandedPaths,
     onExpandedPathsChange,
@@ -350,7 +350,7 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
           </Splitter.Panel>
           <Splitter.Panel>
             <FilePreview
-              empty={empty}
+              emptyRender={emptyRender}
               prefixCls={customizePrefixCls}
               classNames={classNames}
               styles={styles}
