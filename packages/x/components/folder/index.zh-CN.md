@@ -33,6 +33,7 @@ tag: 2.4.0
 
 ### FolderProps
 
+<!-- prettier-ignore -->
 | 属性 | 说明 | 类型 | 默认值 | 版本 |
 | --- | --- | --- | --- | --- |
 | treeData | 文件树数据 | [FolderTreeData](#foldertreenode)[] | `[]` | - |
