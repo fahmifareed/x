@@ -15,7 +15,7 @@ const treeData = [
 ];
 
 const App: React.FC = () => {
-  // 函数形式
+  // Function form
   const customPreview = ({
     content,
     path,
@@ -28,24 +28,15 @@ const App: React.FC = () => {
     language: string;
   }) => (
     <Card title={title} extra={<Tag>{language}</Tag>}>
-      <div>路径: {path.join('/')}</div>
+      <div>Path: {path.join('/')}</div>
       <pre>{content}</pre>
     </Card>
   );
 
-  // ReactNode 形式
-  const staticPreview = <div style={{ padding: 20 }}>静态预览内容</div>;
-
   return (
     <div style={{ padding: 24 }}>
-      <h3>函数形式</h3>
       <div style={{ height: 300, border: '1px solid #f0f0f0', marginBottom: 24 }}>
         <Folder treeData={treeData} previewRender={customPreview} />
-      </div>
-
-      <h3>ReactNode 形式</h3>
-      <div style={{ height: 300, border: '1px solid #f0f0f0' }}>
-        <Folder treeData={treeData} previewRender={staticPreview} />
       </div>
     </div>
   );
