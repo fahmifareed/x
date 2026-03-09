@@ -60,9 +60,11 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
 
   const getIcon = (node: FolderTreeData) => {
     if (isFolder(node)) {
-      return typeof directoryIcons?.['directory'] === 'function'
-        ? directoryIcons?.['directory']?.()
-        : directoryIcons?.['directory'] || <FolderOutlined />;
+      const icon = directoryIcons?.['directory'];
+      if (typeof icon === 'function') {
+        return icon();
+      }
+      return icon || <FolderOutlined />;
     }
 
     // Return corresponding icon based on file extension
@@ -71,10 +73,9 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
 
     if (extension) {
       // Check if custom icon configuration exists
-      if (directoryIcons?.[extension]) {
-        return typeof directoryIcons[extension] === 'function'
-          ? directoryIcons[extension]()
-          : directoryIcons[extension];
+      const icon = directoryIcons?.[extension];
+      if (icon) {
+        return typeof icon === 'function' ? icon() : icon;
       }
     }
 
