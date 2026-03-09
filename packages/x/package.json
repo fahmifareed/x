@@ -143,7 +143,7 @@
     "@types/react-resizable": "^3.0.8",
     "@types/semver": "^7.5.8",
     "@types/spinnies": "^0.5.3",
-    "@types/tar": "^6.1.13",
+    "@types/tar": "^7.0.87",
     "@types/throttle-debounce": "^5.0.2",
     "@types/warning": "^3.0.3",
     "@umijs/fabric": "^4.0.1",
