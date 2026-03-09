@@ -24,7 +24,7 @@ export const other = {
   completeFencedCode: /^ {0,3}(`{3,}|~{3,})([\s\S]*?)\n {0,3}\1[ \n\t]*$/,
 };
 
-const escapeReplacements: { [index: string]: string } = {
+const escapeReplacements: Record<string, string> = {
   '&': '&amp;',
   '<': '&lt;',
   '>': '&gt;',
@@ -48,13 +48,18 @@ export function escapeHtml(html: string, encode?: boolean) {
   return html;
 }
 
+// Symbol to mark tokens for tail injection (avoids property name conflicts)
+const TAIL_MARKER = Symbol('tailMarker');
+
+// Type for tokens that can be marked for tail injection
+type MarkableToken = Token & { [TAIL_MARKER]?: boolean };
+
 class Parser {
   options: ParserOptions;
   markdownInstance: Marked;
-  private lastTextToken: Token | null = null;
+  private injectTail = false;
 
   constructor(options: ParserOptions = {}) {
-    const { markedConfig = {} } = options;
     this.options = options;
     this.markdownInstance = new Marked();
 
@@ -62,91 +67,111 @@ class Parser {
     this.configureParagraphRenderer();
     this.configureCodeRenderer();
     this.configureHtmlEscapeRenderer();
+    this.configureTailInjection();
     this.configureTextRenderer();
-    // user config at last
-    this.markdownInstance.use(markedConfig);
+    // User config at last
+    this.markdownInstance.use(options.markedConfig || {});
   }
 
   private configureHtmlEscapeRenderer() {
     if (!this.options.escapeRawHtml) return;
 
-    const renderer = {
-      html(this: Renderer, token: Tokens.HTML | Tokens.Tag) {
-        const { raw = '', text = '' } = token;
-        return escapeHtml(raw || text, true);
+    this.markdownInstance.use({
+      renderer: {
+        html(this: Renderer, token: Tokens.HTML | Tokens.Tag) {
+          const { raw = '', text = '' } = token;
+          return escapeHtml(raw || text, true);
+        },
       },
-    };
-    this.markdownInstance.use({ renderer });
+    });
   }
 
   private configureLinkRenderer() {
     if (!this.options.openLinksInNewTab) return;
 
-    const renderer = {
-      link(this: Renderer, { href, title, tokens }: Tokens.Link) {
-        const text = this.parser.parseInline(tokens);
-        const titleAttr = title ? ` title="${title}"` : '';
-        return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+    this.markdownInstance.use({
+      renderer: {
+        link(this: Renderer, { href, title, tokens }: Tokens.Link) {
+          const text = this.parser.parseInline(tokens);
+          const titleAttr = title ? ` title="${title}"` : '';
+          return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+        },
       },
-    };
-    this.markdownInstance.use({ renderer });
+    });
   }
 
-  public configureParagraphRenderer() {
+  private configureParagraphRenderer() {
     const { paragraphTag } = this.options;
     if (!paragraphTag) return;
 
-    const renderer = {
-      paragraph(this: Renderer, { tokens }: Tokens.Paragraph) {
-        return `<${paragraphTag}>${this.parser.parseInline(tokens)}</${paragraphTag}>\n`;
+    this.markdownInstance.use({
+      renderer: {
+        paragraph(this: Renderer, { tokens }: Tokens.Paragraph) {
+          return `<${paragraphTag}>${this.parser.parseInline(tokens)}</${paragraphTag}>\n`;
+        },
       },
-    };
-    this.markdownInstance.use({ renderer });
+    });
   }
 
-  public configureCodeRenderer() {
-    const renderer = {
-      code({ text, raw, lang, escaped, codeBlockStyle }: Tokens.Code): string {
-        const infoString = (lang || '').trim();
-        const langString = infoString.match(other.notSpaceStart)?.[0];
-        const code = `${text.replace(other.endingNewline, '')}\n`;
-        const isIndentedCode = codeBlockStyle === 'indented';
-        // if code is indented, it's done because it has no end tag
-        const streamStatus =
-          isIndentedCode || other.completeFencedCode.test(raw) ? 'done' : 'loading';
+  private configureCodeRenderer() {
+    this.markdownInstance.use({
+      renderer: {
+        code({ text, raw, lang, escaped, codeBlockStyle }: Tokens.Code): string {
+          const infoString = (lang || '').trim();
+          const langString = infoString.match(other.notSpaceStart)?.[0];
+          const code = `${text.replace(other.endingNewline, '')}\n`;
+          const isIndentedCode = codeBlockStyle === 'indented';
+          const streamStatus =
+            isIndentedCode || other.completeFencedCode.test(raw) ? 'done' : 'loading';
 
-        const escapedCode = escaped ? code : escapeHtml(code, true);
+          const escapedCode = escaped ? code : escapeHtml(code, true);
+          const classAttr = langString ? ` class="language-${escapeHtml(langString)}"` : '';
+          const dataAttrs =
+            ` data-block="true" data-state="${streamStatus}"` +
+            (infoString ? ` data-lang="${escapeHtml(infoString)}"` : '');
 
-        const classAttr = langString ? ` class="language-${escapeHtml(langString)}"` : '';
-        const dataAttrs =
-          ` data-block="true" data-state="${streamStatus}"` +
-          (infoString ? ` data-lang="${escapeHtml(infoString)}"` : '');
-
-        return `<pre><code${dataAttrs}${classAttr}>${escapedCode}</code></pre>\n`;
+          return `<pre><code${dataAttrs}${classAttr}>${escapedCode}</code></pre>\n`;
+        },
       },
-    };
-    this.markdownInstance.use({ renderer });
+    });
   }
 
   private configureTextRenderer() {
-    const self = this;
-    const renderer = {
-      text(this: Renderer, token: Tokens.Text | Tokens.Escape) {
-        const text =
-          'tokens' in token && token.tokens
-            ? this.parser.parseInline(token.tokens)
-            : 'text' in token
-              ? token.text
-              : '';
+    this.markdownInstance.use({
+      renderer: {
+        text(this: Renderer, token: Tokens.Text | Tokens.Escape) {
+          const text =
+            'tokens' in token && token.tokens
+              ? this.parser.parseInline(token.tokens)
+              : 'text' in token
+                ? token.text
+                : '';
 
-        // Inject xmd-tail after the last text token
-        if (token === self.lastTextToken) {
-          return `${text}<xmd-tail></xmd-tail>`;
-        }
-        return text;
+          // Inject xmd-tail after the marked text token
+          if ((token as MarkableToken)[TAIL_MARKER]) {
+            return `${text}<xmd-tail></xmd-tail>`;
+          }
+          return text;
+        },
       },
-    };
-    this.markdownInstance.use({ renderer });
+    });
+  }
+
+  private configureTailInjection() {
+    const parser = this;
+    this.markdownInstance.use({
+      hooks: {
+        processAllTokens(tokens) {
+          if (!parser.injectTail) return tokens;
+
+          const lastTextToken = parser.findLastTextToken(tokens as Token[]);
+          if (lastTextToken) {
+            (lastTextToken as MarkableToken)[TAIL_MARKER] = true;
+          }
+          return tokens;
+        },
+      },
+    });
   }
 
   private protectCustomTags(content: string): {
@@ -161,7 +186,6 @@ class Parser {
     }
 
     let placeholderIndex = 0;
-
     const tagNamePattern = customTagNames
       .map((name) => name.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
       .join('|');
@@ -176,9 +200,7 @@ class Parser {
       match: string;
     }> = [];
 
-    let match;
-    openTagRegex.lastIndex = 0;
-    match = openTagRegex.exec(content);
+    let match = openTagRegex.exec(content);
     while (match !== null) {
       positions.push({
         index: match.index,
@@ -207,9 +229,9 @@ class Parser {
     const result: string[] = [];
     let lastIndex = 0;
 
-    positions.forEach((pos) => {
+    for (const pos of positions) {
       if (pos.type === 'open') {
-        // Self-closing tags don't have inner content, so they shouldn't be pushed to the stack.
+        // Self-closing tags don't have inner content
         if (!pos.match.endsWith('/>')) {
           stack.push({ tagName: pos.tagName, start: pos.index, openTag: pos.match });
         }
@@ -244,7 +266,7 @@ class Parser {
           lastIndex = endPos;
         }
       }
-    });
+    }
 
     if (lastIndex < content.length) {
       result.push(content.slice(lastIndex));
@@ -271,11 +293,9 @@ class Parser {
       const token = tokens[i];
 
       // Check for list items (list -> items -> list_item)
-      if (token.type === 'list' && 'items' in token && Array.isArray((token as any).items)) {
-        const items = (token as any).items;
-        for (let j = items.length - 1; j >= 0; j--) {
-          const item = items[j];
-          // list_item has tokens property
+      if (token.type === 'list' && 'items' in token && Array.isArray(token.items)) {
+        for (let j = token.items.length - 1; j >= 0; j--) {
+          const item = token.items[j];
           if ('tokens' in item && item.tokens && item.tokens.length > 0) {
             const found = this.findLastNonEmptyToken(item.tokens as Token[]);
             if (found) return found;
@@ -284,7 +304,7 @@ class Parser {
       }
 
       // Depth-first: check nested tokens first
-      if ('tokens' in token && token.tokens && (token.tokens as Token[]).length > 0) {
+      if ('tokens' in token && token.tokens && token.tokens.length > 0) {
         const found = this.findLastNonEmptyToken(token.tokens as Token[]);
         if (found) return found;
       }
@@ -297,7 +317,6 @@ class Parser {
           return token;
         }
       } else if (token.type === 'html' || token.type === 'tag') {
-        // HTML/tag token has content
         return token;
       }
     }
@@ -305,11 +324,10 @@ class Parser {
   }
 
   /**
-   * Find the last text token in the token tree (reverse search)
+   * Find the last text token in the token tree
    * Returns null if the last non-empty token is not a text type (e.g., HTML/incomplete component)
    */
   private findLastTextToken(tokens: Token[]): Token | null {
-    // Find the last non-empty token
     const lastNonEmptyToken = this.findLastNonEmptyToken(tokens);
 
     // If the last token is not text type, don't inject tail
@@ -322,8 +340,8 @@ class Parser {
   }
 
   public parse(content: string, options?: ParseOptions) {
-    // Reset lastTextToken for each parse
-    this.lastTextToken = null;
+    // Set tail injection flag
+    this.injectTail = options?.injectTail ?? false;
 
     // Protect custom tags if needed
     let processedContent = content;
@@ -334,11 +352,6 @@ class Parser {
       placeholders = result.placeholders;
     }
 
-    // Parse and inject tail if needed
-    if (options?.injectTail) {
-      const tokens = this.markdownInstance.lexer(processedContent);
-      this.lastTextToken = this.findLastTextToken(tokens);
-    }
     const parsed = this.markdownInstance.parse(processedContent) as string;
 
     // Restore placeholders if needed

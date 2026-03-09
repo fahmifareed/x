@@ -676,8 +676,10 @@ describe('streaming', () => {
     expect(tailElement).not.toBeInTheDocument();
   });
 
-  it('should render tail after text when incomplete component is not last', () => {
-    // When the incomplete component is in the middle, tail should appear after last text
+  it('should not render tail when incomplete component is at the end', () => {
+    // "[incomplete](url end" is recognized as an incomplete link by useStreaming
+    // The content becomes "Start <incomplete-link ... />" which ends with HTML/incomplete component
+    // Therefore, tail should NOT be rendered (similar to "should not render tail when last token is HTML")
     const { container } = render(
       <XMarkdown
         content="Start [incomplete](url end"
@@ -694,9 +696,12 @@ describe('streaming', () => {
       />,
     );
 
-    // With "Start [incomplete](url end", the parser doesn't see it as incomplete link
-    // because there's text after the link syntax. Tail should be at the end.
+    // The incomplete-link component should be rendered
+    const incompleteLink = container.querySelector('.incomplete-link');
+    expect(incompleteLink).toBeInTheDocument();
+
+    // Tail should NOT be rendered because the content ends with an incomplete component
     const tailElement = container.querySelector('.xmd-tail');
-    expect(tailElement).toBeInTheDocument();
+    expect(tailElement).not.toBeInTheDocument();
   });
 });
