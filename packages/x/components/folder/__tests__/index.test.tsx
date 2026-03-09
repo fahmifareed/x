@@ -88,7 +88,22 @@ describe('Folder Component', () => {
   it('handles custom icons', () => {
     const customIcons = {
       directory: <span>📁</span>,
-      tsx: <span>⚛️</span>,
+      tsx: () => <span>⚛️</span>,
+      json: <span>⚛️</span>,
+    };
+
+    const { container } = render(
+      <Folder
+        treeData={mockTreeData}
+        emptyRender={() => <div>Custom Empty</div>}
+        directoryIcons={customIcons}
+      />,
+    );
+    expect(container.querySelector('.ant-folder')).toBeTruthy();
+  });
+  it('handles custom  directory icons', () => {
+    const customIcons = {
+      directory: () => <span>📁</span>,
     };
 
     const { container } = render(<Folder treeData={mockTreeData} directoryIcons={customIcons} />);
