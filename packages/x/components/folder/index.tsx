@@ -338,8 +338,6 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
                 expandedKeys={expandedPathsState}
                 onSelect={handleSelect}
                 onExpand={handleExpand}
-                multiple={false}
-                blockNode
                 defaultExpandAll={defaultExpandAll}
                 directoryTitle={directoryTitle}
               />

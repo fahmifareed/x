@@ -23,10 +23,8 @@ export interface DirectoryTreeProps {
   expandedKeys?: string[];
   onSelect?: TreeProps['onSelect'];
   onExpand?: TreeProps['onExpand'];
-  multiple?: boolean;
   showLine?: boolean;
   defaultExpandAll?: boolean;
-  blockNode?: boolean;
   className?: string;
   classNames?: FolderProps['classNames'];
   styles?: FolderProps['styles'];
@@ -41,10 +39,8 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   expandedKeys,
   onSelect,
   onExpand,
-  multiple = false,
   showLine = false,
   defaultExpandAll = true,
-  blockNode = true,
   className,
   classNames,
   directoryIcons,
@@ -140,8 +136,8 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
         expandedKeys={expandedKeys}
         onSelect={onSelect}
         onExpand={onExpand}
-        multiple={multiple}
-        blockNode={blockNode}
+        multiple={false}
+        blockNode
         classNames={{
           itemTitle: `${prefixCls}-directory-tree-item-title`,
         }}

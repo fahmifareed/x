@@ -54,6 +54,7 @@ describe('Folder Component', () => {
         directoryTitle="Project Files"
         previewTitle="Custom Preview"
         className="custom-class"
+        defaultExpandAll={false}
         style={{ backgroundColor: 'red' }}
       />,
     );
