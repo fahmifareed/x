@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "figlet": "^1.10.0",
-    "ora": "^8.2.0",
+    "ora": "^9.3.0",
     "progress": "^2.0.3"
   }
 }
