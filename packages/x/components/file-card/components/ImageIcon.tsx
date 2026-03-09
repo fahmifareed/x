@@ -1,4 +1,5 @@
 import Icon from '@ant-design/icons';
+import type { SpinProps } from 'antd';
 import React from 'react';
 import type { DirectionType } from '../../_util/type';
 
@@ -6,7 +7,7 @@ interface ImageIconProps {
   className?: string;
   height?: string;
   width?: string;
-  size?: 'small' | 'default' | 'large';
+  size?: SpinProps['size'];
   color?: string;
   direction?: DirectionType;
 }
@@ -15,6 +16,8 @@ enum ImageIconSize {
   small = '32px',
   default = '46px',
   large = '52px',
+  medium = '46px',
+  middle = '46px',
 }
 
 const ImageSvg: React.FC<ImageIconProps> = ({ height, width, direction, color }) => (

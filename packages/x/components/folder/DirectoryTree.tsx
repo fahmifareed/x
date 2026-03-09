@@ -57,7 +57,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
   const getIcon = useCallback(
     (node: FolderTreeData) => {
       if (isFolder(node)) {
-        const icon = directoryIcons?.['directory'];
+        const icon = directoryIcons?.directory;
         if (typeof icon === 'function') {
           return icon();
         }
