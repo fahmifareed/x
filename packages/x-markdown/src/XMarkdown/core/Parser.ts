@@ -333,9 +333,9 @@ class Parser {
     return lastNonEmptyToken;
   }
 
-  public parse(content: string, options?: ParseOptions) {
+  public parse(content: string, parseOptions?: ParseOptions) {
     // Set tail injection flag
-    this.injectTail = options?.injectTail ?? false;
+    this.injectTail = parseOptions?.injectTail ?? false;
 
     // Protect custom tags if needed
     if (this.options.protectCustomTagNewlines) {
