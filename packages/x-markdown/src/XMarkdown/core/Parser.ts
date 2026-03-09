@@ -68,7 +68,6 @@ class Parser {
     this.configureCodeRenderer();
     this.configureHtmlEscapeRenderer();
     this.configureTailInjection();
-    this.configureTextRenderer();
     // User config at last
     this.markdownInstance.use(options.markedConfig || {});
   }
@@ -136,8 +135,20 @@ class Parser {
     });
   }
 
-  private configureTextRenderer() {
+  private configureTailInjection() {
+    const parser = this;
     this.markdownInstance.use({
+      hooks: {
+        processAllTokens(tokens) {
+          if (!parser.injectTail) return tokens;
+
+          const lastTextToken = parser.findLastTextToken(tokens as Token[]);
+          if (lastTextToken) {
+            (lastTextToken as MarkableToken)[TAIL_MARKER] = true;
+          }
+          return tokens;
+        },
+      },
       renderer: {
         text(this: Renderer, token: Tokens.Text | Tokens.Escape) {
           const text =
@@ -152,23 +163,6 @@ class Parser {
             return `${text}<xmd-tail></xmd-tail>`;
           }
           return text;
-        },
-      },
-    });
-  }
-
-  private configureTailInjection() {
-    const parser = this;
-    this.markdownInstance.use({
-      hooks: {
-        processAllTokens(tokens) {
-          if (!parser.injectTail) return tokens;
-
-          const lastTextToken = parser.findLastTextToken(tokens as Token[]);
-          if (lastTextToken) {
-            (lastTextToken as MarkableToken)[TAIL_MARKER] = true;
-          }
-          return tokens;
         },
       },
     });
@@ -344,21 +338,13 @@ class Parser {
     this.injectTail = options?.injectTail ?? false;
 
     // Protect custom tags if needed
-    let processedContent = content;
-    let placeholders: Map<string, string> | undefined;
     if (this.options.protectCustomTagNewlines) {
-      const result = this.protectCustomTags(content);
-      processedContent = result.protected;
-      placeholders = result.placeholders;
-    }
-
-    const parsed = this.markdownInstance.parse(processedContent) as string;
-
-    // Restore placeholders if needed
-    if (placeholders) {
+      const { protected: protectedContent, placeholders } = this.protectCustomTags(content);
+      const parsed = this.markdownInstance.parse(protectedContent) as string;
       return this.restorePlaceholders(parsed, placeholders);
     }
-    return parsed;
+
+    return this.markdownInstance.parse(content) as string;
   }
 }
 
