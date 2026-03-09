@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, waitFor } from '../../../tests/utils';
+import { fireEvent, render } from '../../../tests/utils';
 import Folder, { type FolderRef } from '../index';
 
 const mockTreeData = [
