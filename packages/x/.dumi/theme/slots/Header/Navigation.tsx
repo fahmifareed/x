@@ -44,11 +44,11 @@ const defaultItems = [
     basePath: '/docs/spec',
     key: 'design',
   },
-  // {
-  //   path: '/docs/react/introduce',
-  //   basePath: '/docs/react',
-  //   key: 'development',
-  // },
+  {
+    path: '/docs/react/introduce',
+    basePath: '/docs/react',
+    key: 'development',
+  },
   {
     path: '/components/introduce/',
     basePath: '/components',
