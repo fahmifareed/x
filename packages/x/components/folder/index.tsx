@@ -23,7 +23,7 @@ export type SemanticType =
   | 'directoryTitle'
   | 'filePreview'
   | 'previewTitle'
-  | 'previewContent';
+  | 'previewRender';
 
 // Folder properties
 export interface FolderProps {
@@ -47,7 +47,7 @@ export interface FolderProps {
   }) => void;
   directoryTreeWith?: number | string;
   empty?: React.ReactNode | (() => React.ReactNode);
-  previewContent?:
+  previewRender?:
     | React.ReactNode
     | ((file: {
         content?: string;
@@ -97,7 +97,7 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
     style,
     treeData,
     directoryIcons,
-    previewContent,
+    previewRender,
     directoryTitle,
     previewTitle,
     selectable = true,
@@ -358,7 +358,7 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
               fileContent={fileContent}
               loading={loadingContent}
               previewTitle={previewTitle}
-              previewContent={previewContent}
+              previewRender={previewRender}
               getFileNode={(path) => {
                 if (!path || path.length === 0) return undefined;
                 const { node } = findNodeAndValidate(path);

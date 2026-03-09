@@ -208,11 +208,11 @@ describe('Folder Component', () => {
 
     fireEvent.click(getByText('Button.tsx'));
   });
-  it('should render file content using previewContent function', async () => {
+  it('should render file content using previewRender function', async () => {
     const { getByText, findByText } = render(
       <Folder
         treeData={mockTreeData}
-        previewContent={({ content }) => <div>Custom: {content}</div>}
+        previewRender={({ content }) => <div>Custom: {content}</div>}
       />,
     );
 
@@ -224,9 +224,9 @@ describe('Folder Component', () => {
     ).toBeTruthy();
   });
 
-  it('should render static previewContent string', async () => {
+  it('should render static previewRender string', async () => {
     const { getByText, findByText } = render(
-      <Folder treeData={mockTreeData} previewContent="Static Preview Content" />,
+      <Folder treeData={mockTreeData} previewRender="Static Preview Content" />,
     );
 
     fireEvent.click(getByText('Button.tsx'));
@@ -235,8 +235,8 @@ describe('Folder Component', () => {
     expect(await findByText('Static Preview Content')).toBeTruthy();
   });
 
-  it('should render default file content when previewContent is null', async () => {
-    const { getByText } = render(<Folder treeData={mockTreeData} previewContent={null} />);
+  it('should render default file content when previewRender is null', async () => {
+    const { getByText } = render(<Folder treeData={mockTreeData} previewRender={null} />);
 
     fireEvent.click(getByText('Button.tsx'));
   });

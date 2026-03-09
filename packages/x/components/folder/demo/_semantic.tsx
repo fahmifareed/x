@@ -13,7 +13,7 @@ const locales = {
     directoryTitle: '目录树标题',
     filePreview: '文件预览容器',
     previewTitle: '预览标题',
-    previewContent: '预览内容',
+    previewRender: '预览内容',
   },
   en: {
     root: 'Root',
@@ -21,7 +21,7 @@ const locales = {
     directoryTitle: 'Directory tree title',
     filePreview: 'File preview container',
     previewTitle: 'Preview title',
-    previewContent: 'Preview content',
+    previewRender: 'Preview content',
   },
 };
 
@@ -152,7 +152,7 @@ const App: React.FC = () => {
         { name: 'directoryTitle', desc: locale.directoryTitle },
         { name: 'filePreview', desc: locale.filePreview },
         { name: 'previewTitle', desc: locale.previewTitle },
-        { name: 'previewContent', desc: locale.previewContent },
+        { name: 'previewRender', desc: locale.previewRender },
       ]}
     >
       <Folder

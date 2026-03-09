@@ -25,7 +25,7 @@ tag: 2.4.0
 <code src="./demo/fully-controlled.tsx">完全受控模式</code>
 <code src="./demo/searchable.tsx">可搜索的文件树</code>
 <code src="./demo/custom-icons.tsx">自定义图标</code>
-<code src="./demo/preview-content.tsx">自定义预览内容</code>
+<code src="./demo/preview-render.tsx">自定义预览内容</code>
 
 ## API
 
@@ -42,7 +42,7 @@ tag: 2.4.0
 | onSelectedFileChange | 文件选择变化时的回调 | (file: { path: string[]; name?: string; content?: string }) => void | - | - |
 | menuWith | 目录树宽度 | number \| string | `378` | - |
 | empty | 空状态时的展示内容 | React.ReactNode \| (() => React.ReactNode) | - | - |
-| previewContent | 自定义文件预览内容 | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }) => React.ReactNode) | - | - |
+| previewRender | 自定义文件预览内容 | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }) => React.ReactNode) | - | - |
 | expandedPaths | 展开的节点路径数组（受控） | string[] | - | - |
 | defaultExpandedPaths | 默认展开的节点路径数组 | string[] | - | - |
 | defaultExpandAll | 是否默认展开所有节点 | boolean | `true` | - |
@@ -52,7 +52,7 @@ tag: 2.4.0
 | onFolderClick | 文件夹点击事件 | (folderPath: string) => void | - | - |
 | directoryTitle | 目录树标题 | React.ReactNode \| (() => React.ReactNode) | - | - |
 | previewTitle | 文件预览标题 | string \| (({ title, path, content }: { title: string; path: string[]; content: string }) => React.ReactNode) | - | - |
-| previewContent | 自定义文件预览内容 | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }) => React.ReactNode) | - | 2.4.0 |
+| previewRender | 自定义文件预览内容 | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }) => React.ReactNode) | - | 2.4.0 |
 | directoryIcons | 自定义图标配置 | Record<'directory' \| string, React.ReactNode \| (() => React.ReactNode)> | - | - |
 
 ### FolderTreeData

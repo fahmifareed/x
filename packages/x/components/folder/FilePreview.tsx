@@ -18,7 +18,7 @@ export interface FileViewProps {
   classNames?: FolderProps['classNames'];
   styles?: FolderProps['styles'];
   selectedFile?: string[] | null;
-  previewContent?: FolderProps['previewContent'];
+  previewRender?: FolderProps['previewRender'];
   fileContent?: string;
   loading?: boolean;
   previewTitle?: FolderProps['previewTitle'];
@@ -51,7 +51,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
     previewTitle,
     getFileNode,
     empty,
-    previewContent,
+    previewRender,
   } = props;
 
   const [contextLocale] = useLocale('Folder', enUS.Folder);
@@ -75,7 +75,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
   const renderContent = () => {
     if (loading) {
       return (
-        <div className={clsx(`${previewCls}-loading-container`, classNames?.previewContent)}>
+        <div className={clsx(`${previewCls}-loading-container`, classNames?.previewRender)}>
           <Spin />
         </div>
       );
@@ -90,7 +90,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
             );
 
       return (
-        <div className={clsx(`${previewCls}-empty-container`, classNames?.previewContent)}>
+        <div className={clsx(`${previewCls}-empty-container`, classNames?.previewRender)}>
           {emptyNode}
         </div>
       );
@@ -123,16 +123,16 @@ const FileView: React.FC<FileViewProps> = (props) => {
 
     // Handle custom preview content
     let contentNode: React.ReactNode;
-    if (previewContent) {
-      if (typeof previewContent === 'function') {
-        contentNode = previewContent({
+    if (previewRender) {
+      if (typeof previewRender === 'function') {
+        contentNode = previewRender({
           content: fileContent,
           path: selectedFile,
           title: fileNode?.title,
           language,
         });
       } else {
-        contentNode = previewContent;
+        contentNode = previewRender;
       }
     } else {
       contentNode = (
@@ -152,7 +152,7 @@ const FileView: React.FC<FileViewProps> = (props) => {
         <div className={clsx(`${previewCls}-title-wrapper`, classNames?.previewTitle)}>
           {headerNode}
         </div>
-        <div className={clsx(`${previewCls}-content`, classNames?.previewContent)}>
+        <div className={clsx(`${previewCls}-content`, classNames?.previewRender)}>
           {contentNode}
         </div>
       </>

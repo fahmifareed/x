@@ -40,12 +40,12 @@ const App: React.FC = () => {
     <div style={{ padding: 24 }}>
       <h3>函数形式</h3>
       <div style={{ height: 300, border: '1px solid #f0f0f0', marginBottom: 24 }}>
-        <Folder treeData={treeData} previewContent={customPreview} />
+        <Folder treeData={treeData} previewRender={customPreview} />
       </div>
 
       <h3>ReactNode 形式</h3>
       <div style={{ height: 300, border: '1px solid #f0f0f0' }}>
-        <Folder treeData={treeData} previewContent={staticPreview} />
+        <Folder treeData={treeData} previewRender={staticPreview} />
       </div>
     </div>
   );
