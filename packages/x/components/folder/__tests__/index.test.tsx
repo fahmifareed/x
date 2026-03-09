@@ -252,7 +252,9 @@ describe('Folder Component', () => {
   });
 
   it('should render default file content when previewRender is null', async () => {
-    const { getByText } = render(<Folder treeData={mockTreeData} previewRender={null} />);
+    const { getByText } = render(
+      <Folder treeData={mockTreeData} previewTitle="Custom Preview" previewRender={null} />,
+    );
 
     fireEvent.click(getByText('Button.tsx'));
   });
