@@ -54,26 +54,26 @@ const defaultItems = [
     basePath: '/components',
     key: 'components',
   },
-  // {
-  //   path: '/x-markdowns/introduce',
-  //   basePath: '/x-markdown',
-  //   key: 'markdown',
-  // },
-  // {
-  //   path: '/x-sdks/introduce',
-  //   basePath: '/x-sdk',
-  //   key: 'sdk',
-  // },
-  // {
-  //   path: '/x-skills/introduce',
-  //   basePath: '/x-skill',
-  //   key: 'skill',
-  // },
-  // {
-  //   path: '/docs/playground/ultramodern',
-  //   basePath: '/playground',
-  //   key: 'playground',
-  // },
+  {
+    path: '/x-markdowns/introduce',
+    basePath: '/x-markdown',
+    key: 'markdown',
+  },
+  {
+    path: '/x-sdks/introduce',
+    basePath: '/x-sdk',
+    key: 'sdk',
+  },
+  {
+    path: '/x-skills/introduce',
+    basePath: '/x-skill',
+    key: 'skill',
+  },
+  {
+    path: '/docs/playground/ultramodern',
+    basePath: '/playground',
+    key: 'playground',
+  },
 ];
 
 const useStyle = createStyles(({ token }) => {
