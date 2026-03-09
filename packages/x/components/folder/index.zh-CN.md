@@ -40,7 +40,7 @@ tag: 2.4.0
 | selectedFile | 选中的文件路径（受控） | string[] | - | - |
 | defaultSelectedFile | 默认选中的文件路径 | string[] | `[]` | - |
 | onSelectedFileChange | 文件选择变化时的回调 | (file: { path: string[]; name?: string; content?: string }) => void | - | - |
-| menuWith | 目录树宽度 | number \| string | `378` | - |
+| directoryTreeWith | 目录树宽度 | number \| string | `278` | - |
 | emptyRender | 空状态时的展示内容 | React.ReactNode \| (() => React.ReactNode) | - | - |
 | previewRender | 自定义文件预览内容 | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }) => React.ReactNode) | - | - |
 | expandedPaths | 展开的节点路径数组（受控） | string[] | - | - |
@@ -52,7 +52,7 @@ tag: 2.4.0
 | onFolderClick | 文件夹点击事件 | (folderPath: string) => void | - | - |
 | directoryTitle | 目录树标题 | React.ReactNode \| (() => React.ReactNode) | - | - |
 | previewTitle | 文件预览标题 | string \| (({ title, path, content }: { title: string; path: string[]; content: string }) => React.ReactNode) | - | - |
-| previewRender | 自定义文件预览内容 | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }) => React.ReactNode) | - | 2.4.0 |
+
 | directoryIcons | 自定义图标配置 | Record<'directory' \| string, React.ReactNode \| (() => React.ReactNode)> | - | - |
 
 ### FolderTreeData

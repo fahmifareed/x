@@ -210,10 +210,7 @@ const ForwardFolder = React.forwardRef<FolderRef, FolderProps>((props, ref) => {
     const nodes = Array.isArray(info.selectedNodes) ? info.selectedNodes : [info.selectedNodes];
 
     // Check if a folder was clicked
-    const isFolder = nodes.some((node) => {
-      const fileNode = node as unknown as FolderTreeData;
-      return !!fileNode.children && fileNode.children.length > 0;
-    });
+    const isFolder = nodes.some((node) => !node.isLeaf);
 
     if (isFolder) {
       // Click folder: don't update selectedFileState, only trigger folder click event

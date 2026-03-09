@@ -39,19 +39,10 @@ Common props ref: [Common props](/docs/react/common-props)
 | selectedFile | Selected file paths (controlled) | string[] | - | - |
 | defaultSelectedFile | Default selected file paths | string[] | `[]` | - |
 | onSelectedFileChange | Callback when file selection changes | (file: { path: string[]; name?: string; content?: string }) => void | - | - |
-| menuWith | Directory tree width | number \| string | `378` | - |
+| directoryTreeWith | Directory tree width | number \| string | `278` | - |
 | emptyRender | Content to display when empty | React.ReactNode \| (() => React.ReactNode) | - | - |
-| previewRender | Custom file preview content | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }) => React.ReactNode) | - | 2.4.0 |
-| expandedPaths | Array of expanded node paths (controlled) | string[] | - | - |
-| defaultExpandedPaths | Array of default expanded node paths | string[] | - | - |
-| defaultExpandAll | Whether to expand all nodes by default | boolean | `true` | - |
-| onExpandedPathsChange | Callback when expand/collapse changes | (paths: string[]) => void | - | - |
-| fileContentService | File content service | [FileContentService](#filecontentservice) | - | - |
-| onFileClick | File click event | (filePath: string, content?: string) => void | - | - |
-| onFolderClick | Folder click event | (folderPath: string) => void | - | - |
-| directoryTitle | Directory tree title | React.ReactNode \| (() => React.ReactNode) | - | - |
-| previewTitle | File preview title | string \| (({ title, path, content }: { title: string; path: string[]; content: string }) => React.ReactNode) | - | - |
-| directoryIcons | Custom icon configuration | Record<'directory' \| string, React.ReactNode \| (() => React.ReactNode)> | - | - |
+
+| expandedPaths | Array of expanded node paths (controlled) | string[] | - | - | | defaultExpandedPaths | Array of default expanded node paths | string[] | - | - | | defaultExpandAll | Whether to expand all nodes by default | boolean | `true` | - | | onExpandedPathsChange | Callback when expand/collapse changes | (paths: string[]) => void | - | - | | fileContentService | File content service | [FileContentService](#filecontentservice) | - | - | | onFileClick | File click event | (filePath: string, content?: string) => void | - | - | | onFolderClick | Folder click event | (folderPath: string) => void | - | - | | directoryTitle | Directory tree title | React.ReactNode \| (() => React.ReactNode) | - | - | | previewTitle | File preview title | string \| (({ title, path, content }: { title: string; path: string[]; content: string }) => React.ReactNode) | - | - | | directoryIcons | Custom icon configuration | Record<'directory' \| string, React.ReactNode \| (() => React.ReactNode)> | - | - |
 
 ### FolderTreeData
 

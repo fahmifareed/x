@@ -58,29 +58,32 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
     return !!node.children && node.children.length > 0;
   };
 
-  const getIcon = (node: FolderTreeData) => {
-    if (isFolder(node)) {
-      const icon = directoryIcons?.['directory'];
-      if (typeof icon === 'function') {
-        return icon();
+  const getIcon = useCallback(
+    (node: FolderTreeData) => {
+      if (isFolder(node)) {
+        const icon = directoryIcons?.['directory'];
+        if (typeof icon === 'function') {
+          return icon();
+        }
+        return icon || <FolderOutlined />;
       }
-      return icon || <FolderOutlined />;
-    }
 
-    // Return corresponding icon based on file extension
-    const filePath = node.path.toLowerCase();
-    const extension = filePath.split('.').pop();
+      // Return corresponding icon based on file extension
+      const filePath = node.path.toLowerCase();
+      const extension = filePath.split('.').pop();
 
-    if (extension) {
-      // Check if custom icon configuration exists
-      const icon = directoryIcons?.[extension];
-      if (icon) {
-        return typeof icon === 'function' ? icon() : icon;
+      if (extension) {
+        // Check if custom icon configuration exists
+        const icon = directoryIcons?.[extension];
+        if (icon) {
+          return typeof icon === 'function' ? icon() : icon;
+        }
       }
-    }
 
-    return <FileOutlined />;
-  };
+      return <FileOutlined />;
+    },
+    [directoryIcons],
+  );
 
   const buildPathSegments = useCallback(
     (node: FolderTreeData, parentSegments: string[] = []): string[] => {
@@ -109,7 +112,7 @@ const DirectoryTree: React.FC<DirectoryTreeProps> = ({
         };
       });
     },
-    [buildPathSegments, directoryTitle],
+    [buildPathSegments, getIcon],
   );
 
   const treeDataConverted = convertToTreeData(treeData);
