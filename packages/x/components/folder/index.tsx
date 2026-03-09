@@ -49,12 +49,15 @@ export interface FolderProps {
   emptyRender?: React.ReactNode | (() => React.ReactNode);
   previewRender?:
     | React.ReactNode
-    | ((file: {
-        content?: string;
-        path: string[];
-        title?: FolderTreeData['title'];
-        language: string;
-      }) => React.ReactNode);
+    | ((
+        file: {
+          content?: string;
+          path: string[];
+          title?: FolderTreeData['title'];
+          language: string;
+        },
+        info: { originNode: React.ReactNode },
+      ) => React.ReactNode);
   // Expansion control
   defaultExpandedPaths?: string[];
   expandedPaths?: string[];

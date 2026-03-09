@@ -15,21 +15,28 @@ const treeData = [
 ];
 
 const App: React.FC = () => {
-  // Function form
-  const customPreview = ({
-    content,
-    path,
-    title,
-    language,
-  }: {
-    content?: string;
-    path: string[];
-    title?: React.ReactNode;
-    language: string;
-  }) => (
+  // Function form with new API including originNode
+  const customPreview = (
+    {
+      content,
+      path,
+      title,
+      language,
+    }: {
+      content?: string;
+      path: string[];
+      title?: React.ReactNode;
+      language: string;
+    },
+    { originNode }: { originNode: React.ReactNode },
+  ) => (
     <Card title={title} extra={<Tag>{language}</Tag>}>
       <div>Path: {path.join('/')}</div>
       <pre>{content}</pre>
+      <div style={{ marginTop: 16 }}>
+        <strong>Original preview:</strong>
+        {originNode}
+      </div>
     </Card>
   );
 

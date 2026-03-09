@@ -123,14 +123,29 @@ const FileView: React.FC<FileViewProps> = (props) => {
 
     // Handle custom preview content
     let contentNode: React.ReactNode;
+    const originContentNode = (
+      <SyntaxHighlighter
+        language={language}
+        wrapLines={true}
+        style={customOneLight}
+        codeTagProps={{ style: { background: 'transparent' } }}
+      >
+        {fileContent.replace(/\n$/, '')}
+      </SyntaxHighlighter>
+    );
     if (previewRender) {
       if (typeof previewRender === 'function') {
-        contentNode = previewRender({
-          content: fileContent,
-          path: selectedFile,
-          title: fileNode?.title,
-          language,
-        });
+        contentNode = previewRender(
+          {
+            content: fileContent,
+            path: selectedFile,
+            title: fileNode?.title,
+            language,
+          },
+          {
+            originNode: originContentNode,
+          },
+        );
       } else {
         contentNode = previewRender;
       }

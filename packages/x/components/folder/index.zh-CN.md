@@ -42,7 +42,7 @@ tag: 2.4.0
 | onSelectedFileChange | 文件选择变化时的回调 | (file: { path: string[]; name?: string; content?: string }) => void | - | - |
 | directoryTreeWith | 目录树宽度 | number \| string | `278` | - |
 | emptyRender | 空状态时的展示内容 | React.ReactNode \| (() => React.ReactNode) | - | - |
-| previewRender | 自定义文件预览内容 | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }) => React.ReactNode) | - | - |
+| previewRender | 自定义文件预览内容 | React.ReactNode \| ((file: { content?: string; path: string[]; title?: React.ReactNode; language: string }, info: { originNode: React.ReactNode }) => React.ReactNode) | - | - |
 | expandedPaths | 展开的节点路径数组（受控） | string[] | - | - |
 | defaultExpandedPaths | 默认展开的节点路径数组 | string[] | - | - |
 | defaultExpandAll | 是否默认展开所有节点 | boolean | `true` | - |
