@@ -1,7 +1,7 @@
 import { LoadingOutlined, RightOutlined } from '@ant-design/icons';
 import type { CSSMotionProps } from '@rc-component/motion';
 import CSSMotion from '@rc-component/motion';
-import useControlledState from '@rc-component/util';
+import { useControlledState } from '@rc-component/util';
 import pickAttrs from '@rc-component/util/lib/pickAttrs';
 import { clsx } from 'clsx';
 import React from 'react';
