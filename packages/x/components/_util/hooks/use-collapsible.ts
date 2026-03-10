@@ -1,5 +1,5 @@
 import type { CSSMotionProps } from '@rc-component/motion';
-import useControlledState from '@rc-component/util/lib/hooks/useControlledState';
+import useControlledState from '@rc-component/util';
 import React from 'react';
 import initCollapseMotion from '../../_util/motion';
 
