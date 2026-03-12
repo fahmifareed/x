@@ -48,7 +48,10 @@ function ReactInfographic(props: ReactInfographicProps) {
   const [isLoading, setIsLoading] = React.useState(true);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const infographicInstance = React.useRef<any>(null);
+  const infographicInstance = React.useRef<{
+    render: (spec: string) => void;
+    destroy: () => void;
+  } | null>(null);
 
   React.useEffect(() => {
     setIsClient(true);
@@ -77,7 +80,7 @@ function ReactInfographic(props: ReactInfographicProps) {
 
     return () => {
       isMounted = false;
-      infographicInstance.current?.destroy?.();
+      infographicInstance.current?.destroy();
       infographicInstance.current = null;
     };
   }, [isClient, children]);
