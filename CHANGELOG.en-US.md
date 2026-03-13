@@ -26,6 +26,13 @@ tag: vVERSION
 - 🔥 New component Folder. [#1797](https://github.com/ant-design/x/pull/1797) by [kimteayon](https://github.com/kimteayon)
 - 🆕 Enhanced FileCard's `description`, `mask`, and `onClick` configuration capabilities. [#1807](https://github.com/ant-design/x/pull/1807) by [kimteayon](https://github.com/kimteayon)
 
+### @ant-design/x-markdown
+
+- 🆕 XMarkdown streaming rendering adds `tail` configuration, supporting custom tail content and custom tail components while avoiding tail rendering before incomplete components. [`46873e14`](https://github.com/ant-design/x/commit/46873e14ac660e624730d26ff43b2dac4166f97a) by [Div627](https://github.com/Div627)
+- 🐛 Fixed XMarkdown custom component streaming state detection to correctly handle void elements and isolate `streamStatus` across multiple instances with the same component name. [#1590](https://github.com/ant-design/x/pull/1590) by [Last-Order](https://github.com/Last-Order)
+- 🛠 Exported XMarkdown's `StreamCacheTokenType` type for external reuse of streaming-related types. [#1592](https://github.com/ant-design/x/pull/1592) by [Last-Order](https://github.com/Last-Order)
+- 📖 Added XMarkdown Playground and refreshed the streaming, examples, and data-display documentation, including the AntV Infographic example. [#1779](https://github.com/ant-design/x/pull/1779) by [Div627](https://github.com/Div627), [#1780](https://github.com/ant-design/x/pull/1780) by [Div627](https://github.com/Div627), [#1814](https://github.com/ant-design/x/pull/1814) by [Div627](https://github.com/Div627)
+
 ### @ant-design/x-skill
 
 - 🆕 Released x-markdown skill. [#1813](https://github.com/ant-design/x/pull/1813) by [Div627](https://github.com/Div627)
