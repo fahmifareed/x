@@ -1,6 +1,5 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { css, Global } from '@emotion/react';
-import { createStyles, useTheme } from 'antd-style';
+import { createStyles } from 'antd-style';
 import { clsx } from 'clsx';
 import DumiSearchBar from 'dumi/theme-default/slots/SearchBar';
 import * as React from 'react';
@@ -12,6 +11,10 @@ const useStyle = createStyles(({ token, css }) => ({
     margin-inline-end: -10px;
   `,
   iconBtn: css`
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -50,64 +53,59 @@ const useStyle = createStyles(({ token, css }) => ({
     transition:
       width 0.3s ease,
       opacity 0.3s ease;
+
+    .dumi-default-search-shortcut {
+      display: none;
+    }
+
+    .dumi-default-search-bar:not(:last-child) {
+      margin-inline-end: 0;
+    }
+
+    .dumi-default-search-bar-input {
+      width: 100%;
+      height: 32px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: ${token.colorText};
+      font-size: 13px;
+      padding-inline-end: 12px;
+      transition:
+        background 0.2s,
+        border-color 0.2s,
+        box-shadow 0.2s;
+
+      &::placeholder {
+        color: ${token.colorTextTertiary};
+      }
+
+      &:focus {
+        background: ${token.colorBgElevated};
+        border-color: rgba(255, 255, 255, 0.45);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .dumi-default-search-bar-svg {
+      fill: ${token.colorTextTertiary};
+    }
+
+    .dumi-default-search-popover {
+      inset-inline-start: 0;
+      inset-inline-end: auto;
+
+      &::before {
+        inset-inline-start: 92px;
+        inset-inline-end: auto;
+      }
+    }
   `,
   searchWrapperExpanded: css`
     width: 200px;
     opacity: 1;
   `,
 }));
-
-const SearchGlobalStyle: React.FC = () => {
-  const token = useTheme();
-  return (
-    <Global
-      styles={css`
-        .dumi-default-search-shortcut {
-          display: none !important;
-        }
-        .dumi-default-search-bar:not(:last-child) {
-          margin-inline-end: 0 !important;
-        }
-        .dumi-default-search-bar-input {
-          width: 100% !important;
-          height: 32px !important;
-          border-radius: 16px !important;
-          background: rgba(255, 255, 255, 0.08) !important;
-          border-color: rgba(255, 255, 255, 0.2) !important;
-          color: ${token.colorText} !important;
-          font-size: 13px !important;
-          padding-inline-end: 12px !important;
-          transition:
-            background 0.2s,
-            border-color 0.2s,
-            box-shadow 0.2s !important;
-
-          &::placeholder {
-            color: ${token.colorTextTertiary} !important;
-          }
-
-          &:focus {
-            background: ${token.colorBgElevated} !important;
-            border-color: rgba(255, 255, 255, 0.45) !important;
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
-          }
-        }
-        .dumi-default-search-bar-svg {
-          fill: ${token.colorTextTertiary} !important;
-        }
-        .dumi-default-search-popover {
-          inset-inline-start: 0 !important;
-          inset-inline-end: auto !important;
-
-          &::before {
-            inset-inline-start: 92px !important;
-            inset-inline-end: auto !important;
-          }
-        }
-      `}
-    />
-  );
-};
 
 export interface SearchBarProps {
   isMobile: boolean;
@@ -116,6 +114,7 @@ export interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ isMobile }) => {
   const { styles } = useStyle();
   const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const timeoutRef = React.useRef<number | null>(null);
   const [expanded, setExpanded] = React.useState(false);
 
   React.useEffect(() => {
@@ -127,8 +126,16 @@ const SearchBar: React.FC<SearchBarProps> = ({ isMobile }) => {
     }
   }, [expanded, isMobile]);
 
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleBlur = () => {
-    setTimeout(() => {
+    timeoutRef.current = window.setTimeout(() => {
       if (wrapperRef.current && !wrapperRef.current.contains(document.activeElement)) {
         setExpanded(false);
       }
@@ -139,14 +146,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ isMobile }) => {
 
   return (
     <>
-      <SearchGlobalStyle />
       <div className={styles.container}>
-        <span
+        <button
+          type="button"
+          aria-label="Search"
           className={clsx(styles.iconBtn, expanded ? styles.iconBtnHidden : styles.iconBtnVisible)}
           onClick={() => setExpanded(true)}
         >
           <SearchOutlined />
-        </span>
+        </button>
         <div
           ref={wrapperRef}
           className={clsx(styles.searchWrapper, expanded && styles.searchWrapperExpanded)}
