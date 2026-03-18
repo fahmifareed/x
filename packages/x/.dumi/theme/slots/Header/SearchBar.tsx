@@ -1,6 +1,7 @@
 import { SearchOutlined } from '@ant-design/icons';
 import { createStyles } from 'antd-style';
 import { clsx } from 'clsx';
+import { useLocation } from 'dumi';
 import DumiSearchBar from 'dumi/theme-default/slots/SearchBar';
 import * as React from 'react';
 
@@ -41,14 +42,13 @@ const useStyle = createStyles(({ token, css }) => ({
     pointer-events: auto;
   `,
   iconBtnHidden: css`
-    width: 0;
-    height: 32px;
-    opacity: 0;
-    pointer-events: none;
+    display: none !important;
   `,
   searchWrapper: css`
     width: 0;
     opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
     flex-shrink: 0;
     transition:
       width 0.3s ease,
@@ -102,8 +102,10 @@ const useStyle = createStyles(({ token, css }) => ({
     }
   `,
   searchWrapperExpanded: css`
-    width: 200px;
-    opacity: 1;
+    width: 200px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
   `,
 }));
 
@@ -116,6 +118,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ isMobile }) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const timeoutRef = React.useRef<number | null>(null);
   const [expanded, setExpanded] = React.useState(false);
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    setExpanded(false);
+  }, [pathname]);
 
   React.useEffect(() => {
     if (expanded && !isMobile) {
@@ -150,6 +157,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isMobile }) => {
         <button
           type="button"
           aria-label="Search"
+          aria-hidden={expanded}
           className={clsx(styles.iconBtn, expanded ? styles.iconBtnHidden : styles.iconBtnVisible)}
           onClick={() => setExpanded(true)}
         >
@@ -157,6 +165,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ isMobile }) => {
         </button>
         <div
           ref={wrapperRef}
+          aria-hidden={!expanded}
           className={clsx(styles.searchWrapper, expanded && styles.searchWrapperExpanded)}
           onBlur={handleBlur}
         >
