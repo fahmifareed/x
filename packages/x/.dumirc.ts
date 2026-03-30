@@ -24,10 +24,12 @@ export default defineConfig({
         }
       : false,
   hash: true,
-  mfsu: false,
+  mfsu: {},
   mako: ['Darwin', 'Linux'].includes(os.type()) ? {} : false,
   crossorigin: {},
   runtimePublicPath: {},
+  fastRefresh: true,
+  devtool: 'eval-source-map',
   outputPath: '_site',
   favicons: [
     'https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*eco6RrQhxbMAAAAAAAAAAAAADgCCAQ/original',
@@ -59,9 +61,9 @@ export default defineConfig({
     '@ant-design/x/lib': path.join(__dirname, 'components'),
     '@ant-design/x/es': path.join(__dirname, 'components'),
     '@ant-design/x': path.join(__dirname, 'components'),
-    '@ant-design/x-markdown': '../x-markdown/src',
-    '@ant-design/x-sdk': '../x-sdk/src',
-    '@ant-design/x-card': '../x-card/src',
+    '@ant-design/x-markdown': path.join(__dirname, '../x-markdown/src'),
+    '@ant-design/x-sdk': path.join(__dirname, '../x-sdk/src'),
+    '@ant-design/x-skill': path.join(__dirname, '../x-skill/src'),
     // https://github.com/ant-design/ant-design/issues/46628
     '@ant-design/icons$': '@ant-design/icons/lib',
   },
