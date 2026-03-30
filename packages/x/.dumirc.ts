@@ -37,6 +37,7 @@ export default defineConfig({
       { type: 'doc', dir: 'docs' },
       { type: 'x-sdk', dir: 'docs/x-sdk' },
       { type: 'x-markdown', dir: 'docs/x-markdown' },
+      { type: 'x-card', dir: 'docs/x-card' },
       { type: 'x-skill', dir: 'docs/x-skill' },
     ],
     atomDirs: [{ type: 'component', dir: 'components' }],
@@ -60,6 +61,7 @@ export default defineConfig({
     '@ant-design/x': path.join(__dirname, 'components'),
     '@ant-design/x-markdown': '../x-markdown/src',
     '@ant-design/x-sdk': '../x-sdk/src',
+    '@ant-design/x-card': '../x-card/src',
     // https://github.com/ant-design/ant-design/issues/46628
     '@ant-design/icons$': '@ant-design/icons/lib',
   },
