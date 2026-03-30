@@ -61,6 +61,7 @@ export default defineConfig({
     '@ant-design/x/lib': path.join(__dirname, 'components'),
     '@ant-design/x/es': path.join(__dirname, 'components'),
     '@ant-design/x': path.join(__dirname, 'components'),
+    '@ant-design/x-card': path.join(__dirname, '../x-card/src'),
     '@ant-design/x-markdown': path.join(__dirname, '../x-markdown/src'),
     '@ant-design/x-sdk': path.join(__dirname, '../x-sdk/src'),
     '@ant-design/x-skill': path.join(__dirname, '../x-skill/src'),
