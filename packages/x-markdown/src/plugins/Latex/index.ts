@@ -72,7 +72,7 @@ function inlineKatex(renderer: Render, replaceAlignStart: boolean) {
       const html = renderer(token);
       // 如果标记为块级，使用 block 级别的 HTML 结构
       if (token.isBlock) {
-        return `<div class="block-katex">${html}</div>`;
+        return `<span class="block-katex">${html}</span>`;
       }
       return `<span class="inline-katex">${html}</span>`;
     },
