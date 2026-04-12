@@ -3383,7 +3383,7 @@ exports[`LaTeX Plugin should still render single-line \\[..\\] as inline formula
                 />
                 <span
                   class="mord mathnormal"
-                  style="margin-right: 0.05764em;"
+                  style="margin-right: 0.0576em;"
                 >
                   E
                 </span>
