@@ -207,3 +207,457 @@ xmd-tail {
 .x-markdown .inline-katex .katex-display > .katex > .katex-html > .tag {
   position: static;
 }
+
+.x-markdown-light pre:has(.xiaohu-markdown-codeblock),
+.x-markdown-dark pre:has(.xiaohu-markdown-codeblock) {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.x-markdown-light pre:has(.xiaohu-markdown-codeblock) > code,
+.x-markdown-dark pre:has(.xiaohu-markdown-codeblock) > code {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.x-markdown-light pre code:not([class$="-highlightCode-code"] pre code),
+.x-markdown-dark pre code:not([class$="-codeHighlighter-code"] pre code) {
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.x-markdown-light .xiaohu-markdown-codeblock pre,
+.x-markdown-dark .xiaohu-markdown-codeblock pre,
+.x-markdown-light .xiaohu-markdown-codeblock pre code,
+.x-markdown-dark .xiaohu-markdown-codeblock pre code {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.x-markdown-light .xiaohu-markdown-code,
+.x-markdown-dark .xiaohu-markdown-code {
+  background: transparent !important;
+}
+
+.notification-dot-pulse {
+  animation: notification-pulse 2s ease-in-out infinite;
+}
+
+/* ── 权限 banner 滑入动画 ── */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.25s ease-out;
+}
+
+/* ── 思考块高光扫过动画 ── */
+@keyframes shimmer-text {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    currentColor 40%,
+    rgba(198, 106, 28, 0.8) 50%,
+    currentColor 60%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 2s linear infinite;
+}
+
+/* ── 思考块淡出动画 ── */
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fade-out {
+  animation: fade-out 0.5s ease-out forwards;
+}
+
+/* ── Markdown 正文间距优化 ── */
+/*
+ * @ant-design/x-markdown 使用 CSS 变量控制间距，
+ * 同时组件使用 paragraphTag='div'，所以段落渲染为 <div> 而非 <p>。
+ * 这里通过覆盖变量 + 直接子 div 选择器来修复间距。
+ */
+.x-markdown-light,
+.x-markdown-dark {
+  --margin-block: 0 0 0.5em 0;
+  --margin-ul-ol: 0.25em 0 0.5em 0.15em;
+  --padding-ul-ol: 0 0 0 1.05em;
+  --margin-pre: 0 0 0.5em 0;
+  --hr-margin: 0.25em 0;
+  --table-margin: 0 0 0.5em 0;
+  --td-th-padding: 0.72em 1em;
+  --markdown-table-radius: 16px;
+  line-height: 1.6;
+}
+
+.x-markdown-light {
+  --markdown-table-bg: #fcfaf7;
+  --markdown-table-head-bg: #f6f1eb;
+  --markdown-table-head-color: #8a5a30;
+  --markdown-table-text: #2c2620;
+  --markdown-table-divider: rgba(231, 221, 211, 0.95);
+  --markdown-table-divider-strong: rgba(231, 221, 211, 1);
+  --markdown-table-row-alt: transparent;
+  --markdown-table-row-hover: rgba(138, 90, 48, 0.035);
+  --markdown-table-shadow: 0 8px 24px rgba(97, 45, 2, 0.04);
+  --markdown-table-scroll-shadow: rgba(88, 55, 23, 0.16);
+  --markdown-table-scrollbar-thumb: rgba(138, 90, 48, 0.28);
+  --markdown-table-cell-max-width: min(32rem, 68vw);
+  --markdown-blockquote-bg: #f8f1e8;
+  --markdown-blockquote-border: rgba(138, 90, 48, 0.34);
+  --markdown-blockquote-text: #5d4634;
+  --markdown-link-color: #8a5a30;
+  --markdown-link-hover: #6d390b;
+  --markdown-link-bg: rgba(138, 90, 48, 0.08);
+  --markdown-link-focus-ring: rgba(198, 106, 28, 0.28);
+}
+
+.x-markdown-dark {
+  --markdown-table-bg: #211c18;
+  --markdown-table-head-bg: #28221d;
+  --markdown-table-head-color: #e9c7aa;
+  --markdown-table-text: #f4eee7;
+  --markdown-table-divider: rgba(255, 255, 255, 0.1);
+  --markdown-table-divider-strong: rgba(255, 255, 255, 0.14);
+  --markdown-table-row-alt: transparent;
+  --markdown-table-row-hover: rgba(255, 255, 255, 0.05);
+  --markdown-table-shadow: none;
+  --markdown-table-scroll-shadow: rgba(0, 0, 0, 0.34);
+  --markdown-table-scrollbar-thumb: rgba(233, 199, 170, 0.2);
+  --markdown-table-cell-max-width: min(32rem, 68vw);
+  --markdown-blockquote-bg: rgba(255, 255, 255, 0.05);
+  --markdown-blockquote-border: rgba(233, 199, 170, 0.28);
+  --markdown-blockquote-text: rgba(244, 238, 231, 0.88);
+  --markdown-link-color: #e9c7aa;
+  --markdown-link-hover: #f4eee7;
+  --markdown-link-bg: rgba(233, 199, 170, 0.12);
+  --markdown-link-focus-ring: rgba(233, 199, 170, 0.2);
+}
+
+/* li 在主题中使用 margin: var(--margin-block)，需要直接覆盖 */
+.x-markdown-light li,
+.x-markdown-dark li {
+  margin: 0 0 0.15em 0 !important;
+  line-height: 1.55;
+}
+
+.x-markdown-light ul,
+.x-markdown-light ol,
+.x-markdown-dark ul,
+.x-markdown-dark ol {
+  padding-left: 1.05em;
+}
+
+.x-markdown-light li > ul,
+.x-markdown-light li > ol,
+.x-markdown-dark li > ul,
+.x-markdown-dark li > ol {
+  margin-top: 0.18em;
+  margin-bottom: 0.18em;
+  padding-left: 0.95em;
+}
+
+/* 段落渲染为 div 时（paragraphTag='div'），需要单独加间距 */
+.x-markdown-light > div:not([class]),
+.x-markdown-dark > div:not([class]) {
+  margin-bottom: 0.5em;
+  line-height: 1.6;
+}
+
+.x-markdown-light h1,
+.x-markdown-light h2,
+.x-markdown-light h3,
+.x-markdown-light h4,
+.x-markdown-light h5,
+.x-markdown-light h6,
+.x-markdown-dark h1,
+.x-markdown-dark h2,
+.x-markdown-dark h3,
+.x-markdown-dark h4,
+.x-markdown-dark h5,
+.x-markdown-dark h6 {
+  margin-top: 0.75em !important;
+  margin-bottom: 0.3em !important;
+}
+
+.x-markdown h1 {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.x-markdown h2 {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.x-markdown h3 {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.x-markdown h4,
+.x-markdown h5,
+.x-markdown h6 {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.x-markdown-light > :first-child,
+.x-markdown-dark > :first-child {
+  margin-top: 0 !important;
+}
+
+.x-markdown-light hr,
+.x-markdown-dark hr {
+  margin: 0.75em 0 !important;
+}
+
+.x-markdown-light blockquote,
+.x-markdown-dark blockquote {
+  margin: 0.5em 0;
+  padding: 0.8em 1em;
+  border-left: 3px solid var(--markdown-blockquote-border);
+  border-radius: 0 14px 14px 0;
+  background: var(--markdown-blockquote-bg);
+  color: var(--markdown-blockquote-text);
+}
+
+.x-markdown-light blockquote:hover,
+.x-markdown-dark blockquote:hover {
+  background: var(--markdown-blockquote-bg);
+}
+
+.x-markdown-light blockquote > :last-child,
+.x-markdown-dark blockquote > :last-child {
+  margin-bottom: 0 !important;
+}
+
+.x-markdown-light a,
+.x-markdown-dark a {
+  color: var(--markdown-link-color) !important;
+  display: inline;
+  border-radius: 0.45em;
+  padding: 0 0.08em;
+  font-weight: 500;
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.16em;
+  text-decoration-color: color-mix(in srgb, currentColor 32%, transparent);
+  overflow-wrap: anywhere;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    text-decoration-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.x-markdown-light a:hover,
+.x-markdown-dark a:hover {
+  color: var(--markdown-link-hover) !important;
+  background: var(--markdown-link-bg);
+  text-decoration-color: currentColor;
+}
+
+.x-markdown-light a:focus-visible,
+.x-markdown-dark a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--markdown-link-focus-ring);
+}
+
+.x-markdown-light a::after,
+.x-markdown-dark a::after {
+  content: none !important;
+}
+
+/* 表格美化 - 更接近聊天内容里的数据卡片，而不是代码块皮肤 */
+.x-markdown.x-markdown-light table:not(pre),
+.x-markdown.x-markdown-dark table:not(pre) {
+  margin: var(--table-margin);
+  border-collapse: separate;
+  border-spacing: 0;
+  display: table;
+  width: auto;
+  max-width: 100%;
+  table-layout: auto;
+  font-size: 15px;
+  border-radius: var(--markdown-table-radius);
+  overflow: clip;
+  border: 1px solid var(--markdown-table-divider-strong);
+  background: var(--markdown-table-bg);
+  box-shadow: var(--markdown-table-shadow);
+}
+
+.x-markdown .xiaohu-markdown-table-shell {
+  position: relative;
+  margin: var(--table-margin);
+  max-width: 100%;
+  border-radius: var(--markdown-table-radius);
+  border: 1px solid var(--markdown-table-divider-strong);
+  background: var(--markdown-table-bg);
+  box-shadow: var(--markdown-table-shadow);
+  overflow: hidden;
+}
+
+.x-markdown .xiaohu-markdown-table-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--markdown-table-scrollbar-thumb) transparent;
+}
+
+.x-markdown .xiaohu-markdown-table-scroll::-webkit-scrollbar {
+  height: 9px;
+}
+
+.x-markdown .xiaohu-markdown-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.x-markdown .xiaohu-markdown-table-scroll::-webkit-scrollbar-thumb {
+  background: var(--markdown-table-scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.x-markdown .xiaohu-markdown-table-shell .xiaohu-markdown-table {
+  margin: 0 !important;
+  width: max-content;
+  min-width: 100%;
+  max-width: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.x-markdown .xiaohu-markdown-table-shadow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
+.x-markdown .xiaohu-markdown-table-shadow-left {
+  left: 0;
+  background: linear-gradient(to right, var(--markdown-table-scroll-shadow), transparent);
+}
+
+.x-markdown .xiaohu-markdown-table-shadow-right {
+  right: 0;
+  background: linear-gradient(to left, var(--markdown-table-scroll-shadow), transparent);
+}
+
+.x-markdown .xiaohu-markdown-table-shell.show-left-shadow .xiaohu-markdown-table-shadow-left,
+.x-markdown .xiaohu-markdown-table-shell.show-right-shadow .xiaohu-markdown-table-shadow-right {
+  opacity: 1;
+}
+
+.x-markdown.x-markdown-light thead,
+.x-markdown.x-markdown-dark thead {
+  background: var(--markdown-table-head-bg);
+}
+
+.x-markdown.x-markdown-light tbody,
+.x-markdown.x-markdown-dark tbody,
+.x-markdown.x-markdown-light tbody tr,
+.x-markdown.x-markdown-dark tbody tr {
+  background: transparent;
+}
+
+.x-markdown.x-markdown-light th,
+.x-markdown.x-markdown-dark th,
+.x-markdown.x-markdown-light td,
+.x-markdown.x-markdown-dark td {
+  padding: var(--td-th-padding);
+  border: 0;
+  text-align: left;
+  vertical-align: top;
+  max-width: var(--markdown-table-cell-max-width);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.x-markdown.x-markdown-light th,
+.x-markdown.x-markdown-dark th {
+  font-weight: 600;
+  font-size: 0.97em;
+  line-height: 1.45;
+  letter-spacing: 0;
+  color: var(--markdown-table-head-color);
+}
+
+.x-markdown.x-markdown-light td,
+.x-markdown.x-markdown-dark td {
+  line-height: 1.65;
+  color: var(--markdown-table-text);
+}
+
+.x-markdown.x-markdown-light thead tr th,
+.x-markdown.x-markdown-dark thead tr th {
+  border-bottom: 1px solid var(--markdown-table-divider-strong);
+}
+
+.x-markdown.x-markdown-light th + th,
+.x-markdown.x-markdown-dark th + th,
+.x-markdown.x-markdown-light td + td,
+.x-markdown.x-markdown-dark td + td {
+  border-left: 1px solid var(--markdown-table-divider);
+}
+
+.x-markdown.x-markdown-light tbody tr + tr td,
+.x-markdown.x-markdown-dark tbody tr + tr td {
+  border-top: 1px solid var(--markdown-table-divider);
+}
+
+.x-markdown.x-markdown-light tbody tr:nth-child(even),
+.x-markdown.x-markdown-dark tbody tr:nth-child(even) {
+  background: var(--markdown-table-row-alt);
+}
+
+.x-markdown.x-markdown-light tbody tr:hover,
+.x-markdown.x-markdown-dark tbody tr:hover {
+  background: var(--markdown-table-row-hover);
+}
