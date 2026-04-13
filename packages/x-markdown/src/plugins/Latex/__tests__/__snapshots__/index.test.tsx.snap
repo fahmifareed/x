@@ -3235,121 +3235,121 @@ exports[`LaTeX Plugin should render multi-line \\[..\\] as block-level formula 1
   >
     <p>
       content
-    </p>
-    <div
-      class="block-katex"
-    >
       <span
-        class="katex-display"
+        class="block-katex"
       >
         <span
-          class="katex"
+          class="katex-display"
         >
           <span
-            aria-hidden="true"
-            class="katex-html"
+            class="katex"
           >
             <span
-              class="base"
+              aria-hidden="true"
+              class="katex-html"
             >
               <span
-                class="strut"
-                style="height: 1.7936em; vertical-align: -0.686em;"
-              />
-              <span
-                class="mord"
+                class="base"
               >
                 <span
-                  class="mopen nulldelimiter"
+                  class="strut"
+                  style="height: 1.7936em; vertical-align: -0.686em;"
                 />
                 <span
-                  class="mfrac"
+                  class="mord"
                 >
                   <span
-                    class="vlist-t vlist-t2"
+                    class="mopen nulldelimiter"
+                  />
+                  <span
+                    class="mfrac"
                   >
                     <span
-                      class="vlist-r"
+                      class="vlist-t vlist-t2"
                     >
                       <span
-                        class="vlist"
-                        style="height: 1.1076em;"
+                        class="vlist-r"
                       >
                         <span
-                          style="top: -2.314em;"
+                          class="vlist"
+                          style="height: 1.1076em;"
                         >
                           <span
-                            class="pstrut"
-                            style="height: 3em;"
-                          />
-                          <span
-                            class="mord"
+                            style="top: -2.314em;"
                           >
                             <span
-                              class="mord mathnormal"
+                              class="pstrut"
+                              style="height: 3em;"
+                            />
+                            <span
+                              class="mord"
                             >
-                              b
+                              <span
+                                class="mord mathnormal"
+                              >
+                                b
+                              </span>
+                            </span>
+                          </span>
+                          <span
+                            style="top: -3.23em;"
+                          >
+                            <span
+                              class="pstrut"
+                              style="height: 3em;"
+                            />
+                            <span
+                              class="frac-line"
+                              style="border-bottom-width: 0.04em;"
+                            />
+                          </span>
+                          <span
+                            style="top: -3.677em;"
+                          >
+                            <span
+                              class="pstrut"
+                              style="height: 3em;"
+                            />
+                            <span
+                              class="mord"
+                            >
+                              <span
+                                class="mord mathnormal"
+                              >
+                                a
+                              </span>
                             </span>
                           </span>
                         </span>
                         <span
-                          style="top: -3.23em;"
+                          class="vlist-s"
                         >
-                          <span
-                            class="pstrut"
-                            style="height: 3em;"
-                          />
-                          <span
-                            class="frac-line"
-                            style="border-bottom-width: 0.04em;"
-                          />
+                          ​
                         </span>
+                      </span>
+                      <span
+                        class="vlist-r"
+                      >
                         <span
-                          style="top: -3.677em;"
+                          class="vlist"
+                          style="height: 0.686em;"
                         >
-                          <span
-                            class="pstrut"
-                            style="height: 3em;"
-                          />
-                          <span
-                            class="mord"
-                          >
-                            <span
-                              class="mord mathnormal"
-                            >
-                              a
-                            </span>
-                          </span>
+                          <span />
                         </span>
-                      </span>
-                      <span
-                        class="vlist-s"
-                      >
-                        ​
-                      </span>
-                    </span>
-                    <span
-                      class="vlist-r"
-                    >
-                      <span
-                        class="vlist"
-                        style="height: 0.686em;"
-                      >
-                        <span />
                       </span>
                     </span>
                   </span>
+                  <span
+                    class="mclose nulldelimiter"
+                  />
                 </span>
-                <span
-                  class="mclose nulldelimiter"
-                />
               </span>
             </span>
           </span>
         </span>
       </span>
-    </div>
 content
+    </p>
   </div>
 </div>
 `;
