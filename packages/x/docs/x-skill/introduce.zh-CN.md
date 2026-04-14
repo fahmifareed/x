@@ -21,9 +21,7 @@ title: 介绍
 
 ## 🔧 包含的技能
 
-- **use-x-chat**：对话 SDK 使用指南
-- **x-chat-provider**：聊天数据流管理
-- **x-request**：网络请求最佳实践
+请查看 [技能列表](/x-skills/skills-cn)
 
 ## 🚀 快速开始
 
@@ -31,7 +29,7 @@ title: 介绍
 
 ### 方式一：一键安装（推荐）
 
-支持 Claude Code、CodeFuse、Cursor 等主流 AI IDE，一条命令即可完成安装：
+支持 Claude Code、CodeFuse、Cursor、CodeX 等主流 AI IDE，一条命令即可完成安装：
 
 #### 基础安装
 
