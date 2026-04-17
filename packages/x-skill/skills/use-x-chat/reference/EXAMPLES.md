@@ -332,52 +332,71 @@ const App = () => {
 
 ```tsx
 // Scenario: DeepSeek R1's reasoning_content + content need to be displayed separately
+import React from 'react';
+import { Bubble, Sender } from '@ant-design/x';
 import { DeepSeekChatProvider, useXChat, XRequest } from '@ant-design/x-sdk';
-import type { XModelMessage, SSEFields, XModelResponse } from '@ant-design/x-sdk';
+import type { XModelMessage } from '@ant-design/x-sdk';
 
 interface MyMessage extends XModelMessage {
   reasoning?: string; // Chain-of-thought content
 }
 
-const [provider] = React.useState(
-  new DeepSeekChatProvider({
-    request: XRequest(BASE_URL, {
-      manual: true,
-      params: { model: 'deepseek-reasoner', stream: true },
+const BASE_URL = 'YOUR_BASE_URL';
+
+const App = () => {
+  const [provider] = React.useState(
+    new DeepSeekChatProvider({
+      request: XRequest(BASE_URL, {
+        manual: true,
+        params: { model: 'deepseek-reasoner', stream: true },
+      }),
     }),
-  }),
-);
+  );
 
-const { parsedMessages, onRequest, isRequesting, abort } = useXChat<
-  MyMessage,
-  { role: string; content: string } // ParsedMessage
->({
-  provider,
-  // parser converts one message into multiple bubbles
-  parser: (message: MyMessage) => {
-    const result: { role: string; content: string }[] = [];
-    if (message.reasoning) {
-      result.push({ role: 'reasoning', content: message.reasoning });
-    }
-    if (message.content) {
-      result.push({ role: 'assistant', content: message.content as string });
-    }
-    return result.length > 0 ? result : { role: message.role, content: message.content as string };
-  },
-});
+  const { parsedMessages, onRequest, isRequesting, abort } = useXChat<
+    MyMessage,
+    { role: string; content: string } // ParsedMessage
+  >({
+    provider,
+    // parser converts one message into multiple bubbles
+    parser: (message: MyMessage) => {
+      const result: { role: string; content: string }[] = [];
+      if (message.reasoning) {
+        result.push({ role: 'reasoning', content: message.reasoning });
+      }
+      if (message.content) {
+        result.push({ role: 'assistant', content: message.content as string });
+      }
+      return result.length > 0
+        ? result
+        : { role: message.role, content: message.content as string };
+    },
+  });
 
-// Use parsedMessages instead of messages
-<Bubble.List
-  role={{
-    assistant: { placement: 'start' },
-    user: { placement: 'end' },
-    reasoning: { placement: 'start', variant: 'borderless' },
-  }}
-  items={parsedMessages.map(({ id, message, status }) => ({
-    key: id,
-    role: message.role,
-    content: message.content,
-    loading: status === 'loading',
-  }))}
-/>;
+  // Use parsedMessages instead of messages
+  return (
+    <div>
+      <Bubble.List
+        role={{
+          assistant: { placement: 'start' },
+          user: { placement: 'end' },
+          reasoning: { placement: 'start', variant: 'borderless' },
+        }}
+        items={parsedMessages.map(({ id, message, status }) => ({
+          key: id,
+          role: message.role,
+          content: message.content,
+          loading: status === 'loading',
+        }))}
+      />
+      <Sender
+        loading={isRequesting}
+        onCancel={abort}
+        onSubmit={(val) => onRequest({ messages: [{ role: 'user', content: val }] })}
+      />
+    </div>
+  );
+};
+
+export default App;
 ```

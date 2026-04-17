@@ -22,7 +22,7 @@ Component (Button click)
 interface ActionPayload {
   name: string; // from action.event.name
   surfaceId: string; // which surface triggered this
-  context: Record<string, any>; // resolved values from data model
+  context: Record<string, any>; // full dataModel snapshot of the current surface
 }
 ```
 
@@ -55,9 +55,14 @@ When the user clicks the button, `onAction` receives:
   name: 'submit_form',
   surfaceId: 'contact_form',
   context: {
-    email: 'alice@example.com',   // resolved from /form/email
-    name: 'Alice',                // resolved from /form/name
-    subscribe: true               // resolved from /form/subscribe
+    // Full dataModel snapshot of the surface — all fields are accessible,
+    // not just those listed in action.event.context
+    form: {
+      email: 'alice@example.com',
+      name: 'Alice',
+      subscribe: true
+    },
+    // ...any other top-level keys in the dataModel are also present
   }
 }
 ```

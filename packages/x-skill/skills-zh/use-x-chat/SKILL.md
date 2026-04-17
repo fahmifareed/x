@@ -200,7 +200,7 @@ type MessageStatus = 'local' | 'loading' | 'updating' | 'success' | 'error' | 'a
 | `abort` | `() => void` | 中止当前请求 |
 | `setMessages` | `(messages: Partial<MessageInfo<ChatMessage>>[]) => void` | 直接修改消息列表，不触发请求 |
 | `setMessage` | `(id: string \| number, info: Partial<MessageInfo<ChatMessage>>) => void` | 修改单条消息，不触发请求 |
-| `removeMessage` | `(id: string \| number) => void` | 删除某条消息 |
+| `removeMessage` | `(id: string \| number) => boolean` | 删除某条消息，返回是否删除成功 |
 | `onReload` | `(id: string \| number, params: Partial<Input>, opts?: { extraInfo: AnyObject }) => void` | 重新生成某条 AI 回复 |
 | `queueRequest` | `(conversationKey: string \| symbol, params: Partial<Input>, opts?: { extraInfo: AnyObject }) => void` | 队列化请求，等待会话初始化后发送 |
 | `isDefaultMessagesRequesting` | `boolean` | 默认消息是否在异步加载中 |
