@@ -22,6 +22,7 @@ const locales = {
     blog: '博客',
     sdk: 'X SDK',
     skill: 'X Skill',
+    card: 'X Card',
     markdown: 'X Markdown',
     resources: '资源',
   },
@@ -34,6 +35,7 @@ const locales = {
     blog: 'Blog',
     sdk: 'X SDK',
     skill: 'X Skill',
+    card: 'X Card',
     markdown: 'X Markdown',
     resources: 'Resources',
   },
@@ -64,6 +66,11 @@ const defaultItems = [
     path: '/x-sdks/introduce',
     basePath: '/x-sdk',
     key: 'sdk',
+  },
+  {
+    path: '/x-cards/introduce',
+    basePath: '/x-card',
+    key: 'card',
   },
   {
     path: '/x-skills/introduce',
