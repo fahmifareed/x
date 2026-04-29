@@ -31,19 +31,19 @@ import { Bubble } from '@ant-design/x';
 
 **Key props**:
 
-| Prop                | Purpose                                                              |
-| ------------------- | -------------------------------------------------------------------- | ----------------------------------------- |
-| `placement`         | `'start'` (left, AI) or `'end'` (right, user)                        |
-| `content`           | Message content (`string`, `ReactNode`, or custom type)              |
-| `streaming`         | `true` while streaming, `false` on last chunk                        |
-| `typing`            | Typing animation — `false` to disable, `{ effect: 'typing'           | 'fade-in', step, interval }` to configure |
-| `loading`           | Show loading skeleton                                                |
-| `header` / `footer` | Slot for metadata or action buttons                                  |
-| `avatar`            | Slot for avatar                                                      |
-| `variant`           | `'filled'` (default) \| `'outlined'` \| `'shadow'` \| `'borderless'` |
-| `shape`             | `'default'` \| `'round'` \| `'corner'`                               |
-| `contentRender`     | Custom renderer for `content` — use for Markdown or chart components |
-| `editable`          | Enable inline content editing                                        |
+| Prop | Purpose |
+| --- | --- |
+| `placement` | `'start'` (left, AI) or `'end'` (right, user) |
+| `content` | Message content (`string`, `ReactNode`, or custom type) |
+| `streaming` | `true` while streaming, `false` on last chunk |
+| `typing` | Typing animation — `false` to disable, `{ effect: 'typing' \| 'fade-in', step, interval }` to configure |
+| `loading` | Show loading skeleton |
+| `header` / `footer` | Slot for metadata or action buttons |
+| `avatar` | Slot for avatar |
+| `variant` | `'filled'` (default) \| `'outlined'` \| `'shadow'` \| `'borderless'` |
+| `shape` | `'default'` \| `'round'` \| `'corner'` |
+| `contentRender` | Custom renderer for `content` — use for Markdown or chart components |
+| `editable` | Enable inline content editing |
 
 **`Bubble.List` — the preferred multi-message component**:
 

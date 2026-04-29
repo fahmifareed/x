@@ -480,11 +480,11 @@ updateDataModel({ path: '/order/status', value: 'Shipped' });
 {
   id: 'product-name',
   component: 'Text',
-  text: { path: '/name' }  // 相对于 /products/0、/products/1 等
+  text: { path: 'name' }  // 相对于 /products/0、/products/1 等
 }
 ```
 
-对于 `/products/0`，`/name` 解析为 `/products/0/name` → `"Widget"`
+对于 `/products/0`，`name` 解析为 `/products/0/name` → `"Widget"`
 
 ### 输入绑定（双向绑定）
 

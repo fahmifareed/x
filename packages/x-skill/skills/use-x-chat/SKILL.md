@@ -1,6 +1,6 @@
 ---
 name: use-x-chat
-version: 2.5.0
+version: 2.6.0
 description: Focus on explaining how to use the useXChat Hook, including custom Provider integration, message management, error handling, multi-conversation management, and more
 ---
 
@@ -40,7 +40,7 @@ Handled by the x-chat-provider skill. Note `XRequest` must pass `manual: true`:
 
 ```ts
 import { MyChatProvider } from './MyChatProvider';
-import XRequest from '@ant-design/x-sdk';
+import { XRequest } from '@ant-design/x-sdk';
 
 // ⚠️ manual: true is required
 const provider = new MyChatProvider({
@@ -200,7 +200,7 @@ type MessageStatus = 'local' | 'loading' | 'updating' | 'success' | 'error' | 'a
 | `abort` | `() => void` | Abort current request |
 | `setMessages` | `(messages: Partial<MessageInfo<ChatMessage>>[]) => void` | Directly modify message list, no request triggered |
 | `setMessage` | `(id: string \| number, info: Partial<MessageInfo<ChatMessage>>) => void` | Modify single message, no request triggered |
-| `removeMessage` | `(id: string \| number) => void` | Delete a message |
+| `removeMessage` | `(id: string \| number) => boolean` | Delete a message, returns whether deletion was successful |
 | `onReload` | `(id: string \| number, params: Partial<Input>, opts?: { extraInfo: AnyObject }) => void` | Regenerate an AI reply |
 | `queueRequest` | `(conversationKey: string \| symbol, params: Partial<Input>, opts?: { extraInfo: AnyObject }) => void` | Queue request, sent after conversation initializes |
 | `isDefaultMessagesRequesting` | `boolean` | Whether default messages are async loading |
