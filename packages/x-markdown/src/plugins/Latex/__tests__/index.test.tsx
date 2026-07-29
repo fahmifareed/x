@@ -17,6 +17,43 @@ describe('LaTeX Plugin', () => {
     expect(container).toMatchSnapshot();
   });
 
+  it.each([
+    'Downgrade Max ($100) to Pro ($20)',
+    '把 Max 5x（$100）降级到 Pro（$20）',
+    'The items cost $10, $20, and $30, respectively.',
+  ])('should not interpret currency amounts as LaTeX: %s', (content) => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const { container } = render(
+      <XMarkdown config={{ extensions: latexPlugin() }}>{`**${content}**`}</XMarkdown>,
+    );
+
+    expect(container.querySelector('.katex')).not.toBeInTheDocument();
+    expect(container.querySelector('strong')).toHaveTextContent(content);
+    expect(warnSpy.mock.calls.flat().join(' ')).not.toContain('unicodeTextInMathMode');
+    warnSpy.mockRestore();
+  });
+
+  it('should still render formulas that start with a number', () => {
+    const { container } = render(
+      <XMarkdown config={{ extensions: latexPlugin() }}>{'$2x + 1$'}</XMarkdown>,
+    );
+
+    expect(container.querySelector('.katex')).toBeInTheDocument();
+  });
+
+  it.each([
+    '$ x$',
+    '$x $',
+    '$x$2',
+  ])('should follow single-dollar delimiter rules: %s', (content) => {
+    const { container } = render(
+      <XMarkdown config={{ extensions: latexPlugin() }}>{content}</XMarkdown>,
+    );
+
+    expect(container.querySelector('.katex')).not.toBeInTheDocument();
+    expect(container).toHaveTextContent(content);
+  });
+
   it('should render inline LaTeX with $$\n..\n$$ syntax', () => {
     const { container } = render(
       <XMarkdown config={{ extensions: latexPlugin() }}>
