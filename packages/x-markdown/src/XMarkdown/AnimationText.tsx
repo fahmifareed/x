@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { AnimationConfig } from './interface';
 
 export interface AnimationTextProps {
@@ -12,17 +12,22 @@ const AnimationText = React.memo<AnimationTextProps>((props) => {
   const prevTextRef = useRef('');
   const chunksRef = useRef<string[]>([]);
 
-  if (text !== prevTextRef.current) {
-    if (!(prevTextRef.current && text.indexOf(prevTextRef.current) === 0)) {
-      chunksRef.current = [text];
-    } else {
-      const newText = text.slice(prevTextRef.current.length);
-      if (newText) {
-        chunksRef.current = [...chunksRef.current, newText];
-      }
-    }
-    prevTextRef.current = text;
+  const prevText = prevTextRef.current;
+  let chunks: string[];
+
+  if (text === prevText) {
+    chunks = chunksRef.current;
+  } else if (!text.startsWith(prevText)) {
+    chunks = [text];
+  } else {
+    const newText = text.slice(prevText.length);
+    chunks = newText ? [...chunksRef.current, newText] : chunksRef.current;
   }
+
+  useEffect(() => {
+    prevTextRef.current = text;
+    chunksRef.current = chunks;
+  }, [text, chunks]);
 
   const animationStyle = useMemo(
     () => ({
@@ -34,7 +39,7 @@ const AnimationText = React.memo<AnimationTextProps>((props) => {
 
   return (
     <>
-      {chunksRef.current.map((text, index) => (
+      {chunks.map((text, index) => (
         <span style={animationStyle} key={`animation-text-${index}`}>
           {text}
         </span>
