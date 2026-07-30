@@ -17,7 +17,7 @@ const AnimationText = React.memo<AnimationTextProps>((props) => {
 
   if (text === prevText) {
     chunks = chunksRef.current;
-  } else if (!text.startsWith(prevText)) {
+  } else if (!(prevText && text.startsWith(prevText))) {
     chunks = [text];
   } else {
     const newText = text.slice(prevText.length);
