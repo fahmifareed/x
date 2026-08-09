@@ -41,9 +41,12 @@ describe('LaTeX Plugin', () => {
     expect(container.querySelector('.katex')).toBeInTheDocument();
   });
 
+  // Behavior change: `$ x $` used to render as math and no longer does. This is
+  // the Pandoc rule that makes currency detection possible at all.
   it.each([
     '$ x$',
     '$x $',
+    '$ x $',
     '$x$2',
   ])('should follow single-dollar delimiter rules: %s', (content) => {
     const { container } = render(
@@ -52,6 +55,30 @@ describe('LaTeX Plugin', () => {
 
     expect(container.querySelector('.katex')).not.toBeInTheDocument();
     expect(container).toHaveTextContent(content);
+  });
+
+  // The spacing rules apply to `$...$` only; `$$...$$` is unambiguous and keeps
+  // rendering padded content exactly as before.
+  it.each([
+    '$$ x $$',
+    '$$ \\frac{a}{b} $$',
+  ])('should exempt $$ from the single-dollar spacing rules: %s', (content) => {
+    const { container } = render(
+      <XMarkdown config={{ extensions: latexPlugin() }}>{content}</XMarkdown>,
+    );
+
+    expect(container.querySelector('.katex')).toBeInTheDocument();
+  });
+
+  // Known limitation: the Pandoc rules are positional, not semantic. Prose that
+  // happens to satisfy them — nothing but non-space between the delimiters and a
+  // non-digit after the closing `$` — is still parsed as math.
+  it('does not catch currency that satisfies the Pandoc rules', () => {
+    const { container } = render(
+      <XMarkdown config={{ extensions: latexPlugin() }}>{'价格 $5和$X 的对比'}</XMarkdown>,
+    );
+
+    expect(container.querySelector('.katex')).toBeInTheDocument();
   });
 
   it('should render inline LaTeX with $$\n..\n$$ syntax', () => {
