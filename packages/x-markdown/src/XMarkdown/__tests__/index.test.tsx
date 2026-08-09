@@ -234,6 +234,61 @@ describe('XMarkdown', () => {
       expect(otherProps?.theme).toBeUndefined();
     });
 
+    it('cannot shadow internally computed props', () => {
+      let widgetProps: ComponentProps | undefined;
+      let codeProps: ComponentProps | undefined;
+      const Widget: React.FC<ComponentProps> = (props) => {
+        widgetProps = props;
+        return <span>widget</span>;
+      };
+      const Code: React.FC<ComponentProps> = (props) => {
+        codeProps = props;
+        return <span>code</span>;
+      };
+
+      render(
+        <XMarkdown
+          content={'<my-widget>text</my-widget>'}
+          components={{ 'my-widget': Widget }}
+          streaming={{ hasNextChunk: true }}
+          componentsProps={{
+            'my-widget': { streamStatus: 'spoofed', domNode: 'spoofed', children: 'spoofed' },
+          }}
+        />,
+      );
+      expect(widgetProps?.streamStatus).toBe('done');
+      expect(widgetProps?.domNode).not.toBe('spoofed');
+      expect(widgetProps?.children).not.toBe('spoofed');
+
+      render(
+        <XMarkdown
+          content={'```js\nconst a = 1;\n```'}
+          components={{ code: Code }}
+          componentsProps={{ code: { lang: 'spoofed', block: 'spoofed', streamStatus: 'spoofed' } }}
+        />,
+      );
+      expect(codeProps?.lang).toBe('js');
+      expect(codeProps?.block).toBe(true);
+      expect(codeProps?.streamStatus).toBe('done');
+    });
+
+    it('merges className from componentsProps with the parsed class attribute', () => {
+      let widgetProps: ComponentProps | undefined;
+      const Widget: React.FC<ComponentProps> = (props) => {
+        widgetProps = props;
+        return <span>widget</span>;
+      };
+      render(
+        <XMarkdown
+          content={'<my-widget class="from-html"></my-widget>'}
+          components={{ 'my-widget': Widget }}
+          componentsProps={{ 'my-widget': { className: 'from-props' } }}
+        />,
+      );
+
+      expect(widgetProps?.className).toBe('from-props from-html');
+    });
+
     it('keeps the custom component mounted when componentsProps changes', () => {
       let mountCount = 0;
       const Widget: React.FC<ComponentProps> = ({ step }) => {

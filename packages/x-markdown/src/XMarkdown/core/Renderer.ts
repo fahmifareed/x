@@ -198,12 +198,14 @@ class Renderer {
           ? 'loading'
           : 'done';
         const props: ComponentProps = {
-          domNode,
-          streamStatus,
           ...attribs,
           ...(attribs.disabled !== undefined && { disabled: true }),
           ...(attribs.checked !== undefined && { checked: true }),
           ...this.options.componentsProps?.[name],
+          // Internally computed props are applied last so that neither parsed HTML
+          // attributes nor componentsProps can shadow them.
+          domNode,
+          streamStatus,
           key,
         };
 
