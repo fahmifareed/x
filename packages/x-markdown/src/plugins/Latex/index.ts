@@ -3,7 +3,7 @@ import type { TokenizerAndRendererExtension } from 'marked';
 
 import 'katex/dist/katex.min.css';
 
-const inlineDollarRule = /^(\${1,2})([^$]{1,10000}?)\1/;
+const inlineDollarRule = /^(\${1,2})((?:\\.|[^\\$]){1,10000}?)\1/;
 const inlineRuleNonStandard = /^(?:\\\(([\s\S]{1,10000}?)\\\)|\\\[((?:\\.|[^\\]){1,10000}?)\\\])/;
 const blockRule =
   /^(\${1,2})\n([\s\S]{1,10000}?)\n\1(?:\s*(?:\n|$))|^\\\[((?:\\.|[^\\]){1,10000}?)\\\]/;

@@ -33,6 +33,19 @@ describe('LaTeX Plugin', () => {
     warnSpy.mockRestore();
   });
 
+  // An escaped `\$` inside a formula must not be treated as the closing delimiter.
+  it.each([
+    '$\\text{\\$100}$',
+    '$\\text{\\$x}$',
+  ])('should support escaped dollar signs inside formulas: %s', (content) => {
+    const { container } = render(
+      <XMarkdown config={{ extensions: latexPlugin() }}>{content}</XMarkdown>,
+    );
+
+    expect(container.querySelector('.katex')).toBeInTheDocument();
+    expect(container.querySelector('.katex-error')).not.toBeInTheDocument();
+  });
+
   it('should still render formulas that start with a number', () => {
     const { container } = render(
       <XMarkdown config={{ extensions: latexPlugin() }}>{'$2x + 1$'}</XMarkdown>,
