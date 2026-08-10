@@ -228,6 +228,10 @@ class Renderer {
           const lang = langFromData || langFromClass;
           if (lang) {
             props.lang = lang;
+          } else {
+            // No language metadata: inline code and unlabeled fences must not inherit a
+            // `lang` from the HTML attributes or componentsProps.
+            delete props.lang;
           }
         }
 

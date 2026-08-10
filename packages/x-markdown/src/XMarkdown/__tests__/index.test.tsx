@@ -272,6 +272,25 @@ describe('XMarkdown', () => {
       expect(codeProps?.streamStatus).toBe('done');
     });
 
+    it('does not inherit lang for code without language metadata', () => {
+      const langs: unknown[] = [];
+      const Code: React.FC<ComponentProps> = (props) => {
+        langs.push(props.lang);
+        return <span>code</span>;
+      };
+
+      render(
+        <XMarkdown
+          content={'`inline`\n\n```\nconst a = 1;\n```'}
+          components={{ code: Code }}
+          componentsProps={{ code: { lang: 'spoofed' } }}
+        />,
+      );
+
+      expect(langs.length).toBe(2);
+      expect(langs.every((lang) => lang === undefined)).toBe(true);
+    });
+
     it('merges className from componentsProps with the parsed class attribute', () => {
       let widgetProps: ComponentProps | undefined;
       const Widget: React.FC<ComponentProps> = (props) => {
