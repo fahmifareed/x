@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { MermaidConfig } from 'mermaid';
 import React from 'react';
 import Actions from '../../actions';
@@ -1179,6 +1179,72 @@ describe('Mermaid Component', () => {
 
       const mermaidElements = screen.getAllByText('Code');
       expect(mermaidElements).toHaveLength(3);
+    });
+  });
+
+  describe('Concurrent Render Safety', () => {
+    // https://github.com/ant-design/x/issues/2054
+    // Under StrictMode the mount effect runs twice with the same closure. If both
+    // renders share one id, mermaid's renderer (which resolves its target through a
+    // document-wide `[id="..."]` lookup) draws into the SVG we already injected and
+    // returns an empty one, leaving the graph blank.
+    it('should not reuse the same id across overlapping renders', async () => {
+      let resolveFirst: (value: { svg: string }) => void = () => {};
+      mockRender
+        .mockImplementationOnce(
+          () =>
+            new Promise<{ svg: string }>((resolve) => {
+              resolveFirst = resolve;
+            }),
+        )
+        .mockImplementation(() => Promise.resolve({ svg: '<svg data-pass="2" />' }));
+
+      render(
+        <React.StrictMode>
+          <Mermaid>{mermaidContent}</Mermaid>
+        </React.StrictMode>,
+      );
+
+      await waitFor(() => {
+        expect(mockRender).toHaveBeenCalledTimes(2);
+      });
+
+      await act(async () => {
+        resolveFirst({ svg: '<svg data-pass="1" />' });
+      });
+
+      const ids = mockRender.mock.calls.map((call) => call[0]);
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+
+    it('should ignore a stale render result that resolves last', async () => {
+      let resolveFirst: (value: { svg: string }) => void = () => {};
+      mockRender
+        .mockImplementationOnce(
+          () =>
+            new Promise<{ svg: string }>((resolve) => {
+              resolveFirst = resolve;
+            }),
+        )
+        .mockImplementation(() => Promise.resolve({ svg: '<svg data-pass="2" />' }));
+
+      const { container } = render(
+        <React.StrictMode>
+          <Mermaid>{mermaidContent}</Mermaid>
+        </React.StrictMode>,
+      );
+
+      await waitFor(() => {
+        expect(mockRender).toHaveBeenCalledTimes(2);
+      });
+
+      // The first (superseded) render settles after the latest one.
+      await act(async () => {
+        resolveFirst({ svg: '<svg data-pass="1" />' });
+      });
+
+      const graph = container.querySelector('.ant-mermaid-graph');
+      expect(graph?.querySelector('svg')?.getAttribute('data-pass')).toBe('2');
     });
   });
 
